@@ -1,0 +1,316 @@
+.bring-back-regulars {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* SMS Preview section */
+.sms-preview {
+  background-color: #f7fafc;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+.sms-message {
+  background: linear-gradient(135deg, #015af6 0%, #0ea5e9 50%, #06b6d4 100%);
+  color: white;
+  padding: 1rem;
+  border-radius: 18px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin-bottom: 1rem;
+  max-width: 280px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(1, 90, 246, 0.3);
+}
+
+.sms-message::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 20px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #0ea5e9;
+}
+
+.sms-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: #718096;
+  align-items: center;
+}
+
+.character-count {
+  font-weight: 500;
+}
+
+.character-count.warning {
+  color: #d69e2e;
+}
+
+.character-count.error {
+  color: #e53e3e;
+}
+
+.target-customers {
+  color: #38a169;
+  font-weight: 500;
+}
+
+.estimated-cost {
+  color: #015af6;
+  font-weight: 500;
+}
+
+/* CSV Stats */
+.csv-stats {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+  border-radius: 8px;
+  border-left: 4px solid #015af6;
+  box-shadow: 0 2px 8px rgba(1, 90, 246, 0.1);
+}
+
+.csv-stats h4 {
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.csv-stats p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  color: #4a5568;
+}
+
+.error-count {
+  color: #e53e3e !important;
+  font-weight: 500;
+}
+
+/* Customer stats grid */
+.customer-stats {
+  margin: 2rem 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(1, 90, 246, 0.1);
+  box-shadow: 0 4px 15px rgba(1, 90, 246, 0.05);
+}
+
+.stat-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #015af6;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #718096;
+  font-weight: 500;
+}
+
+/* Sample message display */
+.sample-message {
+  margin: 2rem 0;
+}
+
+.message-display {
+  background: linear-gradient(135deg, #015af6 0%, #0ea5e9 50%, #06b6d4 100%);
+  color: white;
+  padding: 1rem;
+  border-radius: 18px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  max-width: 320px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(1, 90, 246, 0.3);
+}
+
+.message-display::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 20px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #0ea5e9;
+}
+
+/* File upload drag and drop */
+.bring-back-regulars .file-input {
+  position: relative;
+  border: 2px dashed #cbd5e0;
+  border-radius: 8px;
+  padding: 2rem 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  background-color: #f7fafc;
+  cursor: pointer;
+}
+
+.bring-back-regulars .file-input:hover {
+  border-color: #015af6;
+  background-color: #edf2f7;
+}
+
+.bring-back-regulars .file-input:focus-within {
+  border-color: #015af6;
+  box-shadow: 0 0 0 3px rgba(1, 90, 246, 0.1);
+}
+
+.bring-back-regulars .file-input input[type="file"] {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+}
+
+.bring-back-regulars .file-input::before {
+  content: '📄 Drop your CSV file here or click to browse';
+  display: block;
+  color: #718096;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.bring-back-regulars .file-input::after {
+  content: 'Supported format: .csv (Max 2MB)';
+  display: block;
+  font-size: 0.875rem;
+  color: #a0aec0;
+}
+
+/* Form help styling */
+.bring-back-regulars .form-help {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Next steps with error note */
+.error-note {
+  color: #e53e3e !important;
+  font-weight: 500;
+}
+
+/* Loading states */
+.bring-back-regulars .btn:disabled {
+  position: relative;
+  color: transparent;
+}
+
+.bring-back-regulars .btn:disabled::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  color: white;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .bring-back-regulars {
+    padding: 0;
+  }
+  
+  .sms-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stat-item {
+    padding: 1rem;
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
+  }
+  
+  .sms-message,
+  .message-display {
+    max-width: 100%;
+  }
+  
+  .bring-back-regulars .form-help {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .bring-back-regulars .file-input {
+    padding: 1.5rem 1rem;
+  }
+  
+  .bring-back-regulars .file-input::before {
+    font-size: 0.9rem;
+  }
+  
+  .csv-stats {
+    padding: 0.75rem;
+  }
+  
+  .sms-message,
+  .message-display {
+    font-size: 0.875rem;
+    padding: 0.875rem;
+  }
+}
+
+/* Success animation */
+.bring-back-regulars .success-section {
+  animation: slideInUp 0.5s ease-out;
+}
+
+/* Error message styling */
+.bring-back-regulars .error-message {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* File selected state */
+.bring-back-regulars .file-input.has-file {
+  border-color: #38a169;
+  background-color: #f0fff4;
+}
+
+.bring-back-regulars .file-input.has-file::before 
