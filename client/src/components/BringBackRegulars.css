@@ -1,3 +1,6 @@
+/* Import Design System */
+@import '../styles/DesignSystem.css';
+
 .bring-back-regulars {
   max-width: 800px;
   margin: 0 auto;
@@ -5,14 +8,21 @@
 
 /* SMS Preview section */
 .sms-preview {
-  background-color: #f7fafc;
+  background: var(--color-background-container);
   border-radius: 8px;
   padding: 1.5rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .sms-preview {
+  background: var(--color-dark-background-container);
+  border-color: var(--color-dark-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .sms-message {
-  background: linear-gradient(135deg, #015af6 0%, #0ea5e9 50%, #06b6d4 100%);
+  background: linear-gradient(135deg, var(--color-brand-blue) 0%, var(--color-brand-blue-light) 50%, #06b6d4 100%);
   color: white;
   padding: 1rem;
   border-radius: 18px;
@@ -33,7 +43,7 @@
   height: 0;
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
-  border-top: 8px solid #0ea5e9;
+  border-top: 8px solid var(--color-brand-blue-light);
 }
 
 .sms-meta {
@@ -41,8 +51,12 @@
   flex-wrap: wrap;
   gap: 1rem;
   font-size: 0.875rem;
-  color: #718096;
+  color: var(--color-secondary-text);
   align-items: center;
+}
+
+.dark-mode .sms-meta {
+  color: var(--color-dark-secondary-text);
 }
 
 .character-count {
@@ -50,20 +64,20 @@
 }
 
 .character-count.warning {
-  color: #d69e2e;
+  color: var(--color-warning);
 }
 
 .character-count.error {
-  color: #e53e3e;
+  color: var(--color-error);
 }
 
 .target-customers {
-  color: #38a169;
+  color: var(--color-success);
   font-weight: 500;
 }
 
 .estimated-cost {
-  color: #015af6;
+  color: var(--color-brand-blue);
   font-weight: 500;
 }
 
@@ -71,26 +85,40 @@
 .csv-stats {
   margin-top: 1.5rem;
   padding: 1rem;
-  background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+  background: rgba(1, 90, 246, 0.05);
   border-radius: 8px;
-  border-left: 4px solid #015af6;
+  border-left: 4px solid var(--color-brand-blue);
   box-shadow: 0 2px 8px rgba(1, 90, 246, 0.1);
 }
 
+.dark-mode .csv-stats {
+  background: rgba(96, 165, 250, 0.1);
+  border-left-color: var(--color-dark-brand-blue);
+}
+
 .csv-stats h4 {
-  color: #2d3748;
+  color: var(--color-primary-text);
   margin-bottom: 0.5rem;
   font-size: 1rem;
+  font-weight: 600;
+}
+
+.dark-mode .csv-stats h4 {
+  color: var(--color-dark-primary-text);
 }
 
 .csv-stats p {
   margin: 0.25rem 0;
   font-size: 0.9rem;
-  color: #4a5568;
+  color: var(--color-secondary-text);
+}
+
+.dark-mode .csv-stats p {
+  color: var(--color-dark-secondary-text);
 }
 
 .error-count {
-  color: #e53e3e !important;
+  color: var(--color-error) !important;
   font-weight: 500;
 }
 
@@ -109,24 +137,38 @@
 .stat-item {
   text-align: center;
   padding: 1.5rem 1rem;
-  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  background: var(--color-background-container);
   border-radius: 12px;
   border: 1px solid rgba(1, 90, 246, 0.1);
-  box-shadow: 0 4px 15px rgba(1, 90, 246, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .stat-item {
+  background: var(--color-dark-background-container);
+  border-color: rgba(96, 165, 250, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .stat-number {
   display: block;
   font-size: 2rem;
   font-weight: 700;
-  color: #015af6;
+  color: var(--color-brand-blue);
   margin-bottom: 0.5rem;
+}
+
+.dark-mode .stat-number {
+  color: var(--color-dark-brand-blue);
 }
 
 .stat-label {
   font-size: 0.875rem;
-  color: #718096;
+  color: var(--color-secondary-text);
   font-weight: 500;
+}
+
+.dark-mode .stat-label {
+  color: var(--color-dark-secondary-text);
 }
 
 /* Sample message display */
@@ -135,7 +177,7 @@
 }
 
 .message-display {
-  background: linear-gradient(135deg, #015af6 0%, #0ea5e9 50%, #06b6d4 100%);
+  background: linear-gradient(135deg, var(--color-brand-blue) 0%, var(--color-brand-blue-light) 50%, #06b6d4 100%);
   color: white;
   padding: 1rem;
   border-radius: 18px;
@@ -155,29 +197,44 @@
   height: 0;
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
-  border-top: 8px solid #0ea5e9;
+  border-top: 8px solid var(--color-brand-blue-light);
 }
 
 /* File upload drag and drop */
 .bring-back-regulars .file-input {
   position: relative;
-  border: 2px dashed #cbd5e0;
+  border: 2px dashed var(--color-border);
   border-radius: 8px;
   padding: 2rem 1rem;
   text-align: center;
   transition: all 0.3s ease;
-  background-color: #f7fafc;
+  background: var(--color-background-container);
   cursor: pointer;
 }
 
+.dark-mode .bring-back-regulars .file-input {
+  background: var(--color-dark-background-container);
+  border-color: var(--color-dark-border);
+}
+
 .bring-back-regulars .file-input:hover {
-  border-color: #015af6;
-  background-color: #edf2f7;
+  border-color: var(--color-brand-blue);
+  background: rgba(1, 90, 246, 0.05);
+}
+
+.dark-mode .bring-back-regulars .file-input:hover {
+  border-color: var(--color-dark-brand-blue);
+  background: rgba(96, 165, 250, 0.1);
 }
 
 .bring-back-regulars .file-input:focus-within {
-  border-color: #015af6;
+  border-color: var(--color-border-focus);
   box-shadow: 0 0 0 3px rgba(1, 90, 246, 0.1);
+}
+
+.dark-mode .bring-back-regulars .file-input:focus-within {
+  border-color: var(--color-dark-border-focus);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
 }
 
 .bring-back-regulars .file-input input[type="file"] {
@@ -193,16 +250,24 @@
 .bring-back-regulars .file-input::before {
   content: '📄 Drop your CSV file here or click to browse';
   display: block;
-  color: #718096;
+  color: var(--color-secondary-text);
   font-weight: 500;
   margin-bottom: 0.5rem;
+}
+
+.dark-mode .bring-back-regulars .file-input::before {
+  color: var(--color-dark-secondary-text);
 }
 
 .bring-back-regulars .file-input::after {
   content: 'Supported format: .csv (Max 2MB)';
   display: block;
   font-size: 0.875rem;
-  color: #a0aec0;
+  color: var(--color-tertiary-text);
+}
+
+.dark-mode .bring-back-regulars .file-input::after {
+  color: var(--color-dark-tertiary-text);
 }
 
 /* Form help styling */
@@ -216,7 +281,7 @@
 
 /* Next steps with error note */
 .error-note {
-  color: #e53e3e !important;
+  color: var(--color-error) !important;
   font-weight: 500;
 }
 
@@ -240,6 +305,24 @@
   border-radius: 50%;
   animation: spin 1s linear infinite;
   color: white;
+}
+
+/* File selected state */
+.bring-back-regulars .file-input.has-file {
+  border-color: var(--color-success);
+  background: rgba(56, 161, 105, 0.05);
+}
+
+.dark-mode .bring-back-regulars .file-input.has-file {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.bring-back-regulars .file-input.has-file::before {
+  color: var(--color-success);
+}
+
+.bring-back-regulars .file-input.has-file::after {
+  color: var(--color-success);
 }
 
 /* Responsive design */
@@ -307,10 +390,24 @@
   animation: shake 0.5s ease-in-out;
 }
 
-/* File selected state */
-.bring-back-regulars .file-input.has-file {
-  border-color: #38a169;
-  background-color: #f0fff4;
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.bring-back-regulars .file-input.has-file::before 
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

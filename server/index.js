@@ -5,6 +5,7 @@ const path = require('path');
 
 const facebookAdsRoutes = require('./routes/facebook-ads');
 const smsCampaignsRoutes = require('./routes/sms-campaigns');
+const checklistRoutes = require('./routes/checklist');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -35,6 +36,7 @@ if (!fs.existsSync('uploads')) {
 // Routes
 app.use('/api/facebook-ads', facebookAdsRoutes);
 app.use('/api/sms-campaigns', smsCampaignsRoutes);
+app.use('/api/checklist', checklistRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

@@ -232,4 +232,76 @@ export const dashboardAPI = {
   }
 };
 
+// Checklist API calls
+export const checklistAPI = {
+  // Get all categories with optional type filter
+  getCategories: async (type = null) => {
+    try {
+      const params = type ? { type } : {};
+      const response = await api.get('/checklist/categories', { params });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch categories');
+    }
+  },
+
+  // Get items for a specific category
+  getItems: async (categoryId) => {
+    try {
+      const response = await api.get(`/checklist/items/${categoryId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch items');
+    }
+  },
+
+  // Get checklist status for restaurant
+  getStatus: async (restaurantId) => {
+    try {
+      const response = await api.get(`/checklist/status/${restaurantId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch status');
+    }
+  },
+
+  // Update item status
+  updateStatus: async (restaurantId, itemId, status, notes = null) => {
+    try {
+      const response = await api.put(`/checklist/status/${restaurantId}/${itemId}`, {
+        status,
+        notes
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to update status');
+    }
+  },
+
+  // Get progress statistics
+  getProgress: async (restaurantId, type = null) => {
+    try {
+      const params = type ? { type } : {};
+      const response = await api.get(`/checklist/progress/${restaurantId}`, { params });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch progress');
+    }
+  },
+
+  // Get all categories with their items and status
+  getCategoriesWithItems: async (type = null, restaurantId = null) => {
+    try {
+      const params = {};
+      if (type) params.type = type;
+      if (restaurantId) params.restaurantId = restaurantId;
+      
+      const response = await api.get('/checklist/categories-with-items', { params });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch categories with items');
+    }
+  }
+};
+
 export default api;

@@ -62,6 +62,51 @@ const initializeDatabase = () => {
         )
       `);
 
+      // ChecklistCategory Table
+      db.run(`
+        CREATE TABLE IF NOT EXISTS checklist_categories (
+          category_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          description TEXT,
+          icon TEXT,
+          type TEXT NOT NULL CHECK (type IN ('foundational', 'ongoing')),
+          order_in_list INTEGER NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+
+      // ChecklistItem Table
+      db.run(`
+        CREATE TABLE IF NOT EXISTS checklist_items (
+          item_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          category_id INTEGER NOT NULL,
+          parent_item_id INTEGER,
+          title TEXT NOT NULL,
+          description TEXT,
+          guidance_link TEXT,
+          order_in_category INTEGER NOT NULL,
+          is_critical BOOLEAN DEFAULT FALSE,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (category_id) REFERENCES checklist_categories (category_id),
+          FOREIGN KEY (parent_item_id) REFERENCES checklist_items (item_id)
+        )
+      `);
+
+      // RestaurantChecklistStatus Table (replaces existing checklist_status)
+      db.run(`
+        CREATE TABLE IF NOT EXISTS restaurant_checklist_status (
+          status_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          restaurant_id INTEGER NOT NULL,
+          item_id INTEGER NOT NULL,
+          status TEXT NOT NULL CHECK (status IN ('pending', 'in_progress', 'completed', 'not_applicable')),
+          notes TEXT,
+          last_updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (restaurant_id) REFERENCES restaurants (restaurant_id),
+          FOREIGN KEY (item_id) REFERENCES checklist_items (item_id),
+          UNIQUE(restaurant_id, item_id)
+        )
+      `);
+
       // Sessions table for session management
       db.run(`
         CREATE TABLE IF NOT EXISTS sessions (
