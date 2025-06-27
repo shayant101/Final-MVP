@@ -6,6 +6,9 @@ const path = require('path');
 const facebookAdsRoutes = require('./routes/facebook-ads');
 const smsCampaignsRoutes = require('./routes/sms-campaigns');
 const checklistRoutes = require('./routes/checklist');
+const authRoutes = require('./routes/auth');
+const dashboardRoutes = require('./routes/dashboard');
+const { initializeDatabase, createDefaultAdmin } = require('./models/database');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -34,6 +37,8 @@ if (!fs.existsSync('uploads')) {
 }
 
 // Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/facebook-ads', facebookAdsRoutes);
 app.use('/api/sms-campaigns', smsCampaignsRoutes);
 app.use('/api/checklist', checklistRoutes);
@@ -49,7 +54,28 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📱 Momentum Growth Starter API ready!`);
-});
+// Initialize database and start server
+const startServer = async () => {
+  try {
+    // Initialize database tables
+    await initializeDatabase();
+    console.log('✅ Database initialized successfully');
+    
+    // Create default admin user
+    await createDefaultAdmin();
+    console.log('✅ Default admin user setup complete');
+    
+    // Start the server
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`📱 Momentum Growth Starter API ready!`);
+      console.log(`🔐 Authentication endpoints available at /api/auth`);
+      console.log(`📊 Dashboard endpoints available at /api/dashboard`);
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
