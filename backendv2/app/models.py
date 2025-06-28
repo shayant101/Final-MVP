@@ -9,14 +9,15 @@ class UserRole(str, Enum):
     admin = "admin"
 
 class CampaignType(str, Enum):
-    ad = "ad"
+    facebook_ad = "facebook_ad"
     sms = "sms"
 
 class CampaignStatus(str, Enum):
-    active = "active"
     draft = "draft"
-    completed = "completed"
+    active = "active"
     paused = "paused"
+    completed = "completed"
+    pending_review = "pending_review"
 
 class ChecklistStatus(str, Enum):
     pending = "pending"
@@ -65,16 +66,114 @@ class AuthResponse(BaseModel):
 class UserResponse(BaseModel):
     user: User
 
+# Campaign Request Models
+class FacebookAdCampaignCreate(BaseModel):
+    restaurantName: str = Field(..., min_length=1)
+    itemToPromote: str = Field(..., min_length=1)
+    offer: str = Field(..., min_length=1)
+    budget: float = Field(..., gt=0)
+
+class SMSCampaignCreate(BaseModel):
+    restaurantName: str = Field(..., min_length=1)
+    offer: str = Field(..., min_length=1)
+    offerCode: str = Field(..., min_length=1)
+
+class CampaignUpdate(BaseModel):
+    name: Optional[str] = None
+    status: Optional[CampaignStatus] = None
+    budget: Optional[float] = None
+    details: Optional[dict] = None
+
+# Campaign Response Models
+class FacebookAdDetails(BaseModel):
+    restaurant_name: str
+    item_to_promote: str
+    offer: str
+    budget: float
+    ad_copy: Optional[str] = None
+    promo_code: Optional[str] = None
+    dish_photo: Optional[str] = None
+    campaign_id: Optional[str] = None
+    ad_set_id: Optional[str] = None
+    ad_id: Optional[str] = None
+    expected_reach: Optional[int] = None
+    estimated_impressions: Optional[int] = None
+    campaign_url: Optional[str] = None
+
+class SMSCampaignDetails(BaseModel):
+    restaurant_name: str
+    offer: str
+    offer_code: str
+    total_customers_uploaded: Optional[int] = None
+    lapsed_customers_found: Optional[int] = None
+    messages_sent: Optional[int] = None
+    messages_failed: Optional[int] = None
+    messages_pending: Optional[int] = None
+    total_cost: Optional[float] = None
+    sample_message: Optional[str] = None
+    delivery_rate: Optional[str] = None
+    csv_errors: Optional[List[dict]] = None
+
+class CampaignMetrics(BaseModel):
+    impressions: Optional[int] = None
+    clicks: Optional[int] = None
+    reach: Optional[int] = None
+    spend: Optional[float] = None
+    total_sent: Optional[int] = None
+    delivered: Optional[int] = None
+    failed: Optional[int] = None
+    delivery_rate: Optional[str] = None
+    total_cost: Optional[float] = None
+
 class Campaign(BaseModel):
     campaign_id: str
     restaurant_id: str
     campaign_type: CampaignType
     status: CampaignStatus
     name: str
-    details: Optional[str] = None
+    details: Optional[dict] = None
     budget: Optional[float] = None
+    metrics: Optional[CampaignMetrics] = None
     created_at: datetime
     updated_at: datetime
+    launched_at: Optional[datetime] = None
+    paused_at: Optional[datetime] = None
+
+class CampaignResponse(BaseModel):
+    success: bool
+    message: str
+    data: Optional[dict] = None
+
+class CampaignListResponse(BaseModel):
+    success: bool
+    campaigns: List[Campaign]
+    total: int
+
+# Customer Models for SMS Campaigns
+class Customer(BaseModel):
+    customer_name: str
+    phone_number: str
+    last_order_date: str
+    email: Optional[str] = None
+    notes: Optional[str] = None
+
+class CSVParseResult(BaseModel):
+    success: bool
+    customers: List[Customer]
+    errors: List[dict]
+    total_rows: int
+    valid_rows: int
+    error_rows: int
+
+class SMSPreviewRequest(BaseModel):
+    restaurantName: str
+    offer: str
+    offerCode: str
+
+class FacebookAdPreviewRequest(BaseModel):
+    restaurantName: str
+    itemToPromote: str
+    offer: str
 
 class ChecklistCategory(BaseModel):
     category_id: str

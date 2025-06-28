@@ -5,6 +5,7 @@ from .database import connect_to_mongo, close_mongo_connection, initialize_colle
 from .routes.auth import router as auth_router
 from .routes.dashboard import router as dashboard_router
 from .routes.checklist import router as checklist_router
+from .routes.campaigns import router as campaigns_router
 
 # Create FastAPI application instance
 app = FastAPI(
@@ -32,6 +33,7 @@ async def startup_event():
     print("🔐 Authentication endpoints available at /api/auth")
     print("📊 Dashboard endpoints available at /api/dashboard")
     print("✅ Checklist endpoints available at /api/checklist")
+    print("📢 Campaign endpoints available at /api/campaigns")
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -42,6 +44,7 @@ async def shutdown_event():
 app.include_router(auth_router)
 app.include_router(dashboard_router)
 app.include_router(checklist_router)
+app.include_router(campaigns_router)
 
 # Health check endpoint
 @app.get("/api/health")
@@ -68,7 +71,8 @@ async def root():
         "health": "/api/health",
         "auth": "/api/auth",
         "dashboard": "/api/dashboard",
-        "checklist": "/api/checklist"
+        "checklist": "/api/checklist",
+        "campaigns": "/api/campaigns"
     }
 
 if __name__ == "__main__":
