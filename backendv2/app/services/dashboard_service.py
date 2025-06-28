@@ -382,7 +382,7 @@ class DashboardService:
             # Get all status records for this restaurant
             status_dict = {}
             async for status in checklist_status_collection.find({"restaurant_id": ObjectId(restaurant_id)}):
-                status_dict[status["item_id"]] = status.get("is_completed", False)
+                status_dict[status["item_id"]] = status.get("status") == "completed"
             
             # Combine data efficiently
             foundational_items = []

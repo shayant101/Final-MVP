@@ -268,9 +268,11 @@ export const checklistAPI = {
   // Update item status
   updateStatus: async (restaurantId, itemId, status, notes = null) => {
     try {
-      const response = await api.put(`/checklist/status/${restaurantId}/${itemId}`, {
-        status,
-        notes
+      const params = { status };
+      if (notes) params.notes = notes;
+      
+      const response = await api.put(`/checklist/status/${restaurantId}/${itemId}`, null, {
+        params
       });
       return response.data;
     } catch (error) {

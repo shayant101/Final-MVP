@@ -487,75 +487,7 @@
   z-index: 1;
 }
 
-.badges-grid {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.badge {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.5rem;
-  min-width: 120px;
-  width: 120px;
-  height: 140px;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.badge.earned {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(29, 78, 216, 0.3) 100%);
-  border-color: rgba(59, 130, 246, 0.5);
-}
-
-.badge.earned:hover {
-  transform: scale(1.05);
-}
-
-.badge.earned::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  animation: badgeShimmer 3s infinite;
-}
-
-@keyframes badgeShimmer {
-  0% { left: -100%; }
-  100% { left: 100%; }
-}
-
-.badge.locked {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.1);
-  opacity: 0.6;
-}
-
-.badge-icon {
-  font-size: 2rem;
-  z-index: 1;
-}
-
-.badge span {
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-align: center;
-  letter-spacing: 0.01em;
-  color: var(--text-primary);
-  z-index: 1;
-}
-
-.badge.earned span {
-  color: #ffffff;
-}
+/* Old badge styles removed - using achievement-badge instead */
 
 /* Checklist Sections */
 .checklist-section {
@@ -663,7 +595,9 @@
 /* Category Items */
 .category-items {
   padding: 1rem 2rem 2rem;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(59, 130, 246, 0.1);
 }
 
 .checklist-item {
@@ -1276,5 +1210,490 @@
   .dark-mode .glass-card {
     background: rgba(0, 0, 0, 0.9);
     border: 2px solid #fff;
+  }
+}
+
+/* ===== SIMPLIFIED DESIGN STYLES ===== */
+
+/* Main Header Section */
+.main-header-section {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 3rem 0;
+}
+
+.score-display {
+  display: inline-block;
+}
+
+.score-number-large {
+  font-size: 6rem;
+  font-weight: 900;
+  color: var(--blue-primary);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, var(--blue-primary) 0%, var(--blue-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.score-label-large {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Circular Progress Bar Styles */
+.circular-progress-container {
+  position: relative;
+  display: inline-block;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  padding: 2rem;
+  box-shadow: var(--glass-shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: float 6s ease-in-out infinite;
+}
+
+.circular-progress-container:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 60px rgba(59, 130, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.circular-progress {
+  filter: drop-shadow(0 8px 32px rgba(59, 130, 246, 0.4));
+  transition: all 0.3s ease;
+}
+
+.progress-bg {
+  opacity: 0.3;
+}
+
+.progress-circle {
+  transition: stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: url(#glow);
+  animation: progressGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes progressGlow {
+  0% {
+    filter: url(#glow) brightness(1);
+    stroke-width: 4;
+  }
+  100% {
+    filter: url(#glow) brightness(1.2);
+    stroke-width: 6;
+  }
+}
+
+.score-number-circular {
+  font-size: 3.5rem;
+  font-weight: 900;
+  fill: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.score-label-circular {
+  font-size: 0.9rem;
+  font-weight: 600;
+  fill: var(--text-secondary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: 0.1em;
+}
+
+/* Enhanced floating animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+  66% {
+    transform: translateY(-4px) rotate(-1deg);
+  }
+}
+
+/* Dark mode adjustments */
+.dark-mode .score-number-circular {
+  fill: var(--text-primary);
+}
+
+.dark-mode .score-label-circular {
+  fill: var(--text-secondary);
+}
+
+.dark-mode .circular-progress-container {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(96, 165, 250, 0.2);
+}
+
+.dark-mode .circular-progress-container:hover {
+  box-shadow: 0 20px 60px rgba(96, 165, 250, 0.4), 0 0 0 1px rgba(96, 165, 250, 0.3);
+}
+
+/* Section Container */
+.section-container {
+  margin-bottom: 4rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Simple Section Headers */
+.section-header-simple {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(59, 130, 246, 0.1);
+}
+
+.section-header-simple h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* Unified Progress Grid */
+.unified-progress-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.unified-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.unified-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 16px 16px 0 0;
+}
+
+.unified-card.foundational::before {
+  background: var(--blue-primary);
+}
+
+.unified-card.critical::before {
+  background: var(--error);
+}
+
+.unified-card.ongoing::before {
+  background: var(--success);
+}
+
+.unified-card.revenue::before {
+  background: var(--warning);
+}
+
+.unified-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.card-content {
+  text-align: center;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.card-stats {
+  margin-bottom: 1.5rem;
+}
+
+.big-number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: block;
+  line-height: 1;
+}
+
+.small-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Simple Progress Bars */
+.progress-bar-simple {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill-simple {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s ease;
+}
+
+.progress-fill-simple.foundational {
+  background: var(--blue-primary);
+}
+
+.progress-fill-simple.critical {
+  background: var(--error);
+}
+
+.progress-fill-simple.ongoing {
+  background: var(--success);
+}
+
+.progress-fill-simple.revenue {
+  background: var(--warning);
+}
+
+/* Simple Action Card */
+.action-card-simple {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 2.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-card-simple::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--blue-primary) 0%, var(--blue-secondary) 100%);
+  border-radius: 16px 16px 0 0;
+}
+
+.action-content-simple p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0 0 2rem 0;
+  font-weight: 500;
+}
+
+.action-button-simple {
+  background: linear-gradient(135deg, var(--blue-primary) 0%, var(--blue-secondary) 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2.5rem;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.action-button-simple:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+}
+
+/* Simple Achievements Grid */
+.achievements-grid-simple {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.achievement-badge {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  width: 120px;
+  height: 120px;
+  min-width: 120px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.achievement-badge.earned {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(29, 78, 216, 0.2) 100%);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.achievement-badge.earned::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--blue-primary);
+  border-radius: 16px 16px 0 0;
+}
+
+.achievement-badge.locked {
+  opacity: 0.5;
+}
+
+.achievement-badge:hover {
+  transform: translateY(-2px);
+}
+
+.badge-icon-simple {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.achievement-badge span {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.achievement-badge.earned span {
+  color: var(--blue-primary);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .score-number-large {
+    font-size: 4rem;
+  }
+  
+  .circular-progress-container {
+    padding: 1.5rem;
+  }
+  
+  .circular-progress {
+    width: 160px;
+    height: 160px;
+  }
+  
+  .score-number-circular {
+    font-size: 2.8rem;
+  }
+  
+  .score-label-circular {
+    font-size: 0.8rem;
+  }
+  
+  .unified-progress-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .unified-card {
+    padding: 1.5rem;
+  }
+  
+  .big-number {
+    font-size: 2rem;
+  }
+  
+  .action-card-simple {
+    padding: 2rem;
+  }
+  
+  .achievements-grid-simple {
+    gap: 1rem;
+  }
+  
+  .achievement-badge {
+    width: 100px;
+    height: 100px;
+    min-width: 100px;
+    padding: 1rem;
+  }
+  
+  .section-header-simple h2 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .score-number-large {
+    font-size: 3rem;
+  }
+  
+  .circular-progress-container {
+    padding: 1rem;
+  }
+  
+  .circular-progress {
+    width: 140px;
+    height: 140px;
+  }
+  
+  .score-number-circular {
+    font-size: 2.2rem;
+  }
+  
+  .score-label-circular {
+    font-size: 0.7rem;
+  }
+  
+  .unified-card {
+    padding: 1rem;
+  }
+  
+  .big-number {
+    font-size: 1.8rem;
+  }
+  
+  .action-card-simple {
+    padding: 1.5rem;
+  }
+  
+  .action-content-simple p {
+    font-size: 1rem;
+  }
+  
+  .achievement-badge {
+    width: 90px;
+    height: 90px;
+    min-width: 90px;
+    padding: 0.8rem;
+  }
+  
+  .badge-icon-simple {
+    font-size: 1.5rem;
+  }
+  
+  .achievement-badge span {
+    font-size: 0.8rem;
   }
 }

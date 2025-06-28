@@ -352,170 +352,130 @@ const MarketingFoundations = () => {
   return (
     <div className="momentum-growth-starter">
 
-      {/* Marketing Score Badge */}
-      <div className="score-badge-container">
-        <div className="score-badge">
-          <svg className="score-ring" width="200" height="200" viewBox="0 0 200 200">
-            <defs>
-              <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#3b82f6" />
-                <stop offset="50%" stopColor="#1d4ed8" />
-                <stop offset="100%" stopColor="#1e40af" />
-              </linearGradient>
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-                <feMerge>
-                  <feMergeNode in="coloredBlur"/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-              </filter>
-            </defs>
-            
-            {/* Background circle */}
-            <circle
-              cx="100"
-              cy="100"
-              r="85"
-              fill="none"
-              stroke="rgba(59, 130, 246, 0.2)"
-              strokeWidth="12"
-            />
-            
-            {/* Progress circle */}
-            <circle
-              cx="100"
-              cy="100"
-              r="85"
-              fill="none"
-              stroke="url(#blueGradient)"
-              strokeWidth="12"
-              strokeLinecap="round"
-              strokeDasharray={`${(calculateOverallScore() / 100) * 534.07} 534.07`}
-              transform="rotate(-90 100 100)"
-              filter="url(#glow)"
-              className="score-progress-ring"
-            />
-            
-            {/* Center content */}
-            <text x="100" y="90" textAnchor="middle" className="score-number">
-              {calculateOverallScore()}
-            </text>
-            <text x="100" y="115" textAnchor="middle" className="score-label">
-              Marketing Score
-            </text>
-          </svg>
-        </div>
-      </div>
-
-      {/* Task Progress Grid */}
-      <div className="progress-grid">
-        <div className="progress-card glass-card foundational">
-          <div className="card-header">
-            <div className="card-icon">🏗️</div>
-            <div className="card-info">
-              <h3>Foundation</h3>
-              <span className="card-subtitle">Essential Setup</span>
-            </div>
-            <div className="card-percentage">
-              {Math.round(overallProgress.foundational.percentage)}%
-            </div>
-          </div>
-          <div className="progress-bar">
-            <div
-              className="progress-fill foundational"
-              style={{ width: `${overallProgress.foundational.percentage}%` }}
-            ></div>
-          </div>
-          <div className="progress-stats">
-            <span className="completed">{overallProgress.foundational.completed}</span>
-            <span className="divider">/</span>
-            <span className="total">{overallProgress.foundational.total}</span>
-            <span className="label">tasks done</span>
-          </div>
-        </div>
-
-        <div className="progress-card glass-card critical">
-          <div className="card-header">
-            <div className="card-icon">⚡</div>
-            <div className="card-info">
-              <h3>Critical</h3>
-              <span className="card-subtitle">High Priority</span>
-            </div>
-            <div className="card-percentage">
-              {Math.round(overallProgress.foundational.criticalPercentage)}%
-            </div>
-          </div>
-          <div className="progress-bar">
-            <div
-              className="progress-fill critical"
-              style={{ width: `${overallProgress.foundational.criticalPercentage}%` }}
-            ></div>
-          </div>
-          <div className="progress-stats">
-            <span className="completed">{overallProgress.foundational.criticalCompleted}</span>
-            <span className="divider">/</span>
-            <span className="total">{overallProgress.foundational.criticalTotal}</span>
-            <span className="label">critical done</span>
-          </div>
-        </div>
-
-        <div className="progress-card glass-card ongoing">
-          <div className="card-header">
-            <div className="card-icon">🔄</div>
-            <div className="card-info">
-              <h3>Ongoing</h3>
-              <span className="card-subtitle">Maintenance</span>
-            </div>
-            <div className="card-percentage">
-              {Math.round(overallProgress.ongoing.percentage)}%
-            </div>
-          </div>
-          <div className="progress-bar">
-            <div
-              className="progress-fill ongoing"
-              style={{ width: `${overallProgress.ongoing.percentage}%` }}
-            ></div>
-          </div>
-          <div className="progress-stats">
-            <span className="completed">{overallProgress.ongoing.completed}</span>
-            <span className="divider">/</span>
-            <span className="total">{overallProgress.ongoing.total}</span>
-            <span className="label">ongoing done</span>
-          </div>
-        </div>
-
-        <div className="progress-card glass-card revenue">
-          <div className="card-header">
-            <div className="card-icon">💰</div>
-            <div className="card-info">
-              <h3>Revenue Potential</h3>
-              <span className="card-subtitle">Weekly Opportunity</span>
-            </div>
-            <div className="card-percentage">
-              ${calculateRevenueImpact().weeklyPotential}
-            </div>
-          </div>
-          <div className="progress-bar">
-            <div
-              className="progress-fill revenue"
-              style={{ width: `${calculateRevenueImpact().completionPercentage}%` }}
-            ></div>
-          </div>
-          <div className="progress-stats">
-            <span className="completed">${calculateRevenueImpact().completedValue}</span>
-            <span className="divider">/</span>
-            <span className="total">${calculateRevenueImpact().totalPotential}</span>
-            <span className="label">revenue unlocked</span>
+      {/* Header Section - Marketing Score */}
+      <div className="main-header-section">
+        <div className="score-display">
+          <div className="circular-progress-container">
+            <svg className="circular-progress" width="200" height="200" viewBox="0 0 200 200">
+              {/* Background circle */}
+              <circle
+                cx="100"
+                cy="100"
+                r="95"
+                fill="none"
+                stroke="rgba(96, 165, 250, 0.1)"
+                strokeWidth="4"
+                className="progress-bg"
+              />
+              {/* Progress circle */}
+              <circle
+                cx="100"
+                cy="100"
+                r="95"
+                fill="none"
+                stroke="url(#progressGradient)"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeDasharray={`${2 * Math.PI * 95}`}
+                strokeDashoffset={`${2 * Math.PI * 95 * (1 - calculateOverallScore() / 100)}`}
+                className="progress-circle"
+                transform="rotate(-90 100 100)"
+              />
+              {/* Gradient definition */}
+              <defs>
+                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#60a5fa" />
+                  <stop offset="100%" stopColor="#3b82f6" />
+                </linearGradient>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              {/* Score text */}
+              <text x="100" y="95" textAnchor="middle" className="score-number-circular">
+                {calculateOverallScore()}
+              </text>
+              <text x="100" y="115" textAnchor="middle" className="score-label-circular">
+                MARKETING SCORE
+              </text>
+            </svg>
           </div>
         </div>
       </div>
 
-      {/* Next Smart Action */}
-      <div className="next-action-section">
-        <div className="next-action-card glass-card">
-          <div className="action-icon">🎯</div>
-          <div className="action-content">
-            <h3>Next Smart Action</h3>
+      {/* Progress Overview Section */}
+      <div className="section-container">
+        <div className="section-header-simple">
+          <h2>📊 Progress Overview</h2>
+        </div>
+        
+        <div className="unified-progress-grid">
+          <div className="unified-card foundational">
+            <div className="card-content">
+              <div className="card-title">🏗️ Foundation</div>
+              <div className="card-stats">
+                <span className="big-number">{overallProgress.foundational.completed}</span>
+                <span className="small-text">/ {overallProgress.foundational.total} tasks</span>
+              </div>
+              <div className="progress-bar-simple">
+                <div className="progress-fill-simple foundational" style={{ width: `${overallProgress.foundational.percentage}%` }}></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="unified-card critical">
+            <div className="card-content">
+              <div className="card-title">⚡ Critical</div>
+              <div className="card-stats">
+                <span className="big-number">{overallProgress.foundational.criticalCompleted}</span>
+                <span className="small-text">/ {overallProgress.foundational.criticalTotal} priority</span>
+              </div>
+              <div className="progress-bar-simple">
+                <div className="progress-fill-simple critical" style={{ width: `${overallProgress.foundational.criticalPercentage}%` }}></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="unified-card ongoing">
+            <div className="card-content">
+              <div className="card-title">🔄 Ongoing</div>
+              <div className="card-stats">
+                <span className="big-number">{overallProgress.ongoing.completed}</span>
+                <span className="small-text">/ {overallProgress.ongoing.total} ongoing</span>
+              </div>
+              <div className="progress-bar-simple">
+                <div className="progress-fill-simple ongoing" style={{ width: `${overallProgress.ongoing.percentage}%` }}></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="unified-card revenue">
+            <div className="card-content">
+              <div className="card-title">💰 Revenue</div>
+              <div className="card-stats">
+                <span className="big-number">${calculateRevenueImpact().completedValue}</span>
+                <span className="small-text">/ ${calculateRevenueImpact().totalPotential} unlocked</span>
+              </div>
+              <div className="progress-bar-simple">
+                <div className="progress-fill-simple revenue" style={{ width: `${calculateRevenueImpact().completionPercentage}%` }}></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Next Action Section */}
+      <div className="section-container">
+        <div className="section-header-simple">
+          <h2>🎯 Next Action</h2>
+        </div>
+        
+        <div className="action-card-simple">
+          <div className="action-content-simple">
             <p>
               {calculateRevenueImpact().weeklyPotential > 1000
                 ? `Complete more tasks to unlock $${calculateRevenueImpact().weeklyPotential} in weekly revenue potential!`
@@ -526,34 +486,37 @@ const MarketingFoundations = () => {
                 : "Great foundation! Time to optimize with ongoing operations"
               }
             </p>
+            <button className="action-button-simple">
+              {overallProgress.foundational.criticalCompleted < overallProgress.foundational.criticalTotal
+                ? "View Critical Tasks"
+                : "Continue Setup"
+              }
+            </button>
           </div>
-          <button className="action-button glow-button">
-            {overallProgress.foundational.criticalCompleted < overallProgress.foundational.criticalTotal
-              ? "View Critical Tasks"
-              : "Continue Setup"
-            }
-          </button>
         </div>
       </div>
 
-      {/* Your Achievements */}
-      <div className="achievements-section">
-        <h3 className="section-title">🏆 Your Achievements</h3>
-        <div className="badges-grid">
-          <div className={`badge glass-card ${overallProgress.foundational.completed > 0 ? 'earned' : 'locked'}`}>
-            <div className="badge-icon">🌟</div>
+      {/* Achievements Section */}
+      <div className="section-container">
+        <div className="section-header-simple">
+          <h2>🏆 Achievements</h2>
+        </div>
+        
+        <div className="achievements-grid-simple">
+          <div className={`achievement-badge ${overallProgress.foundational.completed > 0 ? 'earned' : 'locked'}`}>
+            <div className="badge-icon-simple">🌟</div>
             <span>First Steps</span>
           </div>
-          <div className={`badge glass-card ${overallProgress.foundational.criticalCompleted >= 3 ? 'earned' : 'locked'}`}>
-            <div className="badge-icon">⚡</div>
+          <div className={`achievement-badge ${overallProgress.foundational.criticalCompleted >= 3 ? 'earned' : 'locked'}`}>
+            <div className="badge-icon-simple">⚡</div>
             <span>Critical Focus</span>
           </div>
-          <div className={`badge glass-card ${overallProgress.foundational.percentage >= 50 ? 'earned' : 'locked'}`}>
-            <div className="badge-icon">🔥</div>
+          <div className={`achievement-badge ${overallProgress.foundational.percentage >= 50 ? 'earned' : 'locked'}`}>
+            <div className="badge-icon-simple">🔥</div>
             <span>Halfway Hero</span>
           </div>
-          <div className={`badge glass-card ${calculateOverallScore() >= 80 ? 'earned' : 'locked'}`}>
-            <div className="badge-icon">👑</div>
+          <div className={`achievement-badge ${calculateOverallScore() >= 80 ? 'earned' : 'locked'}`}>
+            <div className="badge-icon-simple">👑</div>
             <span>Marketing Pro</span>
           </div>
         </div>

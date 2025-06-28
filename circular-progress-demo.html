@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circular Progress Bar with Glassmorphism Demo</title>
+    <style>
+        /* Root Variables - Clean Light Theme */
+        :root {
+            --blue-primary: #3b82f6;
+            --blue-secondary: #1d4ed8;
+            --blue-accent: #1e40af;
+            --blue-light: #60a5fa;
+            --blue-dark: #1e3a8a;
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(59, 130, 246, 0.2);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3rem;
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--blue-primary) 0%, var(--blue-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .demo-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        /* Circular Progress Bar Styles */
+        .circular-progress-container {
+            position: relative;
+            display: inline-block;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            padding: 2rem;
+            box-shadow: var(--glass-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .circular-progress-container:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .circular-progress {
+            filter: drop-shadow(0 8px 32px rgba(59, 130, 246, 0.4));
+            transition: all 0.3s ease;
+        }
+
+        .progress-bg {
+            opacity: 0.3;
+        }
+
+        .progress-circle {
+            transition: stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: url(#glow);
+            animation: progressGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes progressGlow {
+            0% {
+                filter: url(#glow) brightness(1);
+                stroke-width: 12;
+            }
+            100% {
+                filter: url(#glow) brightness(1.2);
+                stroke-width: 14;
+            }
+        }
+
+        .score-number-circular {
+            font-size: 3.5rem;
+            font-weight: 900;
+            fill: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-label-circular {
+            font-size: 0.9rem;
+            font-weight: 600;
+            fill: var(--text-secondary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            letter-spacing: 0.1em;
+        }
+
+        /* Enhanced floating animation */
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            33% {
+                transform: translateY(-8px) rotate(1deg);
+            }
+            66% {
+                transform: translateY(-4px) rotate(-1deg);
+            }
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            max-width: 1200px;
+            width: 100%;
+            padding: 0 2rem;
+        }
+
+        .demo-item {
+            text-align: center;
+        }
+
+        .demo-description {
+            margin-top: 1rem;
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .control-button {
+            background: linear-gradient(135deg, var(--blue-primary) 0%, var(--blue-secondary) 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .control-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .demo-title {
+                font-size: 2rem;
+            }
+            
+            .circular-progress-container {
+                padding: 1.5rem;
+            }
+            
+            .circular-progress {
+                width: 160px;
+                height: 160px;
+            }
+            
+            .score-number-circular {
+                font-size: 2.8rem;
+            }
+            
+            .score-label-circular {
+                font-size: 0.8rem;
+            }
+            
+            .demo-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .circular-progress-container {
+                padding: 1rem;
+            }
+            
+            .circular-progress {
+                width: 140px;
+                height: 140px;
+            }
+            
+            .score-number-circular {
+                font-size: 2.2rem;
+            }
+            
+            .score-label-circular {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-title">Circular Progress Bar with Glassmorphism</div>
+    <div class="demo-subtitle">Interactive Marketing Score Display</div>
+
+    <div class="demo-grid">
+        <div class="demo-item">
+            <div class="circular-progress-container" id="progress1">
+                <svg class="circular-progress" width="200" height="200" viewBox="0 0 200 200">
+                    <!-- Background circle -->
+                    <circle
+                        cx="100"
+                        cy="100"
+                        r="95"
+                        fill="none"
+                        stroke="rgba(96, 165, 250, 0.1)"
+                        stroke-width="4"
+                        class="progress-bg"
+                    />
+                    <!-- Progress circle -->
+                    <circle
+                        cx="100"
+                        cy="100"
+                        r="95"
+                        fill="none"
+                        stroke="url(#progressGradient)"
+                        stroke-width="4"
+                        stroke-linecap="round"
+                        stroke-dasharray="596.9"
+                        stroke-dashoffset="358.14"
+                        class="progress-circle"
+                        transform="rotate(-90 100 100)"
+                    />
+                    <!-- Gradient definition -->
+                    <defs>
+                        <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#60a5fa" />
+                            <stop offset="100%" stop-color="#3b82f6" />
+                        </linearGradient>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                            <feMerge> 
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <!-- Score text -->
+                    <text x="100" y="95" text-anchor="middle" class="score-number-circular" id="score1">
+                        40
+                    </text>
+                    <text x="100" y="115" text-anchor="middle" class="score-label-circular">
+                        MARKETING SCORE
+                    </text>
+                </svg>
+            </div>
+            <div class="demo-description">
+                <strong>40% Progress</strong><br>
+                Glassmorphism container with floating animation and glowing progress ring
+            </div>
+        </div>
+
+        <div class="demo-item">
+            <div class="circular-progress-container" id="progress2">
+                <svg class="circular-progress" width="200" height="200" viewBox="0 0 200 200">
+                    <!-- Background circle -->
+                    <circle
+                        cx="100"
+                        cy="100"
+                        r="85"
+                        fill="none"
+                        stroke="rgba(59, 130, 246, 0.1)"
+                        stroke-width="12"
+                        class="progress-bg"
+                    />
+                    <!-- Progress circle -->
+                    <circle
+                        cx="100"
+                        cy="100"
+                        r="85"
+                        fill="none"
+                        stroke="url(#progressGradient2)"
+                        stroke-width="12"
+                        stroke-linecap="round"
+                        stroke-dasharray="534.07"
+                        stroke-dashoffset="160.22"
+                        class="progress-circle"
+                        transform="rotate(-90 100 100)"
+                    />
+                    <!-- Gradient definition -->
+                    <defs>
+                        <linearGradient id="progressGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#10b981" />
+                            <stop offset="100%" stop-color="#059669" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Score text -->
+                    <text x="100" y="95" text-anchor="middle" class="score-number-circular" id="score2">
+                        70
+                    </text>
+                    <text x="100" y="115" text-anchor="middle" class="score-label-circular">
+                        MARKETING SCORE
+                    </text>
+                </svg>
+            </div>
+            <div class="demo-description">
+                <strong>70% Progress</strong><br>
+                Green gradient variant with enhanced hover effects and backdrop blur
+            </div>
+        </div>
+
+        <div class="demo-item">
+            <div class="circular-progress-container" id="progress3">
+                <svg class="circular-progress" width="200" height="200" viewBox="0 0 200 200">
+                    <!-- Background circle -->
+                    <circle
+                        cx="100"
+                        cy="100"
+                        r="85"
+                        fill="none"
+                        stroke="rgba(59, 130, 246, 0.1)"
+                        stroke-width="12"
+                        class="progress-bg"
+                    />
+                    <!-- Progress circle -->
+                    <circle
+                        cx="100"
+                        cy="100"
+                        r="85"
+                        fill="none"
+                        stroke="url(#progressGradient3)"
+                        stroke-width="12"
+                        stroke-linecap="round"
+                        stroke-dasharray="534.07"
+                        stroke-dashoffset="53.41"
+                        class="progress-circle"
+                        transform="rotate(-90 100 100)"
+                    />
+                    <!-- Gradient definition -->
+                    <defs>
+                        <linearGradient id="progressGradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#f59e0b" />
+                            <stop offset="100%" stop-color="#d97706" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Score text -->
+                    <text x="100" y="95" text-anchor="middle" class="score-number-circular" id="score3">
+                        90
+                    </text>
+                    <text x="100" y="115" text-anchor="middle" class="score-label-circular">
+                        MARKETING SCORE
+                    </text>
+                </svg>
+            </div>
+            <div class="demo-description">
+                <strong>90% Progress</strong><br>
+                Orange gradient with dynamic stroke width animation and glow effects
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="control-button" onclick="animateProgress()">Animate Progress</button>
+        <button class="control-button" onclick="randomizeScores()">Randomize Scores</button>
+        <button class="control-button" onclick="resetScores()">Reset</button>
+    </div>
+
+    <script>
+        function updateProgress(elementId, scoreId, percentage) {
+            const circle = document.querySelector(`#${elementId} .progress-circle`);
+            const scoreText = document.getElementById(scoreId);
+            const circumference = 2 * Math.PI * 95; // radius = 95
+            const offset = circumference * (1 - percentage / 100);
+            
+            circle.style.strokeDashoffset = offset;
+            scoreText.textContent = percentage;
+        }
+
+        function animateProgress() {
+            // Animate to different values
+            setTimeout(() => updateProgress('progress1', 'score1', 65), 100);
+            setTimeout(() => updateProgress('progress2', 'score2', 85), 300);
+            setTimeout(() => updateProgress('progress3', 'score3', 95), 500);
+        }
+
+        function randomizeScores() {
+            const score1 = Math.floor(Math.random() * 100);
+            const score2 = Math.floor(Math.random() * 100);
+            const score3 = Math.floor(Math.random() * 100);
+            
+            updateProgress('progress1', 'score1', score1);
+            updateProgress('progress2', 'score2', score2);
+            updateProgress('progress3', 'score3', score3);
+        }
+
+        function resetScores() {
+            updateProgress('progress1', 'score1', 40);
+            updateProgress('progress2', 'score2', 70);
+            updateProgress('progress3', 'score3', 90);
+        }
+
+        // Initialize with smooth animation on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                updateProgress('progress1', 'score1', 40);
+                updateProgress('progress2', 'score2', 70);
+                updateProgress('progress3', 'score3', 90);
+            }, 500);
+        });
+    </script>
+</body>
+</html>
