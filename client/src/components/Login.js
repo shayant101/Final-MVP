@@ -17,6 +17,11 @@ const Login = () => {
   const { login, register } = useAuth();
 
   const handleChange = (e) => {
+    // Clear error when user starts typing
+    if (error) {
+      setError('');
+    }
+    
     setFormData({
       ...formData,
       [e.target.name]: e.target.value

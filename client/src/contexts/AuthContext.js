@@ -41,9 +41,16 @@ export const AuthProvider = ({ children }) => {
       const response = await authAPI.login(email, password);
       const { token: newToken, user: userData } = response;
       
+      if (!newToken || !userData) {
+        throw new Error('Invalid response from server');
+      }
+      
       localStorage.setItem('token', newToken);
       setToken(newToken);
       setUser(userData);
+      
+      // Redirect to main dashboard after successful login
+      window.location.href = '/';
       
       return response;
     } catch (error) {
