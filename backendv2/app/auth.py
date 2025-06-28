@@ -88,15 +88,26 @@ async def require_admin(current_user: TokenData = Depends(get_current_user)) -> 
 
 async def get_restaurant_id(current_user: TokenData = Depends(get_current_user)) -> str:
     """Get restaurant ID for current user (handles impersonation)"""
+    from .database import users_collection
+    from bson import ObjectId
+    
     if current_user.impersonating_restaurant_id:
         return current_user.impersonating_restaurant_id
     
     if current_user.role == UserRole.restaurant:
-        # For restaurant users, we need to get their restaurant_id from the database
-        # This will be implemented in the auth routes
-        return current_user.user_id  # Temporary - will be fixed in routes
+        # For restaurant users, their user_id IS their restaurant_id in our MongoDB setup
+        return current_user.user_id
     
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Restaurant access required"
     )
+
+async def require_restaurant(current_user: TokenData = Depends(get_current_user)) -> TokenData:
+    """Require restaurant role or admin impersonation"""
+    if current_user.role != UserRole.restaurant and not current_user.impersonating_restaurant_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Restaurant access required"
+        )
+    return current_user

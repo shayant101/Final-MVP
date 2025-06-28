@@ -58,3 +58,28 @@ def get_restaurant_checklist_status_collection():
 
 def get_sessions_collection():
     return db.database.sessions
+
+# Direct collection exports for easier imports
+users_collection = None
+restaurants_collection = None
+campaigns_collection = None
+checklist_collection = None
+checklist_categories_collection = None
+checklist_items_collection = None
+restaurant_checklist_status_collection = None
+sessions_collection = None
+
+async def initialize_collections():
+    """Initialize collection references after database connection"""
+    global users_collection, restaurants_collection, campaigns_collection
+    global checklist_collection, checklist_categories_collection, checklist_items_collection
+    global restaurant_checklist_status_collection, sessions_collection
+    
+    users_collection = db.database.users
+    restaurants_collection = db.database.restaurants
+    campaigns_collection = db.database.campaigns
+    checklist_collection = db.database.checklist_status  # Using checklist_status for compatibility
+    checklist_categories_collection = db.database.checklist_categories
+    checklist_items_collection = db.database.checklist_items
+    restaurant_checklist_status_collection = db.database.restaurant_checklist_status
+    sessions_collection = db.database.sessions

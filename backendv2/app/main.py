@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-from .database import connect_to_mongo, close_mongo_connection
+from .database import connect_to_mongo, close_mongo_connection, initialize_collections
 from .routes.auth import router as auth_router
+from .routes.dashboard import router as dashboard_router
 
 # Create FastAPI application instance
 app = FastAPI(
@@ -25,8 +26,10 @@ app.add_middleware(
 async def startup_event():
     """Connect to MongoDB on startup"""
     await connect_to_mongo()
+    await initialize_collections()
     print("🚀 FastAPI Backend v2 started successfully!")
     print("🔐 Authentication endpoints available at /api/auth")
+    print("📊 Dashboard endpoints available at /api/dashboard")
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -35,6 +38,7 @@ async def shutdown_event():
 
 # Include routers
 app.include_router(auth_router)
+app.include_router(dashboard_router)
 
 # Health check endpoint
 @app.get("/api/health")
@@ -59,7 +63,8 @@ async def root():
         "message": "Welcome to Restaurant Marketing Platform API v2",
         "docs": "/docs",
         "health": "/api/health",
-        "auth": "/api/auth"
+        "auth": "/api/auth",
+        "dashboard": "/api/dashboard"
     }
 
 if __name__ == "__main__":
