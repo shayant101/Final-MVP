@@ -22,14 +22,14 @@
   --color-border: #E2E8F0;
   --color-border-focus: #015AF6;
   
-  /* Dark Mode Colors */
-  --color-dark-primary-text: #F7FAFC;
-  --color-dark-secondary-text: #CBD5E0;
-  --color-dark-tertiary-text: #A0AEC0;
-  --color-dark-background-page: #1A202C;
-  --color-dark-background-container: #2D3748;
+  /* Dark Mode Colors - Enhanced for better visibility */
+  --color-dark-primary-text: #F8FAFC;
+  --color-dark-secondary-text: #E2E8F0;
+  --color-dark-tertiary-text: #CBD5E0;
+  --color-dark-background-page: #0F172A;
+  --color-dark-background-container: #1E293B;
   --color-dark-brand-blue: #60A5FA;
-  --color-dark-border: #4A5568;
+  --color-dark-border: #334155;
   --color-dark-border-focus: #60A5FA;
 }
 
@@ -130,6 +130,10 @@ body {
 .dark-mode body {
   background: var(--color-dark-background-page);
   color: var(--color-dark-primary-text);
+}
+
+.dark-mode {
+  color-scheme: dark;
 }
 
 /* Header Styling */
@@ -422,4 +426,103 @@ body {
     width: 100%;
     padding: 1rem;
   }
+}
+
+/* Enhanced dark mode support for better visibility */
+.dark-mode .content-container,
+.dark-mode .campaign-form,
+.dark-mode .success-section,
+.dark-mode .preview-section,
+.dark-mode .category-container,
+.dark-mode .dashboard-card {
+  background: var(--color-dark-background-container);
+  border: 1px solid var(--color-dark-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Improve form elements in dark mode */
+.dark-mode .form-group input,
+.dark-mode .form-group select,
+.dark-mode .form-group textarea {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: var(--color-dark-border);
+  color: var(--color-dark-primary-text);
+}
+
+.dark-mode .form-group input::placeholder,
+.dark-mode .form-group textarea::placeholder {
+  color: var(--color-dark-tertiary-text);
+}
+
+.dark-mode .form-group input:focus,
+.dark-mode .form-group select:focus,
+.dark-mode .form-group textarea:focus {
+  border-color: var(--color-dark-border-focus);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+  background: rgba(30, 41, 59, 0.9);
+}
+
+/* Fix tab navigation in dark mode */
+.dark-mode .tab-navigation {
+  background: var(--color-dark-background-container);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .tab-button {
+  color: var(--color-dark-secondary-text);
+}
+
+.dark-mode .tab-button:hover {
+  background: rgba(96, 165, 250, 0.15);
+  color: var(--color-dark-primary-text);
+}
+
+.dark-mode .tab-button.active {
+  background: var(--color-dark-brand-blue);
+  color: var(--color-dark-background-page);
+}
+
+/* Fix button system in dark mode */
+.dark-mode .btn-primary,
+.dark-mode .launch-button {
+  background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
+  color: white;
+}
+
+.dark-mode .btn-primary:hover:not(:disabled),
+.dark-mode .launch-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+}
+
+.dark-mode .btn-secondary {
+  color: var(--color-dark-brand-blue);
+  border-color: var(--color-dark-brand-blue);
+}
+
+.dark-mode .btn-secondary:hover:not(:disabled) {
+  background: rgba(96, 165, 250, 0.15);
+  border-color: #93C5FD;
+  color: #93C5FD;
+}
+
+/* Fix message system in dark mode */
+.dark-mode .error-message {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.2) 100%);
+  color: #FCA5A5;
+  border-left-color: #EF4444;
+}
+
+.dark-mode .success-message {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(22, 163, 74, 0.2) 100%);
+  color: #86EFAC;
+  border-left-color: #10B981;
+}
+
+/* Improve shadows in dark mode */
+.dark-mode .shadow {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .shadow-lg {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }

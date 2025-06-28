@@ -745,3 +745,90 @@
     color: var(--color-dark-secondary-text);
   }
 }
+
+/* Additional dark mode improvements */
+.dark-mode .admin-dashboard {
+  background: var(--color-dark-background-page);
+  color: var(--color-dark-primary-text);
+}
+
+/* Improve table visibility in dark mode */
+.dark-mode .restaurants-table {
+  background: var(--color-dark-background-container);
+}
+
+.dark-mode .restaurants-table th {
+  background: var(--color-dark-background-page);
+  color: var(--color-dark-secondary-text);
+  border-bottom-color: var(--color-dark-border);
+}
+
+.dark-mode .restaurants-table td {
+  color: var(--color-dark-primary-text);
+  border-bottom-color: var(--color-dark-border);
+}
+
+.dark-mode .restaurants-table tr:hover {
+  background: rgba(96, 165, 250, 0.08);
+}
+
+/* Fix restaurant info text in dark mode */
+.dark-mode .restaurant-name {
+  color: var(--color-dark-primary-text);
+}
+
+.dark-mode .restaurant-address {
+  color: var(--color-dark-secondary-text);
+}
+
+/* Improve search input visibility */
+.dark-mode .search-input {
+  background: var(--color-dark-background-container);
+  border-color: var(--color-dark-border);
+  color: var(--color-dark-primary-text);
+}
+
+.dark-mode .search-input::placeholder {
+  color: var(--color-dark-tertiary-text);
+}
+
+/* Fix attention items in dark mode */
+.dark-mode .attention-item {
+  background: rgba(214, 158, 46, 0.15);
+  border-color: rgba(214, 158, 46, 0.3);
+}
+
+.dark-mode .attention-title {
+  color: var(--color-dark-primary-text);
+}
+
+.dark-mode .attention-description {
+  color: var(--color-dark-secondary-text);
+}
+
+/* Improve stat items contrast */
+.dark-mode .stat-item {
+  background: var(--color-dark-background-container);
+  border-color: rgba(96, 165, 250, 0.2);
+}
+
+.dark-mode .stat-value {
+  color: var(--color-dark-brand-blue);
+}
+
+.dark-mode .stat-label {
+  color: var(--color-dark-secondary-text);
+}
+
+/* Fix loading and error states */
+.dark-mode .admin-loading p {
+  color: var(--color-dark-secondary-text);
+}
+
+.dark-mode .admin-error {
+  color: var(--color-error);
+}
+
+.dark-mode .no-restaurants {
+  color: var(--color-dark-secondary-text);
+}

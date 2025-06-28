@@ -180,29 +180,42 @@
 
 /* Dark mode styles */
 .dark-mode .navigation {
-  background: linear-gradient(135deg, rgba(45, 55, 72, 0.95) 0%, rgba(74, 85, 104, 0.9) 100%);
-  border: 1px solid rgba(113, 128, 150, 0.3);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, rgba(45, 55, 72, 0.98) 0%, rgba(74, 85, 104, 0.95) 100%);
+  border: 1px solid rgba(96, 165, 250, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .dark-mode .nav-tab {
-  color: #f7fafc;
+  color: #F8FAFC;
 }
 
 .dark-mode .nav-tab:hover:not(.active) {
-  background: linear-gradient(135deg, rgba(1, 90, 246, 0.2) 0%, rgba(14, 165, 233, 0.2) 100%);
-  box-shadow: 0 4px 20px rgba(1, 90, 246, 0.2);
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+  box-shadow: 0 4px 20px rgba(96, 165, 250, 0.3);
+  color: #F8FAFC;
 }
 
 .dark-mode .nav-tab.active {
-  background: linear-gradient(135deg, #015af6 0%, #0ea5e9 50%, #06b6d4 100%);
+  background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 50%, #2563EB 100%);
   color: white;
 }
 
 .dark-mode .nav-tab-description {
-  color: #e2e8f0;
+  color: #E2E8F0;
 }
 
 .dark-mode .nav-tab.active .nav-tab-description {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.dark-mode .nav-tab-label {
+  color: inherit;
+}
+
+.dark-mode .nav-tab:hover:not(.active) .nav-tab-label {
+  color: #F8FAFC;
+}
+
+.dark-mode .nav-tab:hover:not(.active) .nav-tab-description {
+  color: #E2E8F0;
 }

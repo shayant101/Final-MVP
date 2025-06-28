@@ -20,12 +20,12 @@
 }
 
 .dark-mode {
-  --glass-bg: rgba(30, 41, 59, 0.8);
-  --glass-border: rgba(96, 165, 250, 0.3);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --glass-bg: rgba(30, 41, 59, 0.9);
+  --glass-border: rgba(96, 165, 250, 0.4);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-light: #94a3b8;
+  --text-secondary: #e2e8f0;
+  --text-light: #cbd5e1;
 }
 
 /* Main Container */
@@ -1696,4 +1696,158 @@
   .achievement-badge span {
     font-size: 0.8rem;
   }
+}
+
+/* Enhanced dark mode support for better visibility */
+.dark-mode .glass-card {
+  background: rgba(45, 55, 72, 0.95);
+  border: 1px solid rgba(96, 165, 250, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .glass-card:hover {
+  background: rgba(45, 55, 72, 0.98);
+  border-color: rgba(96, 165, 250, 0.6);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* Fix circular progress in dark mode */
+.dark-mode .circular-progress-container {
+  background: rgba(45, 55, 72, 0.95);
+  border: 1px solid rgba(96, 165, 250, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .circular-progress-container:hover {
+  background: rgba(45, 55, 72, 0.98);
+  border-color: rgba(96, 165, 250, 0.6);
+  box-shadow: 0 20px 60px rgba(96, 165, 250, 0.4);
+}
+
+/* Improve text visibility in dark mode */
+.dark-mode .score-number-large {
+  background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark-mode .score-label-large {
+  color: #E2E8F0;
+}
+
+/* Fix progress bars in dark mode */
+.dark-mode .progress-bar-simple {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .unified-card {
+  background: rgba(45, 55, 72, 0.95);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+}
+
+.dark-mode .unified-card:hover {
+  background: rgba(45, 55, 72, 0.98);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Fix achievement badges in dark mode */
+.dark-mode .achievement-badge {
+  background: rgba(45, 55, 72, 0.95);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+}
+
+.dark-mode .achievement-badge.earned {
+  background: rgba(59, 130, 246, 0.3);
+  border-color: rgba(96, 165, 250, 0.6);
+}
+
+.dark-mode .achievement-badge span {
+  color: #F8FAFC;
+}
+
+.dark-mode .achievement-badge.earned span {
+  color: #60A5FA;
+}
+
+/* Fix action cards in dark mode */
+.dark-mode .action-card-simple {
+  background: rgba(45, 55, 72, 0.95);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+}
+
+/* Improve section headers in dark mode */
+.dark-mode .section-header {
+  background: rgba(45, 55, 72, 0.95);
+  border: 1px solid rgba(96, 165, 250, 0.4);
+}
+
+.dark-mode .section-title {
+  color: #F8FAFC;
+  background: linear-gradient(135deg, #F8FAFC 0%, #60A5FA 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark-mode .section-description {
+  color: #E2E8F0;
+}
+
+/* Fix category cards in dark mode */
+.dark-mode .category-card {
+  background: rgba(45, 55, 72, 0.95);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+}
+
+.dark-mode .category-header:hover {
+  background: rgba(96, 165, 250, 0.1);
+}
+
+.dark-mode .category-items {
+  background: rgba(30, 41, 59, 0.8);
+  border-top: 1px solid rgba(96, 165, 250, 0.2);
+}
+
+/* Fix checklist items in dark mode */
+.dark-mode .checklist-item {
+  background: rgba(45, 55, 72, 0.8);
+  border: 1px solid rgba(96, 165, 250, 0.2);
+}
+
+.dark-mode .checklist-item:hover {
+  background: rgba(96, 165, 250, 0.15);
+}
+
+/* Fix checkboxes in dark mode */
+.dark-mode .checkmark {
+  background: rgba(45, 55, 72, 0.9);
+  border-color: #60A5FA;
+}
+
+.dark-mode .checkmark:hover {
+  border-color: #93C5FD;
+  background: rgba(45, 55, 72, 0.95);
+}
+
+/* Fix external links in dark mode */
+.dark-mode .external-link {
+  background: rgba(96, 165, 250, 0.2);
+  border-color: rgba(96, 165, 250, 0.4);
+  color: #93C5FD;
+}
+
+.dark-mode .external-link:hover {
+  background: rgba(96, 165, 250, 0.3);
+  color: #BFDBFE;
+}
+
+/* Fix item notes in dark mode */
+.dark-mode .item-notes {
+  background: rgba(59, 130, 246, 0.2);
+  border-left-color: #60A5FA;
+}
+
+.dark-mode .item-notes small {
+  color: #E2E8F0;
 }

@@ -371,3 +371,97 @@
   25% { transform: translateX(-5px); }
   75% { transform: translateX(5px); }
 }
+
+/* Enhanced dark mode support */
+.dark-mode .get-new-customers .form-group select {
+  background-color: var(--color-dark-background-container);
+  color: var(--color-dark-primary-text);
+  border-color: var(--color-dark-border);
+}
+
+.dark-mode .get-new-customers .form-group select:focus {
+  border-color: var(--color-dark-brand-blue);
+  background-color: var(--color-dark-background-container);
+}
+
+/* Fix preview section in dark mode */
+.dark-mode .preview-section {
+  background: var(--color-dark-background-container);
+  border-left-color: var(--color-dark-brand-blue);
+  border-color: var(--color-dark-border);
+}
+
+.dark-mode .preview-section h3 {
+  color: var(--color-dark-primary-text);
+}
+
+.dark-mode .ad-preview {
+  background: rgba(96, 165, 250, 0.15);
+  border-color: rgba(96, 165, 250, 0.3);
+}
+
+.dark-mode .ad-copy {
+  background: var(--color-dark-background-container);
+  border-color: var(--color-dark-border);
+  color: var(--color-dark-primary-text);
+}
+
+.dark-mode .dish-preview-image {
+  border-color: var(--color-dark-border);
+}
+
+/* Fix ad meta in dark mode */
+.dark-mode .ad-meta {
+  color: var(--color-dark-secondary-text);
+}
+
+.dark-mode .promo-code {
+  background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
+}
+
+/* Fix campaign details in dark mode */
+.dark-mode .campaign-details h4 {
+  color: var(--color-dark-primary-text);
+  border-bottom-color: var(--color-dark-border);
+}
+
+.dark-mode .ad-copy-display {
+  background: rgba(96, 165, 250, 0.15);
+  border-color: rgba(96, 165, 250, 0.3);
+  color: var(--color-dark-primary-text);
+}
+
+/* Fix next steps in dark mode */
+.dark-mode .next-steps {
+  background: rgba(16, 185, 129, 0.15);
+  border-left-color: #10B981;
+}
+
+.dark-mode .next-steps h4 {
+  color: var(--color-dark-primary-text);
+}
+
+.dark-mode .next-steps li {
+  color: var(--color-dark-secondary-text);
+}
+
+.dark-mode .next-steps strong {
+  color: var(--color-dark-brand-blue);
+}
+
+/* Fix file selection in dark mode */
+.dark-mode .file-selected {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10B981;
+  color: #34D399;
+}
+
+/* Fix file upload button in dark mode */
+.dark-mode .get-new-customers .file-input::-webkit-file-upload-button {
+  background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
+  color: white;
+}
+
+.dark-mode .get-new-customers .file-input::-webkit-file-upload-button:hover {
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+}

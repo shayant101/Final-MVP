@@ -278,11 +278,15 @@ body {
 }
 
 .dark-mode .detail-item {
-  background: rgba(96, 165, 250, 0.1);
-  border-color: rgba(96, 165, 250, 0.2);
+  background: rgba(96, 165, 250, 0.15);
+  border-color: rgba(96, 165, 250, 0.3);
 }
 
 .dark-mode .detail-item label {
+  color: var(--color-dark-primary-text);
+}
+
+.dark-mode .detail-item span {
   color: var(--color-dark-secondary-text);
 }
 
@@ -353,7 +357,7 @@ body {
 }
 
 .dark-mode .loading-container p {
-  color: var(--color-dark-secondary-text);
+  color: var(--color-dark-primary-text);
 }
 
 /* ========================================
@@ -593,4 +597,115 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Enhanced dark mode support for better visibility */
+.dark-mode {
+  color-scheme: dark;
+}
+
+.dark-mode .app-header {
+  background: linear-gradient(135deg, #2D3748 0%, #4A5568 100%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .app-title {
+  color: #F7FAFC;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .app-subtitle {
+  color: #E2E8F0;
+}
+
+/* Fix header buttons in dark mode */
+.dark-mode .dark-mode-toggle {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #F7FAFC;
+}
+
+.dark-mode .dark-mode-toggle:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.dark-mode .logout-button {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #F7FAFC;
+}
+
+.dark-mode .logout-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.dark-mode .back-to-dashboard-button {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #F7FAFC;
+}
+
+.dark-mode .back-to-dashboard-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Fix tab navigation in dark mode */
+.dark-mode .tab-button {
+  color: var(--color-dark-secondary-text);
+}
+
+.dark-mode .tab-button:hover {
+  background: rgba(96, 165, 250, 0.15);
+  color: var(--color-dark-primary-text);
+}
+
+.dark-mode .tab-button.active {
+  background: var(--color-dark-brand-blue);
+  color: var(--color-dark-background-page);
+}
+
+.dark-mode .tab-button .tab-title {
+  color: inherit;
+}
+
+.dark-mode .tab-button .tab-description {
+  color: inherit;
+  opacity: 0.8;
+}
+
+/* Fix section headers in dark mode */
+.dark-mode .section-header h2 {
+  color: var(--color-dark-primary-text);
+}
+
+.dark-mode .section-header p {
+  color: var(--color-dark-secondary-text);
+}
+
+/* Fix footer in dark mode */
+.dark-mode .app-footer {
+  background: linear-gradient(135deg, #1A202C 0%, #2D3748 100%);
+  color: #E2E8F0;
+}
+
+/* Fix promo code result in dark mode */
+.dark-mode .promo-code-result,
+.dark-mode .offer-code-result {
+  background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
+  color: white;
+}
+
+/* Improve focus states in dark mode */
+.dark-mode .btn:focus,
+.dark-mode .tab-button:focus,
+.dark-mode .link-button:focus {
+  outline-color: #60A5FA;
+}
+
+/* Fix disabled button states in dark mode */
+.dark-mode .btn:disabled::after {
+  color: #E2E8F0;
 }

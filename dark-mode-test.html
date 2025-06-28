@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Mode Test - Momentum Growth Starter</title>
+    <style>
+        /* Import the design system styles */
+        :root {
+            /* Light Mode Colors */
+            --color-primary-text: #1A202C;
+            --color-secondary-text: #4A5568;
+            --color-tertiary-text: #718096;
+            --color-background-page: #F7FAFC;
+            --color-background-container: #FFFFFF;
+            --color-brand-blue: #015AF6;
+            --color-brand-blue-light: #0EA5E9;
+            --color-brand-blue-dark: #0147D3;
+            --color-success: #38A169;
+            --color-warning: #D69E2E;
+            --color-error: #E53E3E;
+            --color-border: #E2E8F0;
+            --color-border-focus: #015AF6;
+            
+            /* Dark Mode Colors - Enhanced for better visibility */
+            --color-dark-primary-text: #F8FAFC;
+            --color-dark-secondary-text: #E2E8F0;
+            --color-dark-tertiary-text: #CBD5E0;
+            --color-dark-background-page: #0F172A;
+            --color-dark-background-container: #1E293B;
+            --color-dark-brand-blue: #60A5FA;
+            --color-dark-border: #334155;
+            --color-dark-border-focus: #60A5FA;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: var(--color-background-page);
+            color: var(--color-primary-text);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .dark-mode {
+            color-scheme: dark;
+        }
+
+        .dark-mode body {
+            background: var(--color-dark-background-page);
+            color: var(--color-dark-primary-text);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--color-brand-blue) 0%, var(--color-brand-blue-light) 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dark-mode .header {
+            background: linear-gradient(135deg, #2D3748 0%, #4A5568 100%);
+        }
+
+        .dark-mode-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background: var(--color-background-container);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid transparent;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .dark-mode .dashboard-card {
+            background: var(--color-dark-background-container);
+            border: 1px solid var(--color-dark-border);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode .dashboard-card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .dark-mode .card-header {
+            border-bottom-color: var(--color-dark-border);
+        }
+
+        .card-header h3 {
+            margin: 0;
+            color: var(--color-primary-text);
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .dark-mode .card-header h3 {
+            color: var(--color-dark-primary-text);
+        }
+
+        .metric {
+            text-align: center;
+            padding: 16px;
+            background: rgba(1, 90, 246, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(1, 90, 246, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .dark-mode .metric {
+            background: rgba(96, 165, 250, 0.1);
+            border-color: rgba(96, 165, 250, 0.2);
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--color-brand-blue);
+            margin-bottom: 8px;
+        }
+
+        .dark-mode .metric-value {
+            color: var(--color-dark-brand-blue);
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: var(--color-secondary-text);
+            font-weight: 500;
+        }
+
+        .dark-mode .metric-label {
+            color: var(--color-dark-secondary-text);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .dark-mode .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-brand-blue) 0%, var(--color-brand-blue-light) 100%);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            width: 75%;
+        }
+
+        .dark-mode .progress-fill {
+            background: linear-gradient(90deg, var(--color-dark-brand-blue) 0%, #93C5FD 100%);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-brand-blue) 0%, var(--color-brand-blue-light) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 0.875rem 2rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(1, 90, 246, 0.2);
+            margin: 0.5rem;
+        }
+
+        .dark-mode .btn-primary {
+            background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(1, 90, 246, 0.4);
+        }
+
+        .dark-mode .btn-primary:hover {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin: 0.25rem;
+        }
+
+        .status-badge.active {
+            background: rgba(56, 161, 105, 0.2);
+            color: var(--color-success);
+        }
+
+        .dark-mode .status-badge.active {
+            background: rgba(34, 197, 94, 0.3);
+            color: #68D391;
+        }
+
+        .status-badge.draft {
+            background: rgba(229, 62, 62, 0.2);
+            color: var(--color-error);
+        }
+
+        .dark-mode .status-badge.draft {
+            background: rgba(239, 68, 68, 0.3);
+            color: #FC8181;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            color: var(--color-primary-text);
+            font-weight: 600;
+        }
+
+        .dark-mode .form-group label {
+            color: var(--color-dark-primary-text);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--color-background-container);
+            color: var(--color-primary-text);
+            transition: all 0.2s ease;
+        }
+
+        .dark-mode .form-group input {
+            background: rgba(30, 41, 59, 0.8);
+            border-color: var(--color-dark-border);
+            color: var(--color-dark-primary-text);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--color-border-focus);
+            box-shadow: 0 0 0 3px rgba(1, 90, 246, 0.1);
+        }
+
+        .dark-mode .form-group input:focus {
+            border-color: var(--color-dark-border-focus);
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+        }
+
+        .score-circle {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1rem;
+        }
+
+        .score-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: var(--color-primary-text);
+        }
+
+        .dark-mode .score-content {
+            color: var(--color-dark-primary-text);
+        }
+
+        .score-value {
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--color-brand-blue);
+        }
+
+        .dark-mode .score-value {
+            color: var(--color-dark-brand-blue);
+        }
+
+        .score-label {
+            font-size: 12px;
+            font-weight: 500;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        .test-section {
+            margin: 2rem 0;
+            padding: 1rem;
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            background: var(--color-background-container);
+        }
+
+        .dark-mode .test-section {
+            border-color: var(--color-dark-border);
+            background: var(--color-dark-background-container);
+        }
+
+        .test-section h2 {
+            color: var(--color-primary-text);
+            margin-bottom: 1rem;
+        }
+
+        .dark-mode .test-section h2 {
+            color: var(--color-dark-primary-text);
+        }
+
+        .test-section p {
+            color: var(--color-secondary-text);
+            margin-bottom: 1rem;
+        }
+
+        .dark-mode .test-section p {
+            color: var(--color-dark-secondary-text);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>Momentum Growth Starter - Dark Mode Test</h1>
+            <p>Testing dark mode visibility and contrast improvements</p>
+        </div>
+        <button class="dark-mode-toggle" onclick="toggleDarkMode()">
+            <span id="theme-icon">🌙</span>
+        </button>
+    </div>
+
+    <div class="test-section">
+        <h2>Dark Mode Improvements Summary</h2>
+        <p>This test page demonstrates the dark mode visibility and font color fixes implemented across the application:</p>
+        <ul style="margin-left: 2rem; color: var(--color-secondary-text);">
+            <li>Enhanced contrast for all text elements</li>
+            <li>Improved visibility of dashboard cards and components</li>
+            <li>Fixed SVG elements and progress bars</li>
+            <li>Better glassmorphism effects in dark mode</li>
+            <li>Consistent color scheme across all components</li>
+        </ul>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Performance Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>📊 Performance Snapshot</h3>
+                <span style="color: var(--color-secondary-text); font-size: 14px;">Last 30 days</span>
+            </div>
+            <div class="metric">
+                <div class="metric-value">42</div>
+                <div class="metric-label">New Customers Acquired</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">18</div>
+                <div class="metric-label">Customers Re-engaged</div>
+            </div>
+        </div>
+
+        <!-- Marketing Score Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>🎯 Marketing Score</h3>
+                <span style="color: var(--color-secondary-text); font-size: 14px;">Health Check</span>
+            </div>
+            <div class="score-circle">
+                <svg width="100" height="100" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#E5E7EB" stroke-width="8" opacity="0.3"/>
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="var(--color-brand-blue)" stroke-width="8" 
+                            stroke-linecap="round" stroke-dasharray="188 251.33" transform="rotate(-90 50 50)"/>
+                </svg>
+                <div class="score-content">
+                    <div class="score-value">75</div>
+                    <div class="score-label">Score</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+
+        <!-- Status Badges Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>🚀 Campaign Status</h3>
+            </div>
+            <div>
+                <span class="status-badge active">Active</span>
+                <span class="status-badge draft">Draft</span>
+                <button class="btn-primary">Launch Campaign</button>
+            </div>
+        </div>
+
+        <!-- Form Elements Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>📝 Form Elements</h3>
+            </div>
+            <div class="form-group">
+                <label for="test-input">Test Input Field</label>
+                <input type="text" id="test-input" placeholder="Enter some text to test visibility">
+            </div>
+            <button class="btn-primary">Submit</button>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Dark Mode Features Fixed</h2>
+        <p><strong>Restaurant Dashboard:</strong> Fixed SVG progress rings, improved card contrast, enhanced text visibility</p>
+        <p><strong>Admin Dashboard:</strong> Better table visibility, improved search inputs, enhanced stat cards</p>
+        <p><strong>Marketing Foundations:</strong> Enhanced glassmorphism effects, better achievement badges, improved checklist visibility</p>
+        <p><strong>Navigation:</strong> Improved tab contrast and hover states</p>
+        <p><strong>Form Components:</strong> Better input field visibility, enhanced file upload areas</p>
+    </div>
+
+    <script>
+        function toggleDarkMode() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('darkMode', 'false');
+            } else {
+                body.classList.add('dark-mode');
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('darkMode', 'true');
+            }
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('darkMode');
+        if (savedTheme === 'true') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('theme-icon').textContent = '☀️';
+        }
+    </script>
+</body>
+</html>

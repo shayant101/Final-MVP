@@ -411,3 +411,83 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* Enhanced dark mode support */
+.dark-mode .bring-back-regulars .file-input {
+  background: var(--color-dark-background-container);
+  border-color: var(--color-dark-border);
+  color: var(--color-dark-primary-text);
+}
+
+.dark-mode .bring-back-regulars .file-input:hover {
+  border-color: var(--color-dark-brand-blue);
+  background: rgba(96, 165, 250, 0.15);
+}
+
+.dark-mode .bring-back-regulars .file-input::before {
+  color: var(--color-dark-secondary-text);
+}
+
+.dark-mode .bring-back-regulars .file-input::after {
+  color: var(--color-dark-tertiary-text);
+}
+
+.dark-mode .bring-back-regulars .file-input.has-file {
+  border-color: #10B981;
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.dark-mode .bring-back-regulars .file-input.has-file::before,
+.dark-mode .bring-back-regulars .file-input.has-file::after {
+  color: #34D399;
+}
+
+/* Fix SMS preview in dark mode */
+.dark-mode .sms-preview {
+  background: var(--color-dark-background-container);
+  border-color: var(--color-dark-border);
+}
+
+.dark-mode .sms-message {
+  background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 50%, #2563EB 100%);
+}
+
+.dark-mode .sms-message::after {
+  border-top-color: #3B82F6;
+}
+
+.dark-mode .message-display {
+  background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 50%, #2563EB 100%);
+}
+
+.dark-mode .message-display::after {
+  border-top-color: #3B82F6;
+}
+
+/* Fix stats in dark mode */
+.dark-mode .stat-item {
+  background: var(--color-dark-background-container);
+  border-color: rgba(96, 165, 250, 0.3);
+}
+
+.dark-mode .stat-number {
+  color: var(--color-dark-brand-blue);
+}
+
+.dark-mode .stat-label {
+  color: var(--color-dark-secondary-text);
+}
+
+/* Fix CSV stats in dark mode */
+.dark-mode .csv-stats {
+  background: rgba(96, 165, 250, 0.15);
+  border-left-color: var(--color-dark-brand-blue);
+}
+
+.dark-mode .csv-stats h4 {
+  color: var(--color-dark-primary-text);
+}
+
+.dark-mode .csv-stats p {
+  color: var(--color-dark-secondary-text);
+}

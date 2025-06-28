@@ -718,6 +718,28 @@
   border-top-color: var(--color-dark-brand-blue);
 }
 
+/* Fix SVG elements in dark mode */
+.dark-mode .score-ring circle {
+  stroke: #E5E7EB;
+}
+
+.dark-mode .score-ring .score-progress-ring {
+  stroke: var(--color-dark-brand-blue);
+}
+
+/* Ensure SVG text is visible in dark mode */
+.dark-mode .score-content {
+  color: var(--color-dark-primary-text);
+}
+
+.dark-mode .score-value {
+  color: var(--color-dark-brand-blue);
+}
+
+.dark-mode .score-label {
+  color: var(--color-dark-secondary-text);
+}
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -744,6 +766,81 @@
 .retry-button:hover {
   background: var(--color-brand-blue-dark);
   transform: translateY(-1px);
+}
+
+/* Fix SVG elements in dark mode */
+.dark-mode .score-ring circle {
+  stroke: #4A5568;
+}
+
+.dark-mode .score-ring .score-progress-ring {
+  stroke: var(--color-dark-brand-blue);
+}
+
+/* Ensure SVG text is visible in dark mode */
+.dark-mode .score-content {
+  color: var(--color-dark-primary-text);
+}
+
+.dark-mode .score-value {
+  color: var(--color-dark-brand-blue);
+}
+
+.dark-mode .score-label {
+  color: var(--color-dark-secondary-text);
+}
+
+/* Fix progress bar backgrounds in dark mode */
+.dark-mode .progress-bar {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .revenue-bar {
+  background: rgba(34, 197, 94, 0.2);
+}
+
+/* Improve text contrast in dark mode */
+.dark-mode .dashboard-header h1 {
+  color: #F7FAFC;
+}
+
+.dark-mode .dashboard-header p {
+  color: #E2E8F0;
+}
+
+/* Fix status badges in dark mode */
+.dark-mode .status-badge.active {
+  background: rgba(34, 197, 94, 0.3);
+  color: #68D391;
+}
+
+.dark-mode .status-badge.draft {
+  background: rgba(239, 68, 68, 0.3);
+  color: #FC8181;
+}
+
+.dark-mode .status-badge.completed {
+  background: rgba(96, 165, 250, 0.3);
+  color: var(--color-dark-brand-blue);
+}
+
+/* Fix quick action buttons in dark mode */
+.dark-mode .quick-link-button.secondary {
+  background: #059669;
+  color: white;
+}
+
+.dark-mode .quick-link-button.secondary:hover {
+  background: #047857;
+}
+
+.dark-mode .quick-link-button.tertiary {
+  background: #D97706;
+  color: white;
+}
+
+.dark-mode .quick-link-button.tertiary:hover {
+  background: #B45309;
 }
 
 /* Responsive Design */
