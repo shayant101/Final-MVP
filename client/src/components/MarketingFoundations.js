@@ -1,76 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import './MarketingFoundations.css';
-
-// Create API instance directly
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 30000,
-});
-
-// Add token to requests if available
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Temporary checklistAPI implementation until import issue is resolved
-const checklistAPI = {
-  getCategoriesWithItems: async (type = null, restaurantId = null) => {
-    try {
-      const params = {};
-      if (type) params.type = type;
-      if (restaurantId) params.restaurantId = restaurantId;
-      
-      const response = await api.get('/checklist/categories-with-items', { params });
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.error || 'Failed to fetch categories with items');
-    }
-  },
-  
-  getProgress: async (restaurantId, type = null) => {
-    try {
-      const params = type ? { type } : {};
-      const response = await api.get(`/checklist/progress/${restaurantId}`, { params });
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.error || 'Failed to fetch progress');
-    }
-  },
-  
-  updateStatus: async (restaurantId, itemId, status, notes = null) => {
-    try {
-      const response = await api.put(`/checklist/status/${restaurantId}/${itemId}`, {
-        status,
-        notes
-      });
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.error || 'Failed to update status');
-    }
-  }
-};
+import { checklistAPI, dashboardAPI } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 const MarketingFoundations = () => {
+  const { user } = useAuth();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState({});
   const [progress, setProgress] = useState({});
   const [updatingItems, setUpdatingItems] = useState({});
+  const [restaurantId, setRestaurantId] = useState(null);
 
-  // Mock restaurant ID - in a real app, this would come from auth context
-  const restaurantId = 1;
-
+  // Get restaurant ID from auth context
   useEffect(() => {
-    loadChecklistData();
-  }, []);
+    const getRestaurantData = async () => {
+      try {
+        if (user?.role === 'restaurant') {
+          // For restaurant users, user_id IS the restaurant_id
+          setRestaurantId(user.user_id);
+        } else if (user?.impersonating_restaurant_id) {
+          // For admin users impersonating a restaurant
+          setRestaurantId(user.impersonating_restaurant_id);
+        } else {
+          // Fallback: get restaurant ID from dashboard API
+          const dashboardData = await dashboardAPI.getRestaurantDashboard();
+          setRestaurantId(dashboardData.restaurant.restaurant_id);
+        }
+      } catch (err) {
+        console.error('Error getting restaurant data:', err);
+        setError('Failed to get restaurant information');
+      }
+    };
+
+    if (user) {
+      getRestaurantData();
+    }
+  }, [user]);
+
+  // Load checklist data when restaurant ID is available
+  useEffect(() => {
+    if (restaurantId) {
+      loadChecklistData();
+    }
+  }, [restaurantId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadChecklistData = async () => {
     try {
@@ -168,6 +142,7 @@ const MarketingFoundations = () => {
     updateItemStatus(itemId, newStatus);
   };
 
+
   const getCategoryProgress = (category) => {
     const totalItems = category.items.length;
     const completedItems = category.items.filter(item => item.status === 'completed').length;
@@ -228,14 +203,7 @@ const MarketingFoundations = () => {
   };
 
 
-  const getScoreLabel = (score) => {
-    if (score >= 90) return 'Excellent';
-    if (score >= 80) return 'Great';
-    if (score >= 70) return 'Good';
-    if (score >= 60) return 'Fair';
-    if (score >= 40) return 'Needs Work';
-    return 'Getting Started';
-  };
+  // Removed getScoreLabel as it's no longer needed in the new design
 
   // Calculate potential weekly revenue based on completed revenue-generating activities
   const calculateRevenueImpact = () => {
@@ -382,287 +350,231 @@ const MarketingFoundations = () => {
   const ongoingCategories = categories.filter(cat => cat.type === 'ongoing');
 
   return (
-    <div className="marketing-foundations">
-      <div className="section-header">
-        <h2>🎯 Momentum Orchestrator</h2>
-        <p>Your comprehensive restaurant marketing success system</p>
+    <div className="momentum-growth-starter">
+
+      {/* Marketing Score Badge */}
+      <div className="score-badge-container">
+        <div className="score-badge">
+          <svg className="score-ring" width="200" height="200" viewBox="0 0 200 200">
+            <defs>
+              <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#3b82f6" />
+                <stop offset="50%" stopColor="#1d4ed8" />
+                <stop offset="100%" stopColor="#1e40af" />
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            
+            {/* Background circle */}
+            <circle
+              cx="100"
+              cy="100"
+              r="85"
+              fill="none"
+              stroke="rgba(59, 130, 246, 0.2)"
+              strokeWidth="12"
+            />
+            
+            {/* Progress circle */}
+            <circle
+              cx="100"
+              cy="100"
+              r="85"
+              fill="none"
+              stroke="url(#blueGradient)"
+              strokeWidth="12"
+              strokeLinecap="round"
+              strokeDasharray={`${(calculateOverallScore() / 100) * 534.07} 534.07`}
+              transform="rotate(-90 100 100)"
+              filter="url(#glow)"
+              className="score-progress-ring"
+            />
+            
+            {/* Center content */}
+            <text x="100" y="90" textAnchor="middle" className="score-number">
+              {calculateOverallScore()}
+            </text>
+            <text x="100" y="115" textAnchor="middle" className="score-label">
+              Marketing Score
+            </text>
+          </svg>
+        </div>
       </div>
 
-      <div className="modern-dashboard">
-        {/* Hero Analytics Section */}
-        <div className="hero-analytics">
-          <div className="main-score-container">
-            <div className="score-visualization">
-              <svg className="score-ring" width="200" height="200" viewBox="0 0 200 200">
-                <defs>
-                  <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#667eea" />
-                    <stop offset="50%" stopColor="#764ba2" />
-                    <stop offset="100%" stopColor="#f093fb" />
-                  </linearGradient>
-                  <filter id="glow">
-                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                    <feMerge>
-                      <feMergeNode in="coloredBlur"/>
-                      <feMergeNode in="SourceGraphic"/>
-                    </feMerge>
-                  </filter>
-                </defs>
-                
-                {/* Background circle */}
-                <circle
-                  cx="100"
-                  cy="100"
-                  r="85"
-                  fill="none"
-                  stroke="#e5e7eb"
-                  strokeWidth="12"
-                  opacity="0.3"
-                />
-                
-                {/* Progress circle */}
-                <circle
-                  cx="100"
-                  cy="100"
-                  r="85"
-                  fill="none"
-                  stroke="url(#scoreGradient)"
-                  strokeWidth="12"
-                  strokeLinecap="round"
-                  strokeDasharray={`${(calculateOverallScore() / 100) * 534.07} 534.07`}
-                  transform="rotate(-90 100 100)"
-                  filter="url(#glow)"
-                  className="score-progress-ring"
-                />
-                
-                {/* Center content */}
-                <text x="100" y="90" textAnchor="middle" className="score-number-svg">
-                  {calculateOverallScore()}
-                </text>
-                <text x="100" y="115" textAnchor="middle" className="score-label-svg">
-                  Marketing Score
-                </text>
-              </svg>
+      {/* Task Progress Grid */}
+      <div className="progress-grid">
+        <div className="progress-card glass-card foundational">
+          <div className="card-header">
+            <div className="card-icon">🏗️</div>
+            <div className="card-info">
+              <h3>Foundation</h3>
+              <span className="card-subtitle">Essential Setup</span>
             </div>
-            
-            <div className="score-details">
-              <h3 className="score-status-modern">
-                {getScoreLabel(calculateOverallScore())}
-              </h3>
-              <p className="score-description-modern">
-                {calculateOverallScore() === 0 && "🚀 Ready to launch your marketing journey!"}
-                {calculateOverallScore() > 0 && calculateOverallScore() < 30 && "🌟 Great start! Building momentum..."}
-                {calculateOverallScore() >= 30 && calculateOverallScore() < 60 && "🔥 Making solid progress!"}
-                {calculateOverallScore() >= 60 && calculateOverallScore() < 80 && "💪 Strong foundation established!"}
-                {calculateOverallScore() >= 80 && "🏆 Marketing excellence achieved!"}
-              </p>
-              
-              <div className="achievement-indicator">
-                <div className="achievement-dots">
-                  <div className={`dot ${calculateOverallScore() >= 20 ? 'active' : ''}`}></div>
-                  <div className={`dot ${calculateOverallScore() >= 40 ? 'active' : ''}`}></div>
-                  <div className={`dot ${calculateOverallScore() >= 60 ? 'active' : ''}`}></div>
-                  <div className={`dot ${calculateOverallScore() >= 80 ? 'active' : ''}`}></div>
-                  <div className={`dot ${calculateOverallScore() >= 100 ? 'active' : ''}`}></div>
-                </div>
-                <span className="achievement-text">Progress Milestones</span>
-              </div>
+            <div className="card-percentage">
+              {Math.round(overallProgress.foundational.percentage)}%
             </div>
+          </div>
+          <div className="progress-bar">
+            <div
+              className="progress-fill foundational"
+              style={{ width: `${overallProgress.foundational.percentage}%` }}
+            ></div>
+          </div>
+          <div className="progress-stats">
+            <span className="completed">{overallProgress.foundational.completed}</span>
+            <span className="divider">/</span>
+            <span className="total">{overallProgress.foundational.total}</span>
+            <span className="label">tasks done</span>
           </div>
         </div>
 
-        {/* Visual Progress Cards */}
-        <div className="progress-cards-modern">
-          <div className="progress-card-modern foundational">
-            <div className="card-header-modern">
-              <div className="card-icon-modern">🏗️</div>
-              <div className="card-info">
-                <h4>Foundation</h4>
-                <span className="card-subtitle">Essential Setup</span>
-              </div>
-              <div className="card-percentage">
-                {Math.round(overallProgress.foundational.percentage)}%
-              </div>
+        <div className="progress-card glass-card critical">
+          <div className="card-header">
+            <div className="card-icon">⚡</div>
+            <div className="card-info">
+              <h3>Critical</h3>
+              <span className="card-subtitle">High Priority</span>
             </div>
-            
-            <div className="progress-visual">
-              <div className="progress-bar-modern">
-                <div
-                  className="progress-fill-animated foundational"
-                  style={{
-                    width: `${overallProgress.foundational.percentage}%`,
-                    animationDelay: '0.2s'
-                  }}
-                ></div>
-              </div>
-              <div className="progress-numbers">
-                <span className="completed-number">{overallProgress.foundational.completed}</span>
-                <span className="divider">/</span>
-                <span className="total-number">{overallProgress.foundational.total}</span>
-                <span className="completed-label">tasks done</span>
-              </div>
+            <div className="card-percentage">
+              {Math.round(overallProgress.foundational.criticalPercentage)}%
             </div>
           </div>
-
-          <div className="progress-card-modern critical">
-            <div className="card-header-modern">
-              <div className="card-icon-modern">⚡</div>
-              <div className="card-info">
-                <h4>Critical</h4>
-                <span className="card-subtitle">High Priority</span>
-              </div>
-              <div className="card-percentage">
-                {Math.round(overallProgress.foundational.criticalPercentage)}%
-              </div>
-            </div>
-            
-            <div className="progress-visual">
-              <div className="progress-bar-modern">
-                <div
-                  className="progress-fill-animated critical"
-                  style={{
-                    width: `${overallProgress.foundational.criticalPercentage}%`,
-                    animationDelay: '0.4s'
-                  }}
-                ></div>
-              </div>
-              <div className="progress-numbers">
-                <span className="completed-number">{overallProgress.foundational.criticalCompleted}</span>
-                <span className="divider">/</span>
-                <span className="total-number">{overallProgress.foundational.criticalTotal}</span>
-                <span className="completed-label">critical done</span>
-              </div>
-            </div>
+          <div className="progress-bar">
+            <div
+              className="progress-fill critical"
+              style={{ width: `${overallProgress.foundational.criticalPercentage}%` }}
+            ></div>
           </div>
-
-          <div className="progress-card-modern ongoing">
-            <div className="card-header-modern">
-              <div className="card-icon-modern">🔄</div>
-              <div className="card-info">
-                <h4>Ongoing</h4>
-                <span className="card-subtitle">Maintenance</span>
-              </div>
-              <div className="card-percentage">
-                {Math.round(overallProgress.ongoing.percentage)}%
-              </div>
-            </div>
-            
-            <div className="progress-visual">
-              <div className="progress-bar-modern">
-                <div
-                  className="progress-fill-animated ongoing"
-                  style={{
-                    width: `${overallProgress.ongoing.percentage}%`,
-                    animationDelay: '0.6s'
-                  }}
-                ></div>
-              </div>
-              <div className="progress-numbers">
-                <span className="completed-number">{overallProgress.ongoing.completed}</span>
-                <span className="divider">/</span>
-                <span className="total-number">{overallProgress.ongoing.total}</span>
-                <span className="completed-label">ongoing done</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="progress-card-modern revenue">
-            <div className="card-header-modern">
-              <div className="card-icon-modern">💰</div>
-              <div className="card-info">
-                <h4>Revenue Potential</h4>
-                <span className="card-subtitle">Weekly Opportunity</span>
-              </div>
-              <div className="card-percentage">
-                ${calculateRevenueImpact().weeklyPotential}
-              </div>
-            </div>
-            
-            <div className="progress-visual">
-              <div className="progress-bar-modern">
-                <div
-                  className="progress-fill-animated revenue"
-                  style={{
-                    width: `${calculateRevenueImpact().completionPercentage}%`,
-                    animationDelay: '0.8s'
-                  }}
-                ></div>
-              </div>
-              <div className="progress-numbers">
-                <span className="completed-number">${calculateRevenueImpact().completedValue}</span>
-                <span className="divider">/</span>
-                <span className="total-number">${calculateRevenueImpact().totalPotential}</span>
-                <span className="completed-label">revenue unlocked</span>
-              </div>
-            </div>
+          <div className="progress-stats">
+            <span className="completed">{overallProgress.foundational.criticalCompleted}</span>
+            <span className="divider">/</span>
+            <span className="total">{overallProgress.foundational.criticalTotal}</span>
+            <span className="label">critical done</span>
           </div>
         </div>
 
-        {/* Smart Recommendations */}
-        <div className="smart-recommendations">
-          <div className="recommendation-card">
-            <div className="recommendation-icon">🎯</div>
-            <div className="recommendation-content">
-              <h4>Next Smart Action</h4>
-              <p>
-                {calculateRevenueImpact().weeklyPotential > 1000
-                  ? `Complete more tasks to unlock $${calculateRevenueImpact().weeklyPotential} in weekly revenue potential!`
-                  : overallProgress.foundational.criticalCompleted < overallProgress.foundational.criticalTotal
-                  ? "Focus on critical items first - they have the biggest impact on your marketing success"
-                  : overallProgress.foundational.completed < overallProgress.foundational.total
-                  ? "Complete your foundation setup to unlock advanced marketing strategies"
-                  : "Great foundation! Time to optimize with ongoing operations"
-                }
-              </p>
+        <div className="progress-card glass-card ongoing">
+          <div className="card-header">
+            <div className="card-icon">🔄</div>
+            <div className="card-info">
+              <h3>Ongoing</h3>
+              <span className="card-subtitle">Maintenance</span>
             </div>
-            <div className="recommendation-action">
-              <button className="action-button">
-                {overallProgress.foundational.criticalCompleted < overallProgress.foundational.criticalTotal
-                  ? "View Critical"
-                  : "Continue Setup"
-                }
-              </button>
+            <div className="card-percentage">
+              {Math.round(overallProgress.ongoing.percentage)}%
             </div>
+          </div>
+          <div className="progress-bar">
+            <div
+              className="progress-fill ongoing"
+              style={{ width: `${overallProgress.ongoing.percentage}%` }}
+            ></div>
+          </div>
+          <div className="progress-stats">
+            <span className="completed">{overallProgress.ongoing.completed}</span>
+            <span className="divider">/</span>
+            <span className="total">{overallProgress.ongoing.total}</span>
+            <span className="label">ongoing done</span>
           </div>
         </div>
 
-        {/* Achievement Badges */}
-        <div className="achievement-showcase">
-          <h4 className="achievement-title">🏆 Your Achievements</h4>
-          <div className="badges-grid">
-            <div className={`badge ${overallProgress.foundational.completed > 0 ? 'earned' : 'locked'}`}>
-              <div className="badge-icon">🌟</div>
-              <span>First Steps</span>
+        <div className="progress-card glass-card revenue">
+          <div className="card-header">
+            <div className="card-icon">💰</div>
+            <div className="card-info">
+              <h3>Revenue Potential</h3>
+              <span className="card-subtitle">Weekly Opportunity</span>
             </div>
-            <div className={`badge ${overallProgress.foundational.criticalCompleted >= 3 ? 'earned' : 'locked'}`}>
-              <div className="badge-icon">⚡</div>
-              <span>Critical Focus</span>
+            <div className="card-percentage">
+              ${calculateRevenueImpact().weeklyPotential}
             </div>
-            <div className={`badge ${overallProgress.foundational.percentage >= 50 ? 'earned' : 'locked'}`}>
-              <div className="badge-icon">🔥</div>
-              <span>Halfway Hero</span>
-            </div>
-            <div className={`badge ${calculateOverallScore() >= 80 ? 'earned' : 'locked'}`}>
-              <div className="badge-icon">👑</div>
-              <span>Marketing Pro</span>
-            </div>
+          </div>
+          <div className="progress-bar">
+            <div
+              className="progress-fill revenue"
+              style={{ width: `${calculateRevenueImpact().completionPercentage}%` }}
+            ></div>
+          </div>
+          <div className="progress-stats">
+            <span className="completed">${calculateRevenueImpact().completedValue}</span>
+            <span className="divider">/</span>
+            <span className="total">${calculateRevenueImpact().totalPotential}</span>
+            <span className="label">revenue unlocked</span>
           </div>
         </div>
       </div>
 
-      <div className="category-section">
-        <h3 className="section-title">🏗️ Foundational Setup (Complete These First)</h3>
-        <p className="section-description">
-          Essential marketing foundations that every restaurant needs. Complete these to establish your digital presence.
-        </p>
+      {/* Next Smart Action */}
+      <div className="next-action-section">
+        <div className="next-action-card glass-card">
+          <div className="action-icon">🎯</div>
+          <div className="action-content">
+            <h3>Next Smart Action</h3>
+            <p>
+              {calculateRevenueImpact().weeklyPotential > 1000
+                ? `Complete more tasks to unlock $${calculateRevenueImpact().weeklyPotential} in weekly revenue potential!`
+                : overallProgress.foundational.criticalCompleted < overallProgress.foundational.criticalTotal
+                ? "Focus on critical items first - they have the biggest impact on your marketing success"
+                : overallProgress.foundational.completed < overallProgress.foundational.total
+                ? "Complete your foundation setup to unlock advanced marketing strategies"
+                : "Great foundation! Time to optimize with ongoing operations"
+              }
+            </p>
+          </div>
+          <button className="action-button glow-button">
+            {overallProgress.foundational.criticalCompleted < overallProgress.foundational.criticalTotal
+              ? "View Critical Tasks"
+              : "Continue Setup"
+            }
+          </button>
+        </div>
+      </div>
+
+      {/* Your Achievements */}
+      <div className="achievements-section">
+        <h3 className="section-title">🏆 Your Achievements</h3>
+        <div className="badges-grid">
+          <div className={`badge glass-card ${overallProgress.foundational.completed > 0 ? 'earned' : 'locked'}`}>
+            <div className="badge-icon">🌟</div>
+            <span>First Steps</span>
+          </div>
+          <div className={`badge glass-card ${overallProgress.foundational.criticalCompleted >= 3 ? 'earned' : 'locked'}`}>
+            <div className="badge-icon">⚡</div>
+            <span>Critical Focus</span>
+          </div>
+          <div className={`badge glass-card ${overallProgress.foundational.percentage >= 50 ? 'earned' : 'locked'}`}>
+            <div className="badge-icon">🔥</div>
+            <span>Halfway Hero</span>
+          </div>
+          <div className={`badge glass-card ${calculateOverallScore() >= 80 ? 'earned' : 'locked'}`}>
+            <div className="badge-icon">👑</div>
+            <span>Marketing Pro</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Foundational Setup Checklist */}
+      <div className="checklist-section">
+        <div className="section-header glass-card">
+          <h3 className="section-title">🏗️ Foundational Setup</h3>
+          <p className="section-description">
+            Complete these first - Essential marketing foundations that every restaurant needs.
+          </p>
+        </div>
         
         {foundationalCategories.map((category) => {
           const categoryProgress = getCategoryProgress(category);
           const isExpanded = expandedCategories[category.category_id];
           
           return (
-            <div key={category.category_id} className="category-container foundational">
-              <div 
+            <div key={category.category_id} className="category-card glass-card">
+              <div
                 className="category-header"
                 onClick={() => toggleCategory(category.category_id)}
               >
@@ -677,7 +589,7 @@ const MarketingFoundations = () => {
                     {categoryProgress.completed}/{categoryProgress.total} ({categoryProgress.percentage}%)
                   </span>
                   <div className="mini-progress-bar">
-                    <div 
+                    <div
                       className="mini-progress-fill"
                       style={{ width: `${categoryProgress.percentage}%` }}
                     ></div>
@@ -691,29 +603,17 @@ const MarketingFoundations = () => {
               {isExpanded && (
                 <div className="category-items">
                   {category.items.map((item) => (
-                    <div key={item.item_id} className={`checklist-item ${getStatusClass(item.status)}`}>
+                    <div key={item.item_id} className={`checklist-item glass-card ${getStatusClass(item.status)}`}>
                       <div className="checkbox-container">
                         <input
                           type="checkbox"
                           id={`item-${item.item_id}`}
                           checked={item.status === 'completed'}
-                          onChange={(e) => {
-                            console.log('🔧 Checkbox input onChange fired:', { itemId: item.item_id, checked: e.target.checked, currentStatus: item.status });
-                            handleCheckboxChange(item.item_id, item.status);
-                          }}
-                          onClick={(e) => {
-                            console.log('🔧 Checkbox input onClick fired:', { itemId: item.item_id, currentStatus: item.status });
-                          }}
+                          onChange={() => handleCheckboxChange(item.item_id, item.status)}
                           disabled={updatingItems[item.item_id]}
-                          className="foundation-checkbox"
+                          className="custom-checkbox"
                         />
-                        <label
-                          htmlFor={`item-${item.item_id}`}
-                          className="checkbox-label"
-                          onClick={(e) => {
-                            console.log('🔧 Checkbox label onClick fired:', { itemId: item.item_id, currentStatus: item.status });
-                          }}
-                        >
+                        <label htmlFor={`item-${item.item_id}`} className="checkbox-label">
                           <span className="checkmark"></span>
                         </label>
                       </div>
@@ -730,9 +630,9 @@ const MarketingFoundations = () => {
                         <p className="item-description">{item.description}</p>
                         
                         {item.external_link && (
-                          <a 
-                            href={item.external_link} 
-                            target="_blank" 
+                          <a
+                            href={item.external_link}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="external-link"
                           >
@@ -755,19 +655,22 @@ const MarketingFoundations = () => {
         })}
       </div>
 
-      <div className="category-section">
-        <h3 className="section-title">🔄 Ongoing Operations (Maintain & Optimize)</h3>
-        <p className="section-description">
-          Continuous marketing activities to maintain momentum and drive growth. Focus on these after completing foundations.
-        </p>
+      {/* Ongoing Operations Checklist */}
+      <div className="checklist-section">
+        <div className="section-header glass-card">
+          <h3 className="section-title">🔄 Ongoing Operations</h3>
+          <p className="section-description">
+            Continuous marketing activities to maintain momentum and drive growth.
+          </p>
+        </div>
         
         {ongoingCategories.map((category) => {
           const categoryProgress = getCategoryProgress(category);
           const isExpanded = expandedCategories[category.category_id];
           
           return (
-            <div key={category.category_id} className="category-container ongoing">
-              <div 
+            <div key={category.category_id} className="category-card glass-card">
+              <div
                 className="category-header"
                 onClick={() => toggleCategory(category.category_id)}
               >
@@ -782,7 +685,7 @@ const MarketingFoundations = () => {
                     {categoryProgress.completed}/{categoryProgress.total} ({categoryProgress.percentage}%)
                   </span>
                   <div className="mini-progress-bar">
-                    <div 
+                    <div
                       className="mini-progress-fill"
                       style={{ width: `${categoryProgress.percentage}%` }}
                     ></div>
@@ -796,29 +699,17 @@ const MarketingFoundations = () => {
               {isExpanded && (
                 <div className="category-items">
                   {category.items.map((item) => (
-                    <div key={item.item_id} className={`checklist-item ${getStatusClass(item.status)}`}>
+                    <div key={item.item_id} className={`checklist-item glass-card ${getStatusClass(item.status)}`}>
                       <div className="checkbox-container">
                         <input
                           type="checkbox"
                           id={`item-${item.item_id}`}
                           checked={item.status === 'completed'}
-                          onChange={(e) => {
-                            console.log('🔧 Checkbox input onChange fired:', { itemId: item.item_id, checked: e.target.checked, currentStatus: item.status });
-                            handleCheckboxChange(item.item_id, item.status);
-                          }}
-                          onClick={(e) => {
-                            console.log('🔧 Checkbox input onClick fired:', { itemId: item.item_id, currentStatus: item.status });
-                          }}
+                          onChange={() => handleCheckboxChange(item.item_id, item.status)}
                           disabled={updatingItems[item.item_id]}
-                          className="foundation-checkbox"
+                          className="custom-checkbox"
                         />
-                        <label
-                          htmlFor={`item-${item.item_id}`}
-                          className="checkbox-label"
-                          onClick={(e) => {
-                            console.log('🔧 Checkbox label onClick fired:', { itemId: item.item_id, currentStatus: item.status });
-                          }}
-                        >
+                        <label htmlFor={`item-${item.item_id}`} className="checkbox-label">
                           <span className="checkmark"></span>
                         </label>
                       </div>
@@ -835,9 +726,9 @@ const MarketingFoundations = () => {
                         <p className="item-description">{item.description}</p>
                         
                         {item.external_link && (
-                          <a 
-                            href={item.external_link} 
-                            target="_blank" 
+                          <a
+                            href={item.external_link}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="external-link"
                           >
@@ -860,40 +751,16 @@ const MarketingFoundations = () => {
         })}
       </div>
 
+      {/* Celebration Message */}
       {overallProgress.foundational.percentage === 100 && (
-        <div className="celebration-message">
+        <div className="celebration-card glass-card">
           <h3>🎉 Foundational Setup Complete!</h3>
           <p>
-            Excellent work! You've completed all essential marketing foundations. 
+            Excellent work! You've completed all essential marketing foundations.
             Your restaurant is now ready to focus on ongoing growth and optimization.
           </p>
         </div>
       )}
-
-      <div className="info-section">
-        <div className="info-box">
-          <h3>💡 About the Momentum Orchestrator</h3>
-          <p>
-            This comprehensive system guides you through every aspect of restaurant marketing success. 
-            Start with foundational items to establish your digital presence, then maintain momentum 
-            with ongoing operational tasks.
-          </p>
-          <p>
-            <strong>Critical items</strong> are marked with badges and should be prioritized. 
-            Your progress is automatically saved and tracked across all categories.
-          </p>
-        </div>
-
-        <div className="next-steps-box">
-          <h3>🚀 Recommended Next Steps</h3>
-          <ul>
-            <li>Complete all <strong>CRITICAL</strong> foundational items first</li>
-            <li>Focus on one category at a time for better results</li>
-            <li>Use other Momentum tools to implement these strategies</li>
-            <li>Review and update your progress regularly</li>
-          </ul>
-        </div>
-      </div>
     </div>
   );
 };

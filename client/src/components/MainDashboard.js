@@ -5,10 +5,9 @@ import AdminDashboard from './AdminDashboard';
 import GetNewCustomers from './GetNewCustomers';
 import BringBackRegulars from './BringBackRegulars';
 import MarketingFoundations from './MarketingFoundations';
-import Navigation from './Navigation';
 
 const MainDashboard = () => {
-  const { user, isAdmin, isRestaurant, isImpersonating, endImpersonation, logout } = useAuth();
+  const { user, isAdmin, isImpersonating, endImpersonation, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
@@ -106,6 +105,17 @@ const MainDashboard = () => {
 
       <header className="app-header">
         <div className="header-content">
+          <div className="header-left">
+            {activeTab === 'marketing-foundations' && (
+              <button
+                className="back-to-dashboard-button"
+                onClick={() => setActiveTab('dashboard')}
+                aria-label="Back to Dashboard"
+              >
+                ← Back to Dashboard
+              </button>
+            )}
+          </div>
           <div className="header-text">
             <h1 className="app-title">Momentum Growth Starter</h1>
             <p className="app-subtitle">
@@ -136,10 +146,7 @@ const MainDashboard = () => {
         </div>
       </header>
 
-      {/* Show navigation for restaurant users, impersonating admins, or when not on dashboard */}
-      {((isRestaurant || isImpersonating) && activeTab !== 'dashboard') && (
-        <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
-      )}
+      {/* Navigation bar removed as requested */}
 
       <main className="app-main">
         {renderActiveComponent()}
