@@ -4,6 +4,7 @@ import uvicorn
 from .database import connect_to_mongo, close_mongo_connection, initialize_collections
 from .routes.auth import router as auth_router
 from .routes.dashboard import router as dashboard_router
+from .routes.checklist import router as checklist_router
 
 # Create FastAPI application instance
 app = FastAPI(
@@ -30,6 +31,7 @@ async def startup_event():
     print("🚀 FastAPI Backend v2 started successfully!")
     print("🔐 Authentication endpoints available at /api/auth")
     print("📊 Dashboard endpoints available at /api/dashboard")
+    print("✅ Checklist endpoints available at /api/checklist")
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -39,6 +41,7 @@ async def shutdown_event():
 # Include routers
 app.include_router(auth_router)
 app.include_router(dashboard_router)
+app.include_router(checklist_router)
 
 # Health check endpoint
 @app.get("/api/health")
@@ -64,7 +67,8 @@ async def root():
         "docs": "/docs",
         "health": "/api/health",
         "auth": "/api/auth",
-        "dashboard": "/api/dashboard"
+        "dashboard": "/api/dashboard",
+        "checklist": "/api/checklist"
     }
 
 if __name__ == "__main__":
