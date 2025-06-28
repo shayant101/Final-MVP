@@ -10,7 +10,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeView, setActiveView] = useState('overview'); // 'overview' or 'restaurants'
-  const { impersonate, endImpersonation, isImpersonating } = useAuth();
+  const { impersonate } = useAuth();
 
   useEffect(() => {
     fetchDashboardData();
@@ -52,19 +52,13 @@ const AdminDashboard = () => {
   const handleImpersonate = async (restaurantId) => {
     try {
       await impersonate(restaurantId);
-      // The auth context will handle the redirect
+      // Force a page refresh to trigger the dashboard switch
+      window.location.reload();
     } catch (error) {
       setError('Failed to start impersonation');
     }
   };
 
-  const handleEndImpersonation = async () => {
-    try {
-      await endImpersonation();
-    } catch (error) {
-      setError('Failed to end impersonation');
-    }
-  };
 
   if (loading && !dashboardData) {
     return (
@@ -89,15 +83,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
-      {isImpersonating && (
-        <div className="impersonation-banner">
-          <span>🎭 IMPERSONATING RESTAURANT</span>
-          <button onClick={handleEndImpersonation} className="end-impersonation-button">
-            Return to Admin View
-          </button>
-        </div>
-      )}
-
       <div className="admin-header">
         <h1>Platform Overview</h1>
         <p>Manage your restaurant platform</p>

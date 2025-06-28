@@ -17,22 +17,41 @@ class DashboardService:
         try:
             # Get collection references
             users_collection = db.database.users
+            restaurants_collection = db.database.restaurants
             campaigns_collection = db.database.campaigns
             checklist_collection = db.database.checklist_status
             
-            # Get restaurant data - handle both ObjectId and string formats
-            try:
-                if isinstance(restaurant_id, str) and len(restaurant_id) == 24:
-                    restaurant = await users_collection.find_one({"_id": ObjectId(restaurant_id)})
-                else:
-                    restaurant = await users_collection.find_one({"_id": restaurant_id})
-            except Exception:
-                # Fallback: try to find by user_id field or email
-                restaurant = await users_collection.find_one({"user_id": restaurant_id})
-                if not restaurant:
-                    restaurant = await users_collection.find_one({"email": restaurant_id})
+            # Get restaurant data - during impersonation, restaurant_id is the actual restaurant document ID
+            restaurant_doc = None
+            user_doc = None
             
-            if not restaurant:
+            try:
+                # First, try to find in restaurants collection (for impersonation case)
+                if isinstance(restaurant_id, str) and len(restaurant_id) == 24:
+                    restaurant_doc = await restaurants_collection.find_one({"_id": ObjectId(restaurant_id)})
+                    
+                if restaurant_doc:
+                    # Found restaurant, now get the corresponding user
+                    user_id = restaurant_doc.get("user_id")
+                    if user_id:
+                        user_doc = await users_collection.find_one({"_id": ObjectId(user_id)})
+                else:
+                    # Fallback: try to find user directly (for direct restaurant login)
+                    try:
+                        user_doc = await users_collection.find_one({"_id": ObjectId(restaurant_id)})
+                        if user_doc and user_doc.get("role") == "restaurant":
+                            # Get the restaurant document for this user
+                            restaurant_doc = await restaurants_collection.find_one({"user_id": str(user_doc["_id"])})
+                    except Exception:
+                        # Final fallback: try to find by user_id field
+                        user_doc = await users_collection.find_one({"user_id": restaurant_id})
+                        if user_doc:
+                            restaurant_doc = await restaurants_collection.find_one({"user_id": restaurant_id})
+                            
+            except Exception as e:
+                print(f"🔍 DEBUG: Error in restaurant lookup: {str(e)}")
+            
+            if not restaurant_doc or not user_doc:
                 raise ValueError("Restaurant not found")
             
             # Get active campaigns (last 3) - handle empty collection
@@ -65,15 +84,15 @@ class DashboardService:
             return {
                 "restaurant": {
                     "restaurant_id": restaurant_id,
-                    "user_id": str(restaurant["_id"]),
-                    "name": restaurant.get("restaurant_name", ""),
-                    "address": restaurant.get("address", ""),
-                    "phone": restaurant.get("phone", ""),
-                    "created_at": restaurant.get("created_at", datetime.utcnow()).isoformat()
+                    "user_id": str(user_doc["_id"]),
+                    "name": restaurant_doc.get("name", ""),
+                    "address": restaurant_doc.get("address", ""),
+                    "phone": restaurant_doc.get("phone", ""),
+                    "created_at": restaurant_doc.get("created_at", datetime.utcnow()).isoformat()
                 },
                 "performanceSnapshot": {
-                    "newCustomersAcquired": restaurant.get("new_customers_acquired", 0) or (10 + int(restaurant_id[-1:], 16) % 40),  # Mock data
-                    "customersReengaged": restaurant.get("customers_reengaged", 0) or (5 + int(restaurant_id[-1:], 16) % 25),  # Mock data
+                    "newCustomersAcquired": restaurant_doc.get("new_customers_acquired", 0) or (10 + int(restaurant_id[-1:], 16) % 40),  # Mock data
+                    "customersReengaged": restaurant_doc.get("customers_reengaged", 0) or (5 + int(restaurant_id[-1:], 16) % 25),  # Mock data
                     "period": "Last 7 Days"
                 },
                 "activeCampaigns": [
@@ -161,33 +180,68 @@ class DashboardService:
         try:
             # Get collection references
             users_collection = db.database.users
+            restaurants_collection = db.database.restaurants
             
-            # Build query
-            query = {"role": "restaurant"}
+            # Build aggregation pipeline to join users and restaurants
+            pipeline = [
+                # Match restaurant users
+                {"$match": {"role": "restaurant"}},
+                # Add string version of _id for join
+                {
+                    "$addFields": {
+                        "user_id_string": {"$toString": "$_id"}
+                    }
+                },
+                # Join with restaurants collection using string user_id
+                {
+                    "$lookup": {
+                        "from": "restaurants",
+                        "localField": "user_id_string",
+                        "foreignField": "user_id",
+                        "as": "restaurant_info"
+                    }
+                },
+                # Unwind restaurant info (should be 1-to-1)
+                {"$unwind": {"path": "$restaurant_info", "preserveNullAndEmptyArrays": True}},
+                # Sort by creation date
+                {"$sort": {"created_at": -1}}
+            ]
+            
+            # Add search filter if provided
             if search:
-                query["restaurant_name"] = {"$regex": search, "$options": "i"}
+                pipeline.insert(1, {
+                    "$match": {
+                        "$or": [
+                            {"restaurant_info.name": {"$regex": search, "$options": "i"}},
+                            {"email": {"$regex": search, "$options": "i"}}
+                        ]
+                    }
+                })
             
-            # Get restaurants
-            restaurants = await users_collection.find(query).sort("created_at", -1).to_list(length=None)
+            # Execute aggregation
+            results = await users_collection.aggregate(pipeline).to_list(length=None)
             
             # Format response to match Node.js structure
-            formatted_restaurants = [
-                {
-                    "restaurant_id": str(restaurant["_id"]),
-                    "user_id": str(restaurant["_id"]),
-                    "name": restaurant.get("restaurant_name", ""),
-                    "address": restaurant.get("address", ""),
-                    "phone": restaurant.get("phone", ""),
-                    "email": restaurant.get("email", ""),
-                    "signup_date": restaurant.get("created_at", datetime.utcnow()).isoformat(),
-                    "created_at": restaurant.get("created_at", datetime.utcnow()).isoformat()
-                }
-                for restaurant in restaurants
-            ]
+            formatted_restaurants = []
+            for result in results:
+                restaurant_info = result.get("restaurant_info", {})
+                formatted_restaurants.append({
+                    "restaurant_id": str(restaurant_info.get("_id", result["_id"])),  # Use actual restaurant ID
+                    "user_id": str(result["_id"]),  # User ID
+                    "name": restaurant_info.get("name", ""),  # Restaurant name from restaurants collection
+                    "address": restaurant_info.get("address", ""),
+                    "phone": restaurant_info.get("phone", ""),
+                    "email": result.get("email", ""),  # Email from users collection
+                    "signup_date": result.get("created_at", datetime.utcnow()).isoformat(),
+                    "created_at": result.get("created_at", datetime.utcnow()).isoformat()
+                })
             
             return {"restaurants": formatted_restaurants}
             
         except Exception as e:
+            print(f"🔍 DEBUG: Error in get_all_restaurants: {str(e)}")
+            import traceback
+            traceback.print_exc()
             raise Exception(f"Error fetching restaurants: {str(e)}")
     
     @staticmethod

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import { dashboardAPI } from '../services/api';
 import './RestaurantDashboard.css';
 
@@ -7,7 +6,6 @@ const RestaurantDashboard = ({ setActiveTab }) => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { user, isImpersonating } = useAuth();
 
   useEffect(() => {
     fetchDashboardData();
@@ -60,12 +58,6 @@ const RestaurantDashboard = ({ setActiveTab }) => {
 
   return (
     <div className="restaurant-dashboard">
-      {isImpersonating && (
-        <div className="impersonation-banner">
-          <span>🎭 IMPERSONATING: {restaurant.name}</span>
-        </div>
-      )}
-
       <div className="dashboard-header">
         <h1>Your Momentum Hub</h1>
         <p>Welcome back to {restaurant.name}!</p>
