@@ -388,8 +388,8 @@ async def get_sms_campaign_status(
         if not twilio_campaign_id:
             raise HTTPException(status_code=404, detail="Twilio campaign ID not found")
         
-        # Mock status response (in real implementation, would call Twilio API)
-        from ..services.mock_twilio import get_sms_delivery_report
+        # Get status using real Twilio service
+        from ..services.twilio_service import get_sms_delivery_report
         status = await get_sms_delivery_report(twilio_campaign_id)
         
         return status

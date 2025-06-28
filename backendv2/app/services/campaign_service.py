@@ -12,7 +12,7 @@ from ..models import (
     SMSCampaignCreate, CampaignUpdate, CampaignMetrics
 )
 from .mock_facebook import create_ad_campaign, get_campaign_status, validate_budget
-from .mock_twilio import send_sms_campaign, get_sms_delivery_report
+from .twilio_service import send_sms_campaign, get_sms_delivery_report
 from .mock_openai import generate_ad_copy, generate_sms_message, generate_promo_code
 from ..utils.csv_parser import parse_customer_csv, filter_lapsed_customers
 
