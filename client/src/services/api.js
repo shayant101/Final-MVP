@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -32,7 +32,7 @@ api.interceptors.response.use(
 export const facebookAdsAPI = {
   createCampaign: async (formData) => {
     try {
-      const response = await api.post('/facebook-ads/create-campaign', formData, {
+      const response = await api.post('/campaigns/facebook-ads', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -45,7 +45,7 @@ export const facebookAdsAPI = {
 
   generatePreview: async (data) => {
     try {
-      const response = await api.post('/facebook-ads/generate-preview', data);
+      const response = await api.post('/campaigns/facebook-ads/preview', data);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.error || 'Failed to generate ad preview');
@@ -54,7 +54,7 @@ export const facebookAdsAPI = {
 
   getCampaignStatus: async (campaignId) => {
     try {
-      const response = await api.get(`/facebook-ads/campaign-status/${campaignId}`);
+      const response = await api.get(`/campaigns/facebook-ads/status/${campaignId}`);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.error || 'Failed to fetch campaign status');
@@ -66,7 +66,7 @@ export const facebookAdsAPI = {
 export const smsCampaignsAPI = {
   createCampaign: async (formData) => {
     try {
-      const response = await api.post('/sms-campaigns/create-campaign', formData, {
+      const response = await api.post('/campaigns/sms', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -79,7 +79,7 @@ export const smsCampaignsAPI = {
 
   generatePreview: async (formData) => {
     try {
-      const response = await api.post('/sms-campaigns/preview', formData, {
+      const response = await api.post('/campaigns/sms/preview', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -92,7 +92,7 @@ export const smsCampaignsAPI = {
 
   downloadSampleCSV: async () => {
     try {
-      const response = await api.get('/sms-campaigns/sample-csv', {
+      const response = await api.get('/campaigns/sms/sample-csv', {
         responseType: 'blob',
       });
       
@@ -114,7 +114,7 @@ export const smsCampaignsAPI = {
 
   getCampaignStatus: async (campaignId) => {
     try {
-      const response = await api.get(`/sms-campaigns/campaign-status/${campaignId}`);
+      const response = await api.get(`/campaigns/sms/status/${campaignId}`);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.error || 'Failed to fetch SMS campaign status');
