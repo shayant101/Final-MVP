@@ -122,7 +122,8 @@ class DashboardService:
                 ],
                 "campaignStats": {
                     "recentCampaigns": recent_campaigns_count
-                }
+                },
+                "momentumMetrics": await DashboardService._calculate_momentum_metrics(restaurant_id)
             }
             
         except Exception as e:
@@ -311,3 +312,172 @@ class DashboardService:
             
         except Exception as e:
             raise Exception(f"Error updating checklist item: {str(e)}")
+    
+    @staticmethod
+    async def _calculate_momentum_metrics(restaurant_id: str) -> Dict[str, Any]:
+        """Calculate marketing score and revenue potential for a restaurant"""
+        try:
+            # Get collection references
+            checklist_collection = db.database.checklist_status
+            checklist_items_collection = db.database.checklist_items
+            
+            # Get all checklist items with their completion status for this restaurant
+            pipeline = [
+                # Match items for this restaurant
+                {"$match": {"restaurant_id": restaurant_id}},
+                # Join with checklist_items to get item details
+                {
+                    "$lookup": {
+                        "from": "checklist_items",
+                        "localField": "checklist_item_id",
+                        "foreignField": "item_id",
+                        "as": "item_details"
+                    }
+                },
+                # Unwind item details
+                {"$unwind": {"path": "$item_details", "preserveNullAndEmptyArrays": True}},
+                # Project needed fields
+                {
+                    "$project": {
+                        "is_complete": 1,
+                        "item_type": "$item_details.type",
+                        "is_critical": "$item_details.is_critical",
+                        "title": "$item_details.title",
+                        "description": "$item_details.description"
+                    }
+                }
+            ]
+            
+            checklist_data = await checklist_collection.aggregate(pipeline).to_list(length=None)
+            
+            # Calculate marketing score using the same algorithm as MarketingFoundations.js
+            foundational_items = [item for item in checklist_data if item.get("item_type") == "foundational"]
+            ongoing_items = [item for item in checklist_data if item.get("item_type") == "ongoing"]
+            
+            # Calculate foundational progress
+            foundational_total = len(foundational_items)
+            foundational_completed = len([item for item in foundational_items if item.get("is_complete")])
+            foundational_critical = [item for item in foundational_items if item.get("is_critical") == 1]
+            foundational_critical_total = len(foundational_critical)
+            foundational_critical_completed = len([item for item in foundational_critical if item.get("is_complete")])
+            
+            # Calculate ongoing progress
+            ongoing_total = len(ongoing_items)
+            ongoing_completed = len([item for item in ongoing_items if item.get("is_complete")])
+            
+            # Calculate weighted marketing score (same algorithm as frontend)
+            foundational_weight = 0.7
+            ongoing_weight = 0.3
+            critical_bonus = 0.1
+            
+            foundational_base_score = (foundational_completed / max(foundational_total, 1)) * 100
+            critical_score = (foundational_critical_completed / max(foundational_critical_total, 1)) * 100
+            foundational_score = (foundational_base_score * (1 - critical_bonus)) + (critical_score * critical_bonus)
+            
+            ongoing_score = (ongoing_completed / max(ongoing_total, 1)) * 100
+            
+            marketing_score = (foundational_score * foundational_weight) + (ongoing_score * ongoing_weight)
+            marketing_score = min(round(marketing_score), 100)
+            
+            # Calculate revenue potential using similar logic as MarketingFoundations.js
+            revenue_impacts = {
+                'google_business_optimization': 450,
+                'google_reviews_management': 320,
+                'social_media_posting': 280,
+                'social_media_advertising': 680,
+                'online_ordering_setup': 890,
+                'menu_optimization': 340,
+                'upselling_strategies': 520,
+                'email_campaigns': 380,
+                'promotional_campaigns': 450,
+                'loyalty_program': 420,
+                'rewards_system': 290,
+                'facebook_advertising': 720,
+                'google_ads': 650,
+                'promotional_offers': 380,
+                'customer_feedback': 180,
+                'review_management': 220,
+            }
+            
+            total_potential = 0
+            completed_revenue = 0
+            
+            for item in checklist_data:
+                # Map item to revenue category
+                revenue_category = DashboardService._get_revenue_category(
+                    item.get("title", ""),
+                    item.get("description", "")
+                )
+                impact = revenue_impacts.get(revenue_category, 0)
+                
+                total_potential += impact
+                if item.get("is_complete"):
+                    completed_revenue += impact
+            
+            weekly_revenue_potential = max(0, total_potential - completed_revenue)
+            
+            return {
+                "marketingScore": marketing_score,
+                "weeklyRevenuePotential": round(weekly_revenue_potential),
+                "completedRevenue": round(completed_revenue),
+                "totalPotential": round(total_potential),
+                "foundationalProgress": {
+                    "completed": foundational_completed,
+                    "total": foundational_total,
+                    "percentage": round((foundational_completed / max(foundational_total, 1)) * 100)
+                },
+                "ongoingProgress": {
+                    "completed": ongoing_completed,
+                    "total": ongoing_total,
+                    "percentage": round((ongoing_completed / max(ongoing_total, 1)) * 100)
+                }
+            }
+            
+        except Exception as e:
+            print(f"🔍 DEBUG: Error calculating momentum metrics: {str(e)}")
+            # Return default values if calculation fails
+            return {
+                "marketingScore": 0,
+                "weeklyRevenuePotential": 0,
+                "completedRevenue": 0,
+                "totalPotential": 0,
+                "foundationalProgress": {"completed": 0, "total": 0, "percentage": 0},
+                "ongoingProgress": {"completed": 0, "total": 0, "percentage": 0}
+            }
+    
+    @staticmethod
+    def _get_revenue_category(title: str, description: str) -> str:
+        """Map checklist items to revenue categories - matches MarketingFoundations.js logic"""
+        text = (title + ' ' + description).lower()
+        
+        if 'google business' in text or 'gbp' in text:
+            return 'google_business_optimization'
+        if 'review' in text and 'google' in text:
+            return 'google_reviews_management'
+        if 'social media' in text and 'post' in text:
+            return 'social_media_posting'
+        if 'facebook' in text and 'ad' in text:
+            return 'facebook_advertising'
+        if 'google' in text and 'ad' in text:
+            return 'google_ads'
+        if 'online ordering' in text or 'delivery' in text:
+            return 'online_ordering_setup'
+        if 'menu' in text and ('optim' in text or 'updat' in text):
+            return 'menu_optimization'
+        if 'upsell' in text or 'cross-sell' in text:
+            return 'upselling_strategies'
+        if 'email' in text and 'campaign' in text:
+            return 'email_campaigns'
+        if 'promotion' in text or 'offer' in text:
+            return 'promotional_campaigns'
+        if 'loyalty' in text or 'reward' in text:
+            return 'loyalty_program'
+        if 'social media' in text and 'ad' in text:
+            return 'social_media_advertising'
+        if 'feedback' in text or 'survey' in text:
+            return 'customer_feedback'
+        if 'review' in text and 'google' not in text:
+            return 'review_management'
+        
+        # Default for foundational items
+        return 'google_business_optimization'
