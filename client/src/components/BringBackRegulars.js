@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { smsCampaignsAPI } from '../services/api';
 import './BringBackRegulars.css';
 
-const BringBackRegulars = () => {
+const BringBackRegulars = ({ onBackToDashboard }) => {
   const [formData, setFormData] = useState({
     restaurantName: '',
     offer: '',

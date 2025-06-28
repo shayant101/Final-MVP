@@ -32,6 +32,10 @@ const MainDashboard = () => {
     logout();
   };
 
+  const handleBackToDashboard = () => {
+    setActiveTab('dashboard');
+  };
+
   const renderActiveComponent = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -44,9 +48,9 @@ const MainDashboard = () => {
           <RestaurantDashboard setActiveTab={setActiveTab} />
         );
       case 'get-new-customers':
-        return <GetNewCustomers />;
+        return <GetNewCustomers onBackToDashboard={handleBackToDashboard} />;
       case 'bring-back-regulars':
-        return <BringBackRegulars />;
+        return <BringBackRegulars onBackToDashboard={handleBackToDashboard} />;
       case 'marketing-foundations':
         return <MarketingFoundations />;
       default:
@@ -106,10 +110,12 @@ const MainDashboard = () => {
       <header className="app-header">
         <div className="header-content">
           <div className="header-left">
-            {activeTab === 'marketing-foundations' && (
+            {(activeTab === 'marketing-foundations' ||
+              activeTab === 'get-new-customers' ||
+              activeTab === 'bring-back-regulars') && (
               <button
                 className="back-to-dashboard-button"
-                onClick={() => setActiveTab('dashboard')}
+                onClick={handleBackToDashboard}
                 aria-label="Back to Dashboard"
               >
                 ← Back to Dashboard

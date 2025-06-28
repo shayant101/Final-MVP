@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { facebookAdsAPI } from '../services/api';
 import './GetNewCustomers.css';
 
-const GetNewCustomers = () => {
+const GetNewCustomers = ({ onBackToDashboard }) => {
   const [formData, setFormData] = useState({
     restaurantName: '',
     itemToPromote: '',

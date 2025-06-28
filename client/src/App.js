@@ -4,6 +4,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import MainDashboard from './components/MainDashboard';
 import Login from './components/Login';
+import AIFeatures from './components/AIFeatures';
 import './App.css';
 
 function App() {
@@ -17,6 +18,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <MainDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-features"
+            element={
+              <ProtectedRoute>
+                <AIFeatures />
               </ProtectedRoute>
             }
           />

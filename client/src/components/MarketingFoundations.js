@@ -621,7 +621,7 @@ const MarketingFoundations = () => {
       {/* Ongoing Operations Checklist */}
       <div className="checklist-section">
         <div className="section-header glass-card">
-          <h3 className="section-title">🔄 Ongoing Operations</h3>
+          <h3 className="section-title">⚙️ Ongoing Operations</h3>
           <p className="section-description">
             Continuous marketing activities to maintain momentum and drive growth.
           </p>

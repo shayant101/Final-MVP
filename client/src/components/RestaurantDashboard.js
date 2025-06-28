@@ -23,15 +23,6 @@ const RestaurantDashboard = ({ setActiveTab }) => {
     }
   };
 
-  const handleChecklistToggle = async (itemId, currentStatus) => {
-    try {
-      await dashboardAPI.updateChecklistItem(itemId, !currentStatus);
-      // Refresh dashboard data
-      fetchDashboardData();
-    } catch (error) {
-      setError('Failed to update checklist item');
-    }
-  };
 
   if (loading) {
     return (
@@ -54,7 +45,7 @@ const RestaurantDashboard = ({ setActiveTab }) => {
     );
   }
 
-  const { restaurant, performanceSnapshot, activeCampaigns, pendingTasks } = dashboardData;
+  const { restaurant, performanceSnapshot, activeCampaigns } = dashboardData;
 
   return (
     <div className="restaurant-dashboard">
@@ -124,34 +115,33 @@ const RestaurantDashboard = ({ setActiveTab }) => {
           </div>
         </div>
 
-        {/* What's Next / Pending Tasks */}
-        <div className="dashboard-card tasks-card">
+        {/* AI Marketing Features */}
+        <div className="dashboard-card ai-marketing-card">
+          {/* Shine layers for enhanced glassmorphism */}
+          <div className="shine-layer-1"></div>
+          <div className="shine-layer-2"></div>
+          <div className="edge-highlight"></div>
+          
           <div className="card-header">
-            <h3>✅ What's Next?</h3>
+            <h3>🧠 AI Marketing</h3>
+            <span className="period">Powered by AI</span>
           </div>
-          <div className="tasks-list">
-            {pendingTasks.length > 0 ? (
-              pendingTasks.map(task => (
-                <div key={task.status_id} className="task-item">
-                  <label className="task-checkbox">
-                    <input
-                      type="checkbox"
-                      checked={task.is_complete}
-                      onChange={() => handleChecklistToggle(task.status_id, task.is_complete)}
-                    />
-                    <span className="checkmark"></span>
-                  </label>
-                  <div className="task-content">
-                    <div className="task-name">{task.checklist_item_name}</div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="all-tasks-complete">
-                <p>🎉 All tasks completed!</p>
-                <p>You're all set up for success.</p>
-              </div>
-            )}
+          <div className="ai-marketing-content">
+            <div className="ai-marketing-icon">
+              <div className="ai-brain-animation">🧠</div>
+            </div>
+            <div className="ai-marketing-text">
+              <h4>Unlock AI-Powered Growth</h4>
+              <p>Discover intelligent tools to optimize your menu, grade your digital presence, and generate compelling marketing content.</p>
+            </div>
+            <button
+              className="ai-marketing-cta"
+              onClick={() => window.location.href = '/ai-features'}
+            >
+              <span className="cta-icon">✨</span>
+              Explore AI Features
+              <span className="cta-arrow">→</span>
+            </button>
           </div>
         </div>
 

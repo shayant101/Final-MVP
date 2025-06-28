@@ -296,102 +296,432 @@
   color: #FFFFFF !important;
 }
 
-/* Tasks Card */
-.tasks-list {
+/* AI Marketing Card - Enhanced Premium Glassmorphism Style */
+.ai-marketing-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+}
+
+.dark-mode .ai-marketing-card {
+  background: rgba(15, 23, 42, 0.3);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 2px solid rgba(148, 163, 184, 0.4);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(148, 163, 184, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Primary shine overlay */
+.ai-marketing-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg,
+    rgba(124, 58, 237, 0.15) 0%,
+    rgba(168, 85, 247, 0.1) 25%,
+    rgba(59, 130, 246, 0.15) 50%,
+    rgba(168, 85, 247, 0.1) 75%,
+    rgba(124, 58, 237, 0.15) 100%);
+  pointer-events: none;
+  z-index: 0;
+  animation: shimmerPulse 3s ease-in-out infinite;
+}
+
+/* Animated shine sweep effect */
+.ai-marketing-card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0.9) 52%,
+    rgba(255, 255, 255, 0.8) 54%,
+    transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  animation: shineSweep 4s ease-in-out infinite;
+  transform: rotate(45deg);
+}
+
+.dark-mode .ai-marketing-card::after {
+  background: linear-gradient(45deg,
+    transparent 30%,
+    rgba(148, 163, 184, 0.6) 50%,
+    rgba(255, 255, 255, 0.4) 52%,
+    rgba(148, 163, 184, 0.6) 54%,
+    transparent 70%);
+}
+
+/* Multiple light reflection layers */
+.ai-marketing-card .shine-layer-1 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%);
+  pointer-events: none;
+  z-index: 2;
+  animation: topShine 2.5s ease-in-out infinite alternate;
+}
+
+.ai-marketing-card .shine-layer-2 {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: linear-gradient(0deg,
+    rgba(124, 58, 237, 0.3) 0%,
+    rgba(168, 85, 247, 0.2) 50%,
+    transparent 100%);
+  pointer-events: none;
+  z-index: 2;
+  animation: bottomGlow 3s ease-in-out infinite alternate;
+}
+
+.dark-mode .ai-marketing-card .shine-layer-1 {
+  background: linear-gradient(180deg,
+    rgba(148, 163, 184, 0.3) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%);
+}
+
+.dark-mode .ai-marketing-card .shine-layer-2 {
+  background: linear-gradient(0deg,
+    rgba(139, 92, 246, 0.4) 0%,
+    rgba(167, 139, 250, 0.3) 50%,
+    transparent 100%);
+}
+
+/* Iridescent edge highlights */
+.ai-marketing-card .edge-highlight {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: linear-gradient(45deg,
+    rgba(255, 0, 150, 0.3),
+    rgba(0, 255, 255, 0.3),
+    rgba(255, 255, 0, 0.3),
+    rgba(255, 0, 150, 0.3)) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: subtract;
+  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  mask-composite: subtract;
+  pointer-events: none;
+  z-index: 3;
+  animation: rainbowShine 4s linear infinite;
+  opacity: 0.6;
+}
+
+@keyframes shimmerPulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+@keyframes shineSweep {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  50% { transform: translateX(0%) translateY(0%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+@keyframes topShine {
+  0% { opacity: 0.6; transform: scaleY(1); }
+  100% { opacity: 1; transform: scaleY(1.1); }
+}
+
+@keyframes bottomGlow {
+  0% { opacity: 0.7; transform: scaleY(1); }
+  100% { opacity: 1; transform: scaleY(1.2); }
+}
+
+@keyframes rainbowShine {
+  0% { filter: hue-rotate(0deg) brightness(1.2); }
+  25% { filter: hue-rotate(90deg) brightness(1.4); }
+  50% { filter: hue-rotate(180deg) brightness(1.6); }
+  75% { filter: hue-rotate(270deg) brightness(1.4); }
+  100% { filter: hue-rotate(360deg) brightness(1.2); }
+}
+
+.ai-marketing-card .card-header {
+  position: relative;
+  z-index: 4;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.dark-mode .ai-marketing-card .card-header {
+  border-bottom-color: rgba(148, 163, 184, 0.3);
+  background: transparent;
+}
+
+.ai-marketing-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-.task-item {
-  display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background: rgba(1, 90, 246, 0.05);
-  border-radius: 8px;
-  border: 1px solid rgba(1, 90, 246, 0.1);
-  transition: all 0.2s ease;
-}
-
-.dark-mode .task-item {
-  background: rgba(96, 165, 250, 0.1);
-  border-color: rgba(96, 165, 250, 0.2);
-}
-
-.task-item:hover {
-  background: rgba(1, 90, 246, 0.08);
-}
-
-.dark-mode .task-item:hover {
-  background: rgba(96, 165, 250, 0.15);
-}
-
-.task-checkbox {
+  gap: 20px;
+  padding: 8px;
   position: relative;
-  cursor: pointer;
+  z-index: 4;
+  text-align: center;
 }
 
-.task-checkbox input {
-  opacity: 0;
-  position: absolute;
-}
-
-.checkmark {
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--color-border);
-  border-radius: 4px;
+.ai-marketing-icon {
   display: flex;
-  align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
-  background: var(--color-background-container);
+  align-items: center;
+  width: 80px;
+  height: 80px;
+  background: rgba(124, 58, 237, 0.2);
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  box-shadow:
+    0 0 20px rgba(124, 58, 237, 0.4),
+    0 0 40px rgba(168, 85, 247, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -2px 0 rgba(124, 58, 237, 0.2);
+  position: relative;
+  overflow: hidden;
+  animation: iconGlow 2s ease-in-out infinite alternate;
 }
 
-.dark-mode .checkmark {
-  border-color: var(--color-dark-border);
-  background: var(--color-dark-background-container);
+.dark-mode .ai-marketing-icon {
+  background: rgba(139, 92, 246, 0.3);
+  border-color: rgba(148, 163, 184, 0.5);
+  box-shadow:
+    0 0 20px rgba(139, 92, 246, 0.5),
+    0 0 40px rgba(167, 139, 250, 0.4),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -2px 0 rgba(139, 92, 246, 0.3);
 }
 
-.task-checkbox input:checked + .checkmark {
-  background: var(--color-brand-blue);
-  border-color: var(--color-brand-blue);
+/* Icon shine effect */
+.ai-marketing-icon::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 70%);
+  animation: iconShine 3s linear infinite;
+  pointer-events: none;
 }
 
-.dark-mode .task-checkbox input:checked + .checkmark {
-  background: var(--color-dark-brand-blue);
-  border-color: var(--color-dark-brand-blue);
+@keyframes iconGlow {
+  0% {
+    box-shadow:
+      0 0 20px rgba(124, 58, 237, 0.4),
+      0 0 40px rgba(168, 85, 247, 0.3),
+      inset 0 2px 0 rgba(255, 255, 255, 0.3),
+      inset 0 -2px 0 rgba(124, 58, 237, 0.2);
+  }
+  100% {
+    box-shadow:
+      0 0 30px rgba(124, 58, 237, 0.6),
+      0 0 60px rgba(168, 85, 247, 0.5),
+      inset 0 2px 0 rgba(255, 255, 255, 0.4),
+      inset 0 -2px 0 rgba(124, 58, 237, 0.3);
+  }
 }
 
-.task-checkbox input:checked + .checkmark::after {
-  content: '✓';
-  color: white;
-  font-size: 14px;
-  font-weight: bold;
+@keyframes iconShine {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
 }
 
-.task-content {
-  flex: 1;
+.ai-brain-animation {
+  font-size: 32px;
+  animation: pulse 2s ease-in-out infinite;
 }
 
-.task-name {
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.ai-marketing-text h4 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 700;
   color: var(--color-primary-text);
+  background: linear-gradient(135deg, #7C3AED, #A855F7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark-mode .ai-marketing-text h4 {
+  background: linear-gradient(135deg, #8B5CF6, #A78BFA);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.ai-marketing-text p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-secondary-text);
   font-weight: 500;
 }
 
-.dark-mode .task-name {
-  color: #FFFFFF !important;
+.dark-mode .ai-marketing-text p {
+  color: #E2E8F0 !important;
 }
 
-.all-tasks-complete {
-  text-align: center;
-  padding: 20px;
-  color: var(--color-success);
+.ai-marketing-cta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.95), rgba(168, 85, 247, 0.95));
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow:
+    0 4px 15px rgba(124, 58, 237, 0.4),
+    0 0 20px rgba(168, 85, 247, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(124, 58, 237, 0.2);
+  position: relative;
+  overflow: hidden;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.dark-mode .all-tasks-complete {
-  color: #68D391 !important;
+.ai-marketing-cta:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow:
+    0 8px 25px rgba(124, 58, 237, 0.6),
+    0 0 30px rgba(168, 85, 247, 0.5),
+    0 0 50px rgba(124, 58, 237, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(124, 58, 237, 0.3);
+  background: linear-gradient(135deg, rgba(109, 40, 217, 0.98), rgba(147, 51, 234, 0.98));
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.dark-mode .ai-marketing-cta {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.95), rgba(167, 139, 250, 0.95));
+  border-color: rgba(148, 163, 184, 0.4);
+  box-shadow:
+    0 4px 15px rgba(139, 92, 246, 0.4),
+    0 0 20px rgba(167, 139, 250, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(139, 92, 246, 0.2);
+}
+
+.dark-mode .ai-marketing-cta:hover {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.98), rgba(139, 92, 246, 0.98));
+  box-shadow:
+    0 8px 25px rgba(139, 92, 246, 0.6),
+    0 0 30px rgba(167, 139, 250, 0.5),
+    0 0 50px rgba(139, 92, 246, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(139, 92, 246, 0.3);
+  border-color: rgba(148, 163, 184, 0.5);
+}
+
+/* CTA Button shine sweep */
+.ai-marketing-cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    rgba(255, 255, 255, 0.6),
+    rgba(255, 255, 255, 0.4),
+    transparent);
+  transition: left 0.5s ease;
+  pointer-events: none;
+}
+
+.ai-marketing-cta:hover::before {
+  left: 100%;
+}
+
+/* Continuous subtle shine animation */
+.ai-marketing-cta::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 60%);
+  animation: ctaShine 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes ctaShine {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+.cta-icon {
+  font-size: 18px;
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.2); }
+}
+
+.cta-arrow {
+  font-size: 16px;
+  transition: transform 0.3s ease;
+}
+
+.ai-marketing-cta:hover .cta-arrow {
+  transform: translateX(4px);
 }
 
 /* Quick Links Card */
@@ -435,6 +765,17 @@
   transform: translateY(-2px);
 }
 
+.quick-link-button.ai-features {
+  background: linear-gradient(135deg, #7C3AED, #A855F7);
+  color: white;
+}
+
+.quick-link-button.ai-features:hover {
+  background: linear-gradient(135deg, #6D28D9, #9333EA);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(124, 58, 237, 0.3);
+}
+
 .quick-link-button.tertiary {
   background: var(--color-warning);
   color: white;
@@ -453,6 +794,15 @@
 .dark-mode .quick-link-button.secondary {
   background: #059669;
   color: #FFFFFF !important;
+}
+
+.dark-mode .quick-link-button.ai-features {
+  background: linear-gradient(135deg, #8B5CF6, #A78BFA);
+  color: #FFFFFF !important;
+}
+
+.dark-mode .quick-link-button.ai-features:hover {
+  background: linear-gradient(135deg, #7C3AED, #8B5CF6);
 }
 
 .dark-mode .quick-link-button.tertiary {
