@@ -13,7 +13,8 @@ from ..models import (
 )
 from .mock_facebook import create_ad_campaign, get_campaign_status, validate_budget
 from .twilio_service import send_sms_campaign, get_sms_delivery_report
-from .mock_openai import generate_ad_copy, generate_sms_message, generate_promo_code
+from .openai_service import openai_service
+from .mock_openai import generate_promo_code
 from ..utils.csv_parser import parse_customer_csv, filter_lapsed_customers
 
 class CampaignService:
@@ -37,7 +38,7 @@ class CampaignService:
             promo_code = generate_promo_code(campaign_data.itemToPromote)
             
             # Generate ad copy
-            ad_copy_result = await generate_ad_copy(
+            ad_copy_result = await openai_service.generate_ad_copy(
                 campaign_data.restaurantName,
                 campaign_data.itemToPromote,
                 campaign_data.offer
@@ -156,11 +157,12 @@ class CampaignService:
             sms_results = []
             for customer in lapsed_customers:
                 try:
-                    sms_result = await generate_sms_message(
+                    sms_result = await openai_service.generate_sms_message(
                         campaign_data.restaurantName,
                         customer["customer_name"],
                         campaign_data.offer,
-                        campaign_data.offerCode
+                        campaign_data.offerCode,
+                        "winback"
                     )
                     
                     sms_results.append({

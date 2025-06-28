@@ -6,6 +6,7 @@ from .routes.auth import router as auth_router
 from .routes.dashboard import router as dashboard_router
 from .routes.checklist import router as checklist_router
 from .routes.campaigns import router as campaigns_router
+from .routes.content_generation import router as content_router
 
 # Create FastAPI application instance
 app = FastAPI(
@@ -34,6 +35,7 @@ async def startup_event():
     print("📊 Dashboard endpoints available at /api/dashboard")
     print("✅ Checklist endpoints available at /api/checklist")
     print("📢 Campaign endpoints available at /api/campaigns")
+    print("🤖 Content generation endpoints available at /api/content")
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -45,6 +47,7 @@ app.include_router(auth_router)
 app.include_router(dashboard_router)
 app.include_router(checklist_router)
 app.include_router(campaigns_router)
+app.include_router(content_router)
 
 # Health check endpoint
 @app.get("/api/health")
@@ -72,7 +75,8 @@ async def root():
         "auth": "/api/auth",
         "dashboard": "/api/dashboard",
         "checklist": "/api/checklist",
-        "campaigns": "/api/campaigns"
+        "campaigns": "/api/campaigns",
+        "content": "/api/content"
     }
 
 if __name__ == "__main__":
