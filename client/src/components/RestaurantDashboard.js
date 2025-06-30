@@ -55,10 +55,10 @@ const RestaurantDashboard = ({ setActiveTab }) => {
       </div>
 
       <div className="dashboard-grid">
-        {/* Performance Snapshot */}
+        {/* Analytics */}
         <div className="dashboard-card performance-card">
           <div className="card-header">
-            <h3>📊 Performance Snapshot</h3>
+            <h3>📊 Analytics</h3>
             <span className="period">{performanceSnapshot.period}</span>
           </div>
           <div className="performance-metrics">
@@ -76,14 +76,14 @@ const RestaurantDashboard = ({ setActiveTab }) => {
           <div className="performance-insights-compact">
             <div className="compact-stats">
               <div className="compact-stat">
-                <span className="compact-icon">📈</span>
-                <span className="compact-value">{Math.round((performanceSnapshot.newCustomersAcquired / 30) * 100)}%</span>
-                <span className="compact-label">Growth</span>
+                <span className="compact-icon">💰</span>
+                <span className="compact-value">$763</span>
+                <span className="compact-label">Revenue Increase</span>
               </div>
               <div className="compact-stat">
                 <span className="compact-icon">🎯</span>
                 <span className="compact-value">{Math.round(((performanceSnapshot.newCustomersAcquired + performanceSnapshot.customersReengaged) / 2) * 1.2)}</span>
-                <span className="compact-label">Goal</span>
+                <span className="compact-label">Monthly Goal</span>
               </div>
               <div className="compact-stat">
                 <span className="compact-icon">
@@ -94,7 +94,7 @@ const RestaurantDashboard = ({ setActiveTab }) => {
                    performanceSnapshot.newCustomersAcquired >= 5 ? 'Good' :
                    'Growing'}
                 </span>
-                <span className="compact-label">Status</span>
+                <span className="compact-label">Performance</span>
               </div>
             </div>
           </div>
@@ -131,7 +131,6 @@ const RestaurantDashboard = ({ setActiveTab }) => {
             ) : (
               <div className="growth-potential-visual">
                 <div className="visual-header">
-                  <h4>Impact</h4>
                   <p>Your progress vs campaign potential</p>
                 </div>
                 <div className="line-chart">
