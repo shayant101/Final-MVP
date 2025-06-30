@@ -364,7 +364,9 @@ class WebScraperService:
         website_data["has_menu"] = any(word in text_content for word in ['menu', 'food', 'dishes', 'cuisine'])
         website_data["has_contact"] = any(word in text_content for word in ['contact', 'phone', 'address', 'location'])
         website_data["has_hours"] = any(word in text_content for word in ['hours', 'open', 'closed', 'monday', 'tuesday'])
-        website_data["has_online_ordering"] = any(word in text_content for word in ['order online', 'delivery', 'takeout', 'grubhub', 'doordash'])
+        # Enhanced online ordering detection
+        website_data["has_online_ordering"] = self._detect_online_ordering(soup, text_content)
+        website_data["ordering_details"] = self._get_ordering_details(soup, text_content)
         
         # Check mobile friendliness
         viewport_tag = soup.find('meta', attrs={'name': 'viewport'})
@@ -572,6 +574,202 @@ class WebScraperService:
             "redirects": 0,
             "error": "Performance analysis failed"
         }
+
+    async def scrape_website(self, website_url: str) -> Dict[str, Any]:
+        """
+        Main scraping method that combines all analysis
+        """
+        try:
+            website_data = await self.scrape_website_data(website_url)
+            if website_data["success"]:
+                # Add order button detection
+                order_analysis = await self._analyze_order_capabilities(website_url)
+                website_data["data"]["order_analysis"] = order_analysis
+            
+            return website_data
+        except Exception as e:
+            return self._get_fallback_website_data(str(e))
+    
+    async def _analyze_order_capabilities(self, website_url: str) -> Dict[str, Any]:
+        """Analyze online ordering capabilities"""
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout, headers={'User-Agent': self.session.headers['User-Agent']}) as client:
+                response = await client.get(website_url, follow_redirects=True)
+                
+                if response.status_code != 200:
+                    return {"has_ordering": False, "confidence": 0}
+                
+                soup = BeautifulSoup(response.content, 'html.parser')
+                html_content = response.text.lower()
+                
+                return self._detect_comprehensive_ordering(soup, html_content)
+                
+        except Exception as e:
+            return {"has_ordering": False, "confidence": 0, "error": str(e)}
+    
+    def _detect_online_ordering(self, soup: BeautifulSoup, text_content: str) -> bool:
+        """Enhanced online ordering detection"""
+        # Basic keyword detection (existing logic)
+        basic_keywords = ['order online', 'delivery', 'takeout', 'grubhub', 'doordash', 'ubereats']
+        if any(word in text_content for word in basic_keywords):
+            return True
+        
+        # Button text detection
+        order_buttons = self._find_order_buttons(soup)
+        if order_buttons:
+            return True
+        
+        # Platform link detection
+        platform_links = self._find_delivery_platform_links(soup)
+        if platform_links:
+            return True
+        
+        return False
+    
+    def _get_ordering_details(self, soup: BeautifulSoup, text_content: str) -> Dict[str, Any]:
+        """Get detailed ordering information"""
+        return {
+            "order_buttons": self._find_order_buttons(soup),
+            "delivery_platforms": self._find_delivery_platform_links(soup),
+            "ordering_methods": self._find_ordering_methods(text_content),
+            "has_menu_integration": self._has_menu_integration(soup, text_content)
+        }
+    
+    def _detect_comprehensive_ordering(self, soup: BeautifulSoup, html_content: str) -> Dict[str, Any]:
+        """Comprehensive ordering capability detection"""
+        result = {
+            "has_ordering": False,
+            "confidence": 0,
+            "order_buttons": [],
+            "delivery_platforms": [],
+            "ordering_methods": [],
+            "details": {}
+        }
+        
+        # Detect order buttons
+        order_buttons = self._find_order_buttons(soup)
+        result["order_buttons"] = order_buttons
+        
+        # Detect delivery platforms
+        platforms = self._find_delivery_platform_links(soup)
+        result["delivery_platforms"] = platforms
+        
+        # Detect ordering methods
+        methods = self._find_ordering_methods(html_content)
+        result["ordering_methods"] = methods
+        
+        # Calculate confidence
+        confidence = 0
+        if order_buttons:
+            confidence += 40
+        if platforms:
+            confidence += 35
+        if "online_ordering" in methods:
+            confidence += 25
+        
+        result["confidence"] = min(confidence, 100)
+        result["has_ordering"] = confidence > 50
+        
+        result["details"] = {
+            "button_count": len(order_buttons),
+            "platform_count": len(platforms),
+            "method_count": len(methods)
+        }
+        
+        return result
+    
+    def _find_order_buttons(self, soup: BeautifulSoup) -> List[Dict[str, str]]:
+        """Find order-related buttons and links"""
+        order_buttons = []
+        
+        # Order button text patterns
+        order_patterns = [
+            r'order\s+online', r'order\s+now', r'place\s+order', r'start\s+order',
+            r'order\s+delivery', r'order\s+pickup', r'delivery\s+order', r'pickup\s+order',
+            r'online\s+menu', r'view\s+menu\s+&\s+order', r'menu\s+&\s+order'
+        ]
+        
+        # Find clickable elements
+        clickable = soup.find_all(['a', 'button', 'div'],
+                                 attrs={'href': True, 'onclick': True, 'class': True})
+        clickable.extend(soup.find_all(['a', 'button']))
+        
+        for element in clickable:
+            text = element.get_text().strip().lower()
+            
+            for pattern in order_patterns:
+                if re.search(pattern, text, re.IGNORECASE):
+                    order_buttons.append({
+                        "text": element.get_text().strip(),
+                        "type": element.name,
+                        "href": element.get('href', ''),
+                        "pattern_matched": pattern
+                    })
+                    break
+        
+        return order_buttons
+    
+    def _find_delivery_platform_links(self, soup: BeautifulSoup) -> List[Dict[str, str]]:
+        """Find delivery platform integrations"""
+        platforms = []
+        
+        platform_patterns = {
+            'doordash': r'doordash\.com',
+            'ubereats': r'ubereats\.com',
+            'grubhub': r'grubhub\.com',
+            'postmates': r'postmates\.com',
+            'seamless': r'seamless\.com',
+            'caviar': r'trycaviar\.com',
+            'chownow': r'chownow\.com',
+            'toast': r'toasttab\.com'
+        }
+        
+        links = soup.find_all('a', href=True)
+        
+        for platform, pattern in platform_patterns.items():
+            for link in links:
+                href = link.get('href', '').lower()
+                text = link.get_text().lower()
+                
+                if re.search(pattern, href, re.IGNORECASE):
+                    platforms.append({
+                        "platform": platform,
+                        "url": link.get('href'),
+                        "text": link.get_text().strip(),
+                        "type": "direct_link"
+                    })
+                    break
+        
+        return platforms
+    
+    def _find_ordering_methods(self, html_content: str) -> List[str]:
+        """Find available ordering methods"""
+        methods = []
+        
+        method_patterns = {
+            'online_ordering': [r'order\s+online', r'online\s+ordering'],
+            'phone_ordering': [r'call\s+to\s+order', r'phone\s+orders?'],
+            'delivery': [r'delivery\s+available', r'we\s+deliver'],
+            'pickup': [r'pickup\s+available', r'takeout', r'curbside'],
+            'catering': [r'catering\s+available', r'catering\s+orders?']
+        }
+        
+        for method, patterns in method_patterns.items():
+            for pattern in patterns:
+                if re.search(pattern, html_content, re.IGNORECASE):
+                    methods.append(method)
+                    break
+        
+        return methods
+    
+    def _has_menu_integration(self, soup: BeautifulSoup, text_content: str) -> bool:
+        """Check if menu is integrated with ordering system"""
+        menu_order_indicators = [
+            'add to cart', 'add to order', 'select items', 'customize order',
+            'order item', 'add item', 'cart', 'checkout'
+        ]
+        
+        return any(indicator in text_content for indicator in menu_order_indicators)
 
 # Create service instance
 web_scraper_service = WebScraperService()

@@ -140,29 +140,29 @@ class AIGraderService:
             issues = []
             recommendations = []
             
-            # Website accessibility (40 points)
+            # Website accessibility (30 points)
             if validation_result.get('accessible'):
-                score += 40
+                score += 30
                 logger.info(f"✅ Website is accessible: {website_url}")
             else:
                 issues.append("Website is not accessible or returns errors")
                 recommendations.append("Fix website accessibility issues")
                 logger.warning(f"⚠️ Website not accessible: {website_url}")
             
-            # SSL certificate (20 points)
+            # SSL certificate (15 points)
             if validation_result.get('has_ssl'):
-                score += 20
+                score += 15
             else:
                 issues.append("No SSL certificate (not using HTTPS)")
                 recommendations.append("Enable SSL certificate for security and SEO")
             
-            # Response time (20 points)
+            # Response time (15 points)
             response_time = validation_result.get('response_time', 0)
             if response_time > 0:
                 if response_time <= 2.0:
-                    score += 20
-                elif response_time <= 4.0:
                     score += 15
+                elif response_time <= 4.0:
+                    score += 10
                     issues.append("Website loads slowly")
                     recommendations.append("Optimize website loading speed")
                 else:
@@ -170,14 +170,50 @@ class AIGraderService:
                     issues.append("Website loads very slowly")
                     recommendations.append("Significantly improve website loading speed")
             
-            # Basic recommendations for all websites (20 points potential)
+            # Online ordering analysis (25 points potential)
             if validation_result.get('accessible'):
-                score += 10  # Bonus for being accessible
+                score += 5  # Small bonus for being accessible
+                
+                # Try to detect online ordering capabilities
+                try:
+                    from .web_scraper_service import web_scraper_service
+                    
+                    # Properly await the order analysis since we're already in an async function
+                    logger.info(f"🔍 Analyzing online ordering capabilities for: {website_url}")
+                    order_analysis = await web_scraper_service._analyze_order_capabilities(website_url)
+                    
+                    if order_analysis.get("has_ordering", False):
+                        confidence = order_analysis.get("confidence", 0)
+                        if confidence >= 80:
+                            score += 15
+                            logger.info(f"✅ Online ordering detected with high confidence: {confidence}% (+15 points)")
+                        elif confidence >= 50:
+                            score += 10
+                            logger.info(f"✅ Online ordering detected with medium confidence: {confidence}% (+10 points)")
+                        else:
+                            score += 5
+                            logger.info(f"✅ Online ordering detected with low confidence: {confidence}% (+5 points)")
+                        
+                        # Add specific recommendations based on findings
+                        order_details = order_analysis.get("details", {})
+                        if order_details.get("platform_count", 0) > 0:
+                            recommendations.append("Optimize delivery platform integrations")
+                        if order_details.get("button_count", 0) > 0:
+                            recommendations.append("Ensure order buttons are prominently displayed")
+                    else:
+                        issues.append("No online ordering capability detected")
+                        recommendations.append("Add online ordering system to increase revenue")
+                        logger.info(f"❌ No online ordering detected for: {website_url}")
+                        
+                except Exception as e:
+                    logger.warning(f"Could not analyze online ordering: {str(e)}")
+                    recommendations.append("Consider adding online ordering capability")
+                
+                # Standard recommendations
                 recommendations.extend([
                     "Add online menu with photos and descriptions",
                     "Include clear contact information and hours",
-                    "Optimize for mobile devices",
-                    "Consider adding online ordering capability"
+                    "Optimize for mobile devices"
                 ])
             
             # Convert to letter grade

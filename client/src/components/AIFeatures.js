@@ -49,13 +49,6 @@ const AIFeatures = () => {
       comingSoon: true
     },
     {
-      id: 'marketing',
-      name: 'AI Marketing Assistant',
-      icon: '🎯',
-      description: 'Get personalized marketing recommendations',
-      color: '#DC2626'
-    },
-    {
       id: 'content',
       name: 'Content Creator',
       icon: '📝',
@@ -138,18 +131,6 @@ const AIFeatures = () => {
           revenue_impact: {
             potential_monthly_increase: '$2,100',
             annual_potential: '$25,200'
-          }
-        },
-        marketing: {
-          campaign_recommendations: {
-            recommended_campaigns: [
-              { name: 'Local Social Media Campaign', budget_allocation: 200, target_metrics: { reach: '10,000+' } },
-              { name: 'Google Ads Local Search', budget_allocation: 150, target_metrics: { ctr: '3%+' } }
-            ]
-          },
-          roi_projections: {
-            estimated_monthly_revenue_increase: '$1,800',
-            projected_roi: '240%'
           }
         },
         content: {
@@ -276,8 +257,6 @@ const AIFeatures = () => {
         return renderGraderResults();
       case 'menu':
         return renderMenuResults();
-      case 'marketing':
-        return renderMarketingResults();
       case 'content':
         return renderContentResults();
       default:
@@ -410,42 +389,6 @@ const AIFeatures = () => {
     </div>
   );
 
-  const renderMarketingResults = () => (
-    <div className="analysis-results">
-      <h4>Marketing Strategy Recommendations</h4>
-      
-      <div className="campaign-recommendations">
-        <h5>Recommended Campaigns</h5>
-        {analysisResult.campaign_recommendations.recommended_campaigns.map((campaign, index) => (
-          <div key={index} className="campaign-card">
-            <div className="campaign-header">
-              <h6>{campaign.name}</h6>
-              <span className="budget">${campaign.budget_allocation}/month</span>
-            </div>
-            <div className="campaign-metrics">
-              {Object.entries(campaign.target_metrics).map(([metric, value]) => (
-                <span key={metric} className="metric">
-                  {metric.replace('_', ' ').toUpperCase()}: {value}
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="roi-projection">
-        <h5>ROI Projections</h5>
-        <div className="roi-item">
-          <span>Monthly Revenue Increase:</span>
-          <span className="amount">{analysisResult.roi_projections.estimated_monthly_revenue_increase}</span>
-        </div>
-        <div className="roi-item">
-          <span>Projected ROI:</span>
-          <span className="percentage">{analysisResult.roi_projections.projected_roi}</span>
-        </div>
-      </div>
-    </div>
-  );
 
   const renderContentResults = () => (
     <div className="analysis-results">

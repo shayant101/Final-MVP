@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import MainDashboard from './components/MainDashboard';
 import Login from './components/Login';
 import AIFeatures from './components/AIFeatures';
+import AIAssistant from './components/AIAssistant';
 import './App.css';
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <MainDashboard />
+                <AIAssistant />
               </ProtectedRoute>
             }
           />
@@ -26,6 +28,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <AIFeatures />
+                <AIAssistant />
               </ProtectedRoute>
             }
           />
