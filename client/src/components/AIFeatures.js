@@ -45,7 +45,8 @@ const AIFeatures = () => {
       name: 'Smart Menu Optimizer',
       icon: '🍽️',
       description: 'Optimize menu performance and pricing strategies',
-      color: '#059669'
+      color: '#059669',
+      comingSoon: true
     },
     {
       id: 'marketing',
@@ -56,10 +57,11 @@ const AIFeatures = () => {
     },
     {
       id: 'content',
-      name: 'Content Generation Engine',
+      name: 'Content Creator',
       icon: '📝',
       description: 'Generate marketing content across all channels',
-      color: '#7C3AED'
+      color: '#7C3AED',
+      comingSoon: true
     }
   ];
 
@@ -510,18 +512,26 @@ const AIFeatures = () => {
         {aiFeatures.map(feature => (
           <button
             key={feature.id}
-            className={`feature-tab ${activeFeature === feature.id ? 'active' : ''}`}
+            className={`feature-tab ${activeFeature === feature.id ? 'active' : ''} ${feature.comingSoon ? 'coming-soon' : ''}`}
             onClick={() => {
-              setActiveFeature(feature.id);
-              setAnalysisResult(null); // Clear previous results when switching features
+              if (!feature.comingSoon) {
+                setActiveFeature(feature.id);
+                setAnalysisResult(null); // Clear previous results when switching features
+              }
             }}
             style={{
               borderColor: activeFeature === feature.id ? feature.color : '#e5e7eb',
-              color: activeFeature === feature.id ? feature.color : '#6b7280'
+              color: activeFeature === feature.id ? feature.color : '#6b7280',
+              opacity: feature.comingSoon ? 0.6 : 1,
+              cursor: feature.comingSoon ? 'not-allowed' : 'pointer'
             }}
+            disabled={feature.comingSoon}
           >
             <span className="tab-icon">{feature.icon}</span>
-            <span className="tab-name">{feature.name}</span>
+            <span className="tab-name">
+              {feature.name}
+              {feature.comingSoon && <span className="coming-soon-badge">Coming Soon</span>}
+            </span>
           </button>
         ))}
       </div>
