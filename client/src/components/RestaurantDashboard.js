@@ -123,12 +123,12 @@ const RestaurantDashboard = ({ setActiveTab }) => {
           <div className="edge-highlight"></div>
           
           <div className="card-header">
-            <h3>🧠 AI Marketing</h3>
+            <h3>✨ AI Marketing</h3>
             <span className="period">Powered by AI</span>
           </div>
           <div className="ai-marketing-content">
             <div className="ai-marketing-icon">
-              <div className="ai-brain-animation">🧠</div>
+              <div className="ai-brain-animation">✨</div>
             </div>
             <div className="ai-marketing-text">
               <h4>Unlock AI-Powered Growth</h4>

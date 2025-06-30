@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './AIFeatures.css';
+import ScoreBreakdown from './ScoreBreakdown';
 
 const AIFeatures = () => {
   const [activeFeature, setActiveFeature] = useState('grader');
   const [analysisResult, setAnalysisResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showScoreBreakdown, setShowScoreBreakdown] = useState(false);
   const [restaurantData, setRestaurantData] = useState({
     name: 'Demo Restaurant',
     website: 'https://demo-restaurant.com',
@@ -12,6 +14,23 @@ const AIFeatures = () => {
     cuisine_type: 'Italian',
     location: 'San Francisco, CA'
   });
+
+  // Ref for the results section to enable auto-scrolling
+  const resultsRef = useRef(null);
+
+  // Auto-scroll to results when analysis is complete
+  useEffect(() => {
+    if (analysisResult && resultsRef.current) {
+      // Small delay to ensure the DOM is updated
+      setTimeout(() => {
+        resultsRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        });
+      }, 100);
+    }
+  }, [analysisResult]);
 
   const aiFeatures = [
     {
@@ -38,7 +57,7 @@ const AIFeatures = () => {
     {
       id: 'content',
       name: 'Content Generation Engine',
-      icon: '✨',
+      icon: '📝',
       description: 'Generate marketing content across all channels',
       color: '#7C3AED'
     }
@@ -222,12 +241,12 @@ const AIFeatures = () => {
           </div>
 
           <button
-            className="analyze-button"
+            className={`analyze-button ${loading ? 'loading' : ''}`}
             onClick={handleQuickAnalysis}
             disabled={loading}
-            style={{ backgroundColor: feature.color }}
+            style={{ backgroundColor: loading ? undefined : feature.color }}
           >
-            {loading ? 'Analyzing Real Data...' : `Run Real ${feature.name} Analysis`}
+            {loading ? 'Analyzing...' : 'Analyze'}
           </button>
           
           {activeFeature === 'grader' && (
@@ -265,7 +284,7 @@ const AIFeatures = () => {
   };
 
   const renderGraderResults = () => (
-    <div className="analysis-results">
+    <div className="analysis-results" ref={resultsRef}>
       <h4>Digital Presence Analysis Results</h4>
       
       <div className="overall-grade">
@@ -289,6 +308,15 @@ const AIFeatures = () => {
             </div>
             <span className="score-value">{score?.score || 0}/100</span>
             <span className={`priority ${(score?.priority || 'medium').toLowerCase()}`}>{score?.priority || 'MEDIUM'}</span>
+            {component === 'website' && (
+              <button
+                className="breakdown-button"
+                onClick={() => setShowScoreBreakdown(true)}
+                title="Get AI-powered insights and detailed breakdown"
+              >
+                ✨
+              </button>
+            )}
           </div>
         ))}
       </div>
@@ -305,6 +333,14 @@ const AIFeatures = () => {
           </div>
         ))}
       </div>
+
+      {/* Score Breakdown Modal */}
+      {showScoreBreakdown && (
+        <ScoreBreakdown
+          websiteData={analysisResult.component_scores?.website}
+          onClose={() => setShowScoreBreakdown(false)}
+        />
+      )}
     </div>
   );
 
@@ -457,7 +493,16 @@ const AIFeatures = () => {
   return (
     <div className="ai-features">
       <div className="ai-header">
-        <h2>🧠 AI-Powered Restaurant Marketing</h2>
+        <div className="ai-header-top">
+          <button
+            className="back-button"
+            onClick={() => window.history.back()}
+            title="Back to Dashboard"
+          >
+            ← Back to Dashboard
+          </button>
+        </div>
+        <h2>✨ AI-Powered Restaurant Marketing</h2>
         <p>Transform your restaurant's marketing with intelligent AI analysis and recommendations</p>
       </div>
 
@@ -488,23 +533,18 @@ const AIFeatures = () => {
         <div className="benefits-grid">
           <div className="benefit-item">
             <div className="benefit-icon">📈</div>
-            <h4>Increase Revenue</h4>
-            <p>AI-driven insights can increase restaurant revenue by 15-30% through optimized marketing strategies</p>
+            <h4>Maximize Revenue & Growth</h4>
+            <p>AI-driven insights can increase restaurant revenue by 15-30% through optimized marketing strategies and data-driven decisions based on comprehensive performance analysis</p>
           </div>
           <div className="benefit-item">
             <div className="benefit-icon">⏰</div>
-            <h4>Save Time</h4>
-            <p>Automate content creation and campaign management, saving 10+ hours per week</p>
+            <h4>Save Time & Automate</h4>
+            <p>Automate content creation and campaign management, saving 10+ hours per week while streamlining your entire marketing workflow with intelligent automation</p>
           </div>
           <div className="benefit-item">
             <div className="benefit-icon">🎯</div>
-            <h4>Better Targeting</h4>
-            <p>Reach the right customers with personalized messaging and optimized ad spend</p>
-          </div>
-          <div className="benefit-item">
-            <div className="benefit-icon">📊</div>
-            <h4>Data-Driven Decisions</h4>
-            <p>Make informed decisions based on AI analysis of your restaurant's performance data</p>
+            <h4>Smart Targeting & Personalization</h4>
+            <p>Reach the right customers with personalized messaging, optimized ad spend, and precision targeting that delivers higher conversion rates and customer engagement</p>
           </div>
         </div>
       </div>
