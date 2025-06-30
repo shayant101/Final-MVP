@@ -20,7 +20,7 @@ router = APIRouter(prefix="/api/ai", tags=["AI Features"])
 @router.post("/digital-presence/analyze")
 async def analyze_digital_presence(
     restaurant_data: Dict[str, Any],
-    current_user: Dict = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
     """
     Analyze restaurant's digital presence and provide comprehensive grade and recommendations
@@ -29,7 +29,7 @@ async def analyze_digital_presence(
         logger.info(f"Analyzing digital presence for restaurant: {restaurant_data.get('name', 'Unknown')}")
         
         # Add user context to restaurant data
-        restaurant_data['user_id'] = current_user.get('user_id')
+        restaurant_data['user_id'] = current_user.user_id
         restaurant_data['analysis_timestamp'] = datetime.now().isoformat()
         
         # Perform digital presence analysis

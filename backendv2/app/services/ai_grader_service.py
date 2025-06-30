@@ -7,6 +7,8 @@ import logging
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 from .openai_service import openai_service
+from .web_scraper_service import web_scraper_service
+from .google_business_scraper import google_business_scraper
 
 logger = logging.getLogger(__name__)
 
@@ -16,21 +18,27 @@ class AIGraderService:
         
     async def analyze_digital_presence(self, restaurant_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Analyze restaurant's digital presence and generate comprehensive grade
+        Analyze restaurant's digital presence and generate comprehensive grade using real web scraping
         """
         try:
             # Extract restaurant information
             restaurant_name = restaurant_data.get('name', 'Restaurant')
             website_url = restaurant_data.get('website', '')
+            google_business_url = restaurant_data.get('google_business_url', '')
             social_media = restaurant_data.get('social_media', {})
-            google_business = restaurant_data.get('google_business', {})
             menu_items = restaurant_data.get('menu_items', [])
             current_marketing = restaurant_data.get('current_marketing', {})
             
-            # Analyze each component
-            website_analysis = await self._analyze_website(restaurant_name, website_url)
+            # Basic website validation - minimal approach
+            website_validation = await self._validate_website_basic(website_url)
+            logger.info(f"✅ Website validation completed: accessible={website_validation.get('accessible', False)}")
+            
+            # Analyze each component with real scraping data
+            website_analysis = await self._analyze_website_with_validation(restaurant_name, website_url, website_validation)
             social_analysis = await self._analyze_social_media(restaurant_name, social_media)
-            google_analysis = await self._analyze_google_business(restaurant_name, google_business)
+            
+            # Try real Google Business scraping first, fallback to basic if it fails
+            google_analysis = await self._analyze_google_business_with_scraping(restaurant_name, google_business_url)
             menu_analysis = await self._analyze_menu_optimization(restaurant_name, menu_items)
             marketing_analysis = await self._analyze_marketing_strategy(restaurant_name, current_marketing)
             
@@ -70,6 +78,775 @@ class AIGraderService:
         except Exception as e:
             logger.error(f"Failed to analyze digital presence: {str(e)}")
             return await self._generate_mock_analysis(restaurant_data)
+    
+    async def _validate_website_basic(self, website_url: str) -> Dict[str, Any]:
+        """
+        Basic website validation - just check if URL is accessible
+        """
+        validation_result = {
+            "accessible": False,
+            "has_ssl": False,
+            "status_code": 0,
+            "response_time": 0,
+            "error": None
+        }
+        
+        if not website_url:
+            validation_result["error"] = "No website URL provided"
+            return validation_result
+        
+        try:
+            import httpx
+            import time
+            
+            start_time = time.time()
+            
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                response = await client.get(website_url, follow_redirects=True)
+                
+                validation_result["accessible"] = response.status_code == 200
+                validation_result["has_ssl"] = website_url.startswith('https://')
+                validation_result["status_code"] = response.status_code
+                validation_result["response_time"] = round(time.time() - start_time, 2)
+                
+                logger.info(f"✅ Website validation: {website_url} - Status: {response.status_code}, Time: {validation_result['response_time']}s")
+                
+        except Exception as e:
+            validation_result["error"] = str(e)
+            logger.warning(f"⚠️ Website validation failed for {website_url}: {str(e)}")
+        
+        return validation_result
+    
+    async def _analyze_website_with_validation(self, restaurant_name: str, website_url: str, validation_result: Dict[str, Any]) -> Dict[str, Any]:
+        """Analyze website using basic validation data"""
+        try:
+            if not website_url:
+                return {
+                    "score": 20,
+                    "grade": "F",
+                    "issues": ["No website URL provided"],
+                    "recommendations": [
+                        "Create a professional restaurant website",
+                        "Include menu, hours, location, and contact info",
+                        "Optimize for mobile devices",
+                        "Add online ordering capability"
+                    ],
+                    "priority": "HIGH",
+                    "validation_data": validation_result
+                }
+            
+            # Calculate score based on basic validation
+            score = 0
+            issues = []
+            recommendations = []
+            
+            # Website accessibility (40 points)
+            if validation_result.get('accessible'):
+                score += 40
+                logger.info(f"✅ Website is accessible: {website_url}")
+            else:
+                issues.append("Website is not accessible or returns errors")
+                recommendations.append("Fix website accessibility issues")
+                logger.warning(f"⚠️ Website not accessible: {website_url}")
+            
+            # SSL certificate (20 points)
+            if validation_result.get('has_ssl'):
+                score += 20
+            else:
+                issues.append("No SSL certificate (not using HTTPS)")
+                recommendations.append("Enable SSL certificate for security and SEO")
+            
+            # Response time (20 points)
+            response_time = validation_result.get('response_time', 0)
+            if response_time > 0:
+                if response_time <= 2.0:
+                    score += 20
+                elif response_time <= 4.0:
+                    score += 15
+                    issues.append("Website loads slowly")
+                    recommendations.append("Optimize website loading speed")
+                else:
+                    score += 5
+                    issues.append("Website loads very slowly")
+                    recommendations.append("Significantly improve website loading speed")
+            
+            # Basic recommendations for all websites (20 points potential)
+            if validation_result.get('accessible'):
+                score += 10  # Bonus for being accessible
+                recommendations.extend([
+                    "Add online menu with photos and descriptions",
+                    "Include clear contact information and hours",
+                    "Optimize for mobile devices",
+                    "Consider adding online ordering capability"
+                ])
+            
+            # Convert to letter grade
+            if score >= 90:
+                grade = 'A'
+                priority = 'LOW'
+            elif score >= 80:
+                grade = 'B'
+                priority = 'LOW'
+            elif score >= 70:
+                grade = 'C'
+                priority = 'MEDIUM'
+            elif score >= 60:
+                grade = 'D'
+                priority = 'HIGH'
+            else:
+                grade = 'F'
+                priority = 'HIGH'
+            
+            return {
+                "score": min(score, 100),
+                "grade": grade,
+                "issues": issues,
+                "recommendations": recommendations,
+                "priority": priority,
+                "validation_data": {
+                    "accessible": validation_result.get('accessible', False),
+                    "has_ssl": validation_result.get('has_ssl', False),
+                    "status_code": validation_result.get('status_code', 0),
+                    "response_time": validation_result.get('response_time', 0),
+                    "validation_method": "basic_http_check"
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Website analysis with validation failed: {str(e)}")
+            return await self._analyze_website(restaurant_name, website_url)
+    
+    async def _analyze_google_business_basic(self, restaurant_name: str, google_business_url: str) -> Dict[str, Any]:
+        """Basic Google Business Profile analysis without scraping"""
+        try:
+            if not google_business_url:
+                return {
+                    "score": 30,
+                    "grade": "F",
+                    "issues": ["No Google Business Profile URL provided"],
+                    "recommendations": [
+                        "Create Google Business Profile",
+                        "Verify business ownership",
+                        "Add complete business information",
+                        "Upload high-quality photos"
+                    ],
+                    "priority": "HIGH",
+                    "analysis_method": "basic_url_check"
+                }
+            
+            # Basic URL validation
+            score = 50  # Base score for having a URL
+            issues = []
+            recommendations = []
+            
+            # Check if URL looks like a valid Google Business Profile
+            valid_google_patterns = [
+                'maps.google.com',
+                'google.com/maps',
+                'goo.gl/maps',
+                'business.google.com',
+                'g.co/kgs',  # Google's official URL shortener for business profiles
+                'g.co'       # Google's URL shortener domain
+            ]
+            
+            is_valid_google_url = any(pattern in google_business_url.lower() for pattern in valid_google_patterns)
+            
+            if is_valid_google_url:
+                score += 20
+                logger.info(f"✅ Valid Google Business Profile URL format: {google_business_url}")
+            else:
+                issues.append("URL doesn't appear to be a valid Google Business Profile")
+                recommendations.append("Verify Google Business Profile URL is correct")
+                logger.warning(f"⚠️ Invalid Google Business Profile URL format: {google_business_url}")
+            
+            # Add standard recommendations
+            recommendations.extend([
+                "Ensure business information is complete and accurate",
+                "Upload high-quality photos of food, interior, and exterior",
+                "Encourage customers to leave reviews",
+                "Respond to customer reviews promptly",
+                "Keep business hours updated"
+            ])
+            
+            # Convert to letter grade
+            if score >= 90:
+                grade = 'A'
+                priority = 'LOW'
+            elif score >= 80:
+                grade = 'B'
+                priority = 'LOW'
+            elif score >= 70:
+                grade = 'C'
+                priority = 'MEDIUM'
+            elif score >= 60:
+                grade = 'D'
+                priority = 'HIGH'
+            else:
+                grade = 'F'
+                priority = 'HIGH'
+            
+            return {
+                "score": min(score, 100),
+                "grade": grade,
+                "issues": issues,
+                "recommendations": recommendations,
+                "priority": priority,
+                "analysis_method": "basic_url_validation",
+                "url_provided": bool(google_business_url),
+                "url_format_valid": is_valid_google_url
+            }
+            
+        except Exception as e:
+            logger.error(f"Google Business basic analysis failed: {str(e)}")
+            return self._get_fallback_google_analysis()
+    
+    async def _analyze_google_business_with_scraping(self, restaurant_name: str, google_business_url: str) -> Dict[str, Any]:
+        """Analyze Google Business Profile using real scraping data"""
+        try:
+            if not google_business_url:
+                return {
+                    "score": 30,
+                    "grade": "F",
+                    "issues": ["No Google Business Profile URL provided"],
+                    "recommendations": [
+                        "Create Google Business Profile",
+                        "Verify business ownership",
+                        "Add complete business information",
+                        "Upload high-quality photos"
+                    ],
+                    "priority": "HIGH",
+                    "analysis_method": "no_url_provided"
+                }
+            
+            # First validate URL format
+            valid_google_patterns = [
+                'maps.google.com',
+                'google.com/maps',
+                'goo.gl/maps',
+                'business.google.com',
+                'g.co/kgs',
+                'g.co'
+            ]
+            
+            is_valid_google_url = any(pattern in google_business_url.lower() for pattern in valid_google_patterns)
+            
+            if not is_valid_google_url:
+                logger.warning(f"⚠️ Invalid Google Business Profile URL format: {google_business_url}")
+                return await self._analyze_google_business_basic(restaurant_name, google_business_url)
+            
+            # Attempt real scraping
+            logger.info(f"🔍 Attempting to scrape Google Business Profile: {google_business_url}")
+            scraped_data = await google_business_scraper.scrape_basic_info(google_business_url)
+            
+            if not scraped_data.get("success"):
+                logger.warning(f"⚠️ Scraping failed, falling back to basic analysis: {scraped_data.get('error')}")
+                return await self._analyze_google_business_basic(restaurant_name, google_business_url)
+            
+            # Calculate score based on scraped data
+            score = 0
+            issues = []
+            recommendations = []
+            
+            # Business name verification (20 points)
+            scraped_name = scraped_data.get("business_name")
+            if scraped_name:
+                score += 20
+                logger.info(f"✅ Found business name: {scraped_name}")
+                
+                # Check if scraped name matches provided name
+                if restaurant_name.lower() in scraped_name.lower() or scraped_name.lower() in restaurant_name.lower():
+                    score += 5  # Bonus for name consistency
+                else:
+                    issues.append(f"Business name mismatch: Profile shows '{scraped_name}' but you provided '{restaurant_name}'")
+                    recommendations.append("Ensure business name consistency across all platforms")
+            else:
+                issues.append("Business name not found on profile")
+                recommendations.append("Add clear business name to Google Business Profile")
+            
+            # Reviews and ratings (40 points)
+            rating = scraped_data.get("rating")
+            review_count = scraped_data.get("review_count")
+            
+            if rating is not None:
+                if rating >= 4.5:
+                    score += 25
+                elif rating >= 4.0:
+                    score += 20
+                elif rating >= 3.5:
+                    score += 15
+                elif rating >= 3.0:
+                    score += 10
+                else:
+                    score += 5
+                    issues.append(f"Low rating: {rating}/5 stars")
+                    recommendations.append("Focus on improving customer satisfaction and service quality")
+                
+                logger.info(f"✅ Found rating: {rating}/5 stars")
+            else:
+                issues.append("No customer ratings found")
+                recommendations.append("Encourage customers to leave reviews")
+            
+            if review_count is not None:
+                if review_count >= 100:
+                    score += 15
+                elif review_count >= 50:
+                    score += 12
+                elif review_count >= 20:
+                    score += 8
+                elif review_count >= 5:
+                    score += 5
+                else:
+                    score += 2
+                    issues.append(f"Low review count: {review_count} reviews")
+                    recommendations.append("Actively request customer reviews")
+                
+                logger.info(f"✅ Found {review_count} reviews")
+            else:
+                issues.append("Review count not available")
+                recommendations.append("Encourage more customer reviews")
+            
+            # Categories/Business type (20 points)
+            categories = scraped_data.get("categories", [])
+            if categories:
+                score += 20
+                logger.info(f"✅ Found categories: {categories}")
+                
+                # Check if categories match the provided cuisine type
+                cuisine_type = restaurant_name  # You might want to pass cuisine_type as parameter
+                category_text = " ".join(categories).lower()
+                if any(cat.lower() in category_text for cat in ["restaurant", "food", "dining", "cafe", "bar"]):
+                    score += 5  # Bonus for food-related categories
+                
+            else:
+                issues.append("Business categories not found")
+                recommendations.append("Add appropriate business categories to your profile")
+            
+            # URL accessibility bonus (15 points)
+            if scraped_data.get("success"):
+                score += 15  # Bonus for profile being accessible
+            
+            # Add standard recommendations
+            recommendations.extend([
+                "Keep business information updated",
+                "Respond to customer reviews promptly",
+                "Upload high-quality photos regularly",
+                "Post updates about specials and events"
+            ])
+            
+            # Convert to letter grade
+            if score >= 90:
+                grade = 'A'
+                priority = 'LOW'
+            elif score >= 80:
+                grade = 'B'
+                priority = 'LOW'
+            elif score >= 70:
+                grade = 'C'
+                priority = 'MEDIUM'
+            elif score >= 60:
+                grade = 'D'
+                priority = 'HIGH'
+            else:
+                grade = 'F'
+                priority = 'HIGH'
+            
+            return {
+                "score": min(score, 100),
+                "grade": grade,
+                "issues": issues,
+                "recommendations": recommendations,
+                "priority": priority,
+                "analysis_method": "real_scraping",
+                "scraped_data": {
+                    "business_name": scraped_name,
+                    "rating": rating,
+                    "review_count": review_count,
+                    "categories": categories,
+                    "scraping_success": scraped_data.get("success"),
+                    "final_url": scraped_data.get("scraped_data", {}).get("final_url")
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Google Business scraping analysis failed: {str(e)}")
+            # Fallback to basic analysis
+            return await self._analyze_google_business_basic(restaurant_name, google_business_url)
+    
+    async def _analyze_website_with_real_data(self, restaurant_name: str, website_url: str, scraped_website_data: Optional[Dict]) -> Dict[str, Any]:
+        """Analyze website using real scraped data"""
+        try:
+            if not website_url:
+                return {
+                    "score": 20,
+                    "grade": "F",
+                    "issues": ["No website URL provided"],
+                    "recommendations": [
+                        "Create a professional restaurant website",
+                        "Include menu, hours, location, and contact info",
+                        "Optimize for mobile devices",
+                        "Add online ordering capability"
+                    ],
+                    "priority": "HIGH"
+                }
+            
+            if not scraped_website_data:
+                # Fallback to original analysis if scraping failed
+                return await self._analyze_website(restaurant_name, website_url)
+            
+            # Calculate score based on real data
+            score = 0
+            issues = []
+            recommendations = []
+            
+            # Title analysis (20 points)
+            if scraped_website_data.get('title'):
+                score += 15
+                title_length = len(scraped_website_data['title'])
+                if 30 <= title_length <= 60:
+                    score += 5
+                else:
+                    issues.append("Page title length not optimal")
+                    recommendations.append("Optimize page title to 30-60 characters")
+            else:
+                issues.append("Missing page title")
+                recommendations.append("Add descriptive page title")
+            
+            # Meta description (15 points)
+            if scraped_website_data.get('description'):
+                score += 10
+                desc_length = len(scraped_website_data['description'])
+                if 120 <= desc_length <= 160:
+                    score += 5
+                else:
+                    issues.append("Meta description length not optimal")
+                    recommendations.append("Optimize meta description to 120-160 characters")
+            else:
+                issues.append("Missing meta description")
+                recommendations.append("Add compelling meta description")
+            
+            # SSL and security (10 points)
+            if scraped_website_data.get('has_ssl'):
+                score += 10
+            else:
+                issues.append("No SSL certificate")
+                recommendations.append("Enable SSL certificate for security")
+            
+            # Mobile friendliness (15 points)
+            if scraped_website_data.get('mobile_friendly'):
+                score += 15
+            else:
+                issues.append("Not mobile-friendly")
+                recommendations.append("Make website mobile-responsive")
+            
+            # Restaurant-specific content (25 points)
+            content_score = 0
+            if scraped_website_data.get('has_menu'):
+                content_score += 8
+            else:
+                issues.append("No menu found")
+                recommendations.append("Add online menu")
+            
+            if scraped_website_data.get('has_contact'):
+                content_score += 8
+            else:
+                issues.append("Contact information unclear")
+                recommendations.append("Add clear contact information")
+            
+            if scraped_website_data.get('has_hours'):
+                content_score += 5
+            else:
+                issues.append("Business hours not found")
+                recommendations.append("Display business hours prominently")
+            
+            if scraped_website_data.get('has_online_ordering'):
+                content_score += 4
+            else:
+                recommendations.append("Consider adding online ordering")
+            
+            score += content_score
+            
+            # SEO score (15 points)
+            seo_score = scraped_website_data.get('seo_score', 0)
+            score += int(seo_score * 0.15)
+            
+            if seo_score < 70:
+                issues.append("SEO optimization needed")
+                recommendations.append("Improve SEO with better structure and content")
+            
+            # Convert to letter grade
+            if score >= 90:
+                grade = 'A'
+                priority = 'LOW'
+            elif score >= 80:
+                grade = 'B'
+                priority = 'LOW'
+            elif score >= 70:
+                grade = 'C'
+                priority = 'MEDIUM'
+            elif score >= 60:
+                grade = 'D'
+                priority = 'HIGH'
+            else:
+                grade = 'F'
+                priority = 'HIGH'
+            
+            return {
+                "score": min(score, 100),
+                "grade": grade,
+                "issues": issues,
+                "recommendations": recommendations,
+                "priority": priority,
+                "scraped_data": {
+                    "title": scraped_website_data.get('title', ''),
+                    "has_ssl": scraped_website_data.get('has_ssl', False),
+                    "mobile_friendly": scraped_website_data.get('mobile_friendly', False),
+                    "seo_score": scraped_website_data.get('seo_score', 0),
+                    "images_count": scraped_website_data.get('images_count', 0),
+                    "social_links_found": len(scraped_website_data.get('social_links', {}))
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Website analysis with real data failed: {str(e)}")
+            return await self._analyze_website(restaurant_name, website_url)
+    
+    async def _analyze_social_media_with_real_data(self, restaurant_name: str, provided_social: Dict[str, Any], scraped_social_links: Dict[str, str]) -> Dict[str, Any]:
+        """Analyze social media presence using real scraped data"""
+        try:
+            # Combine provided social media info with scraped links
+            all_social_platforms = set()
+            
+            # Add provided platforms
+            if provided_social:
+                all_social_platforms.update(provided_social.keys())
+            
+            # Add scraped platforms
+            if scraped_social_links:
+                all_social_platforms.update(scraped_social_links.keys())
+            
+            platform_count = len(all_social_platforms)
+            
+            # Calculate score based on platform presence
+            score = 0
+            issues = []
+            recommendations = []
+            
+            # Platform coverage (40 points)
+            essential_platforms = ['facebook', 'instagram', 'google']
+            found_essential = sum(1 for platform in essential_platforms if platform in all_social_platforms)
+            score += found_essential * 13  # 13 points per essential platform
+            
+            if 'facebook' not in all_social_platforms:
+                issues.append("No Facebook presence found")
+                recommendations.append("Create Facebook business page")
+            
+            if 'instagram' not in all_social_platforms:
+                issues.append("No Instagram presence found")
+                recommendations.append("Create Instagram business account")
+            
+            if 'google' not in all_social_platforms:
+                issues.append("No Google My Business found")
+                recommendations.append("Set up Google My Business profile")
+            
+            # Additional platforms (20 points)
+            additional_platforms = ['twitter', 'linkedin', 'youtube', 'tiktok', 'yelp']
+            found_additional = sum(1 for platform in additional_platforms if platform in all_social_platforms)
+            score += min(found_additional * 4, 20)  # Max 20 points for additional platforms
+            
+            # Consistency bonus (20 points)
+            if platform_count >= 3:
+                score += 20
+            elif platform_count >= 2:
+                score += 10
+            else:
+                issues.append("Limited social media presence")
+                recommendations.append("Expand to multiple social platforms")
+            
+            # Integration bonus (20 points)
+            if scraped_social_links:
+                score += 20  # Bonus for having social links on website
+            else:
+                issues.append("Social media not linked from website")
+                recommendations.append("Add social media links to website")
+            
+            # Convert to letter grade
+            if score >= 90:
+                grade = 'A'
+                priority = 'LOW'
+            elif score >= 80:
+                grade = 'B'
+                priority = 'LOW'
+            elif score >= 70:
+                grade = 'C'
+                priority = 'MEDIUM'
+            elif score >= 60:
+                grade = 'D'
+                priority = 'HIGH'
+            else:
+                grade = 'F'
+                priority = 'HIGH'
+            
+            return {
+                "score": min(score, 100),
+                "grade": grade,
+                "issues": issues,
+                "recommendations": recommendations,
+                "priority": priority,
+                "found_platforms": list(all_social_platforms),
+                "scraped_links": scraped_social_links,
+                "platform_analysis": {
+                    "total_platforms": platform_count,
+                    "essential_platforms": found_essential,
+                    "additional_platforms": found_additional,
+                    "website_integration": bool(scraped_social_links)
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Social media analysis with real data failed: {str(e)}")
+            return await self._analyze_social_media(restaurant_name, provided_social)
+    
+    async def _analyze_google_business_with_real_data(self, restaurant_name: str, google_business_url: str, scraped_google_data: Optional[Dict]) -> Dict[str, Any]:
+        """Analyze Google Business Profile using real scraped data"""
+        try:
+            if not google_business_url:
+                return {
+                    "score": 30,
+                    "grade": "F",
+                    "issues": ["No Google Business Profile URL provided"],
+                    "recommendations": [
+                        "Create Google Business Profile",
+                        "Verify business ownership",
+                        "Add complete business information",
+                        "Upload high-quality photos"
+                    ],
+                    "priority": "HIGH"
+                }
+            
+            if not scraped_google_data:
+                # Fallback if scraping failed
+                return {
+                    "score": 50,
+                    "grade": "F",
+                    "issues": ["Could not access Google Business Profile"],
+                    "recommendations": [
+                        "Ensure Google Business Profile is public",
+                        "Verify business ownership",
+                        "Complete all profile sections"
+                    ],
+                    "priority": "HIGH"
+                }
+            
+            score = 0
+            issues = []
+            recommendations = []
+            
+            # Basic profile setup (30 points)
+            if scraped_google_data.get('name'):
+                score += 10
+            else:
+                issues.append("Business name missing")
+            
+            if scraped_google_data.get('address'):
+                score += 10
+            else:
+                issues.append("Address information incomplete")
+                recommendations.append("Add complete address information")
+            
+            if scraped_google_data.get('phone'):
+                score += 10
+            else:
+                issues.append("Phone number missing")
+                recommendations.append("Add business phone number")
+            
+            # Verification status (20 points)
+            if scraped_google_data.get('verified'):
+                score += 20
+            else:
+                issues.append("Business not verified")
+                recommendations.append("Verify Google Business Profile ownership")
+            
+            # Reviews and ratings (25 points)
+            rating = scraped_google_data.get('rating', 0)
+            review_count = scraped_google_data.get('review_count', 0)
+            
+            if rating >= 4.0:
+                score += 15
+            elif rating >= 3.0:
+                score += 10
+            elif rating > 0:
+                score += 5
+            else:
+                issues.append("No customer ratings")
+                recommendations.append("Encourage customers to leave reviews")
+            
+            if review_count >= 50:
+                score += 10
+            elif review_count >= 20:
+                score += 7
+            elif review_count >= 5:
+                score += 5
+            else:
+                issues.append("Insufficient customer reviews")
+                recommendations.append("Actively request customer reviews")
+            
+            # Photos (15 points)
+            photos_count = scraped_google_data.get('photos_count', 0)
+            if photos_count >= 20:
+                score += 15
+            elif photos_count >= 10:
+                score += 10
+            elif photos_count >= 5:
+                score += 5
+            else:
+                issues.append("Insufficient photos")
+                recommendations.append("Upload high-quality photos of food, interior, and exterior")
+            
+            # Website link (10 points)
+            if scraped_google_data.get('website'):
+                score += 10
+            else:
+                issues.append("No website linked")
+                recommendations.append("Link business website to Google profile")
+            
+            # Convert to letter grade
+            if score >= 90:
+                grade = 'A'
+                priority = 'LOW'
+            elif score >= 80:
+                grade = 'B'
+                priority = 'LOW'
+            elif score >= 70:
+                grade = 'C'
+                priority = 'MEDIUM'
+            elif score >= 60:
+                grade = 'D'
+                priority = 'HIGH'
+            else:
+                grade = 'F'
+                priority = 'HIGH'
+            
+            return {
+                "score": min(score, 100),
+                "grade": grade,
+                "issues": issues,
+                "recommendations": recommendations,
+                "priority": priority,
+                "scraped_data": {
+                    "name": scraped_google_data.get('name', ''),
+                    "rating": rating,
+                    "review_count": review_count,
+                    "verified": scraped_google_data.get('verified', False),
+                    "photos_count": photos_count,
+                    "has_website": bool(scraped_google_data.get('website')),
+                    "address": scraped_google_data.get('address', ''),
+                    "phone": scraped_google_data.get('phone', '')
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Google Business analysis with real data failed: {str(e)}")
+            return self._get_fallback_google_analysis()
     
     async def _analyze_website(self, restaurant_name: str, website_url: str) -> Dict[str, Any]:
         """Analyze website presence and optimization"""

@@ -170,6 +170,37 @@
   cursor: not-allowed;
 }
 
+.analysis-info {
+  background: #f0f9ff;
+  border: 1px solid #0ea5e9;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.analysis-info p {
+  margin: 0 0 0.5rem 0;
+  color: #0c4a6e;
+  font-weight: 600;
+}
+
+.analysis-info ul {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+  color: #0369a1;
+}
+
+.analysis-info li {
+  margin-bottom: 0.25rem;
+}
+
+.analysis-info em {
+  color: #64748b;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
 .analysis-results {
   background: #f9fafb;
   border-radius: 12px;
