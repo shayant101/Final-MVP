@@ -71,13 +71,40 @@ const RestaurantDashboard = ({ setActiveTab }) => {
               <div className="metric-label">Customers Re-engaged</div>
             </div>
           </div>
+          
+          {/* Compact Performance Insights */}
+          <div className="performance-insights-compact">
+            <div className="compact-stats">
+              <div className="compact-stat">
+                <span className="compact-icon">📈</span>
+                <span className="compact-value">{Math.round((performanceSnapshot.newCustomersAcquired / 30) * 100)}%</span>
+                <span className="compact-label">Growth</span>
+              </div>
+              <div className="compact-stat">
+                <span className="compact-icon">🎯</span>
+                <span className="compact-value">{Math.round(((performanceSnapshot.newCustomersAcquired + performanceSnapshot.customersReengaged) / 2) * 1.2)}</span>
+                <span className="compact-label">Goal</span>
+              </div>
+              <div className="compact-stat">
+                <span className="compact-icon">
+                  {performanceSnapshot.newCustomersAcquired >= 8 ? '🔥' : performanceSnapshot.newCustomersAcquired >= 5 ? '📈' : '💪'}
+                </span>
+                <span className="compact-value">
+                  {performanceSnapshot.newCustomersAcquired >= 8 ? 'Great' :
+                   performanceSnapshot.newCustomersAcquired >= 5 ? 'Good' :
+                   'Growing'}
+                </span>
+                <span className="compact-label">Status</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Active Campaigns */}
+        {/* Campaigns */}
         <div className="dashboard-card campaigns-card">
           <div className="card-header">
-            <h3>🚀 Active Campaigns</h3>
-            <button 
+            <h3>🚀 Campaigns</h3>
+            <button
               className="view-all-button"
               onClick={() => setActiveTab('campaigns')}
             >
@@ -102,14 +129,80 @@ const RestaurantDashboard = ({ setActiveTab }) => {
                 </div>
               ))
             ) : (
-              <div className="no-campaigns">
-                <p>No active campaigns yet</p>
-                <button 
-                  className="start-campaign-button"
-                  onClick={() => setActiveTab('get-new-customers')}
-                >
-                  Launch Your First Campaign
-                </button>
+              <div className="growth-potential-visual">
+                <div className="visual-header">
+                  <h4>Impact</h4>
+                  <p>Your progress vs campaign potential</p>
+                </div>
+                <div className="line-chart">
+                  <div className="chart-container">
+                    <svg className="line-graph" viewBox="0 0 280 100" preserveAspectRatio="xMidYMid meet">
+                      {/* Grid lines */}
+                      <defs>
+                        <pattern id="grid" width="56" height="20" patternUnits="userSpaceOnUse">
+                          <path d="M 56 0 L 0 0 0 20" fill="none" stroke="rgba(1, 90, 246, 0.1)" strokeWidth="0.5"/>
+                        </pattern>
+                      </defs>
+                      <rect width="280" height="100" fill="url(#grid)" />
+                      
+                      {/* Current progress line (solid) */}
+                      <polyline
+                        fill="none"
+                        stroke="var(--color-brand-blue)"
+                        strokeWidth="2"
+                        points="20,80 76,70 132,75 188,65 244,60"
+                        className="progress-line"
+                      />
+                      
+                      {/* Campaign potential line (dotted) */}
+                      <polyline
+                        fill="none"
+                        stroke="rgba(34, 197, 94, 0.8)"
+                        strokeWidth="2"
+                        strokeDasharray="4,3"
+                        points="20,80 76,60 132,45 188,30 244,20"
+                        className="potential-line"
+                      />
+                      
+                      {/* Data points for current progress */}
+                      <circle cx="20" cy="80" r="3" fill="var(--color-brand-blue)" className="data-point" />
+                      <circle cx="76" cy="70" r="3" fill="var(--color-brand-blue)" className="data-point" />
+                      <circle cx="132" cy="75" r="3" fill="var(--color-brand-blue)" className="data-point" />
+                      <circle cx="188" cy="65" r="3" fill="var(--color-brand-blue)" className="data-point" />
+                      <circle cx="244" cy="60" r="3" fill="var(--color-brand-blue)" className="data-point" />
+                      
+                      {/* Data points for potential */}
+                      <circle cx="244" cy="20" r="3" fill="rgba(34, 197, 94, 0.8)" className="potential-point" />
+                    </svg>
+                    <div className="chart-labels">
+                      <span>Jan</span>
+                      <span>Feb</span>
+                      <span>Mar</span>
+                      <span>Apr</span>
+                      <span>May</span>
+                    </div>
+                    <div className="chart-legend">
+                      <div className="legend-item">
+                        <div className="legend-line solid"></div>
+                        <span>Current Progress</span>
+                      </div>
+                      <div className="legend-item">
+                        <div className="legend-line dotted"></div>
+                        <span>With Campaigns</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="growth-stats">
+                  <div className="stat-visual">
+                    <span className="stat-number">7%</span>
+                    <span className="stat-text">Current Growth</span>
+                  </div>
+                  <div className="stat-visual">
+                    <span className="stat-number">29%</span>
+                    <span className="stat-text">Potential Growth</span>
+                  </div>
+                </div>
               </div>
             )}
           </div>

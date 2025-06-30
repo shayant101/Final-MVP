@@ -61,6 +61,14 @@ const MarketingFoundations = () => {
       if (categoriesResponse.success) {
         console.log('🔧 Categories loaded:', categoriesResponse.categories.length);
         console.log('🔧 Sample item statuses:', categoriesResponse.categories[0]?.items?.slice(0, 3).map(item => ({ id: item.item_id, status: item.status })));
+        
+        // Debug: Check for null/undefined status values
+        const allItems = categoriesResponse.categories.flatMap(cat => cat.items);
+        const nullStatusItems = allItems.filter(item => item.status === null || item.status === undefined);
+        if (nullStatusItems.length > 0) {
+          console.warn('🚨 Found items with null/undefined status:', nullStatusItems.map(item => ({ id: item.item_id, title: item.title, status: item.status })));
+        }
+        
         setCategories(categoriesResponse.categories);
         
         // Auto-expand foundational categories
@@ -74,6 +82,7 @@ const MarketingFoundations = () => {
       }
 
       if (progressResponse.success) {
+        console.log('🔧 Progress data loaded:', progressResponse.progress);
         setProgress(progressResponse.progress);
       }
     } catch (err) {
@@ -96,27 +105,36 @@ const MarketingFoundations = () => {
       console.log('🔧 Updating item status:', { restaurantId, itemId, newStatus });
       setUpdatingItems(prev => ({ ...prev, [itemId]: true }));
 
+      // First, update the backend
       const result = await checklistAPI.updateStatus(restaurantId, itemId, newStatus);
       console.log('🔧 Update result:', result);
+      
+      if (!result.success) {
+        throw new Error('Backend update failed');
+      }
       
       // Store current scroll position
       const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
       
       // Update local state immediately for better UX
-      setCategories(prevCategories =>
-        prevCategories.map(category => ({
+      setCategories(prevCategories => {
+        const updatedCategories = prevCategories.map(category => ({
           ...category,
           items: category.items.map(item =>
             item.item_id === itemId
               ? { ...item, status: newStatus }
               : item
           )
-        }))
-      );
+        }));
+        
+        console.log('🔧 Local state updated for item:', itemId, 'new status:', newStatus);
+        return updatedCategories;
+      });
       
-      // Reload progress data only (not full data to avoid scroll reset)
+      // Reload progress data to ensure consistency
       const progressResponse = await checklistAPI.getProgress(restaurantId);
       if (progressResponse.success) {
+        console.log('🔧 Progress data refreshed after item update');
         setProgress(progressResponse.progress);
       }
       
@@ -128,7 +146,9 @@ const MarketingFoundations = () => {
     } catch (err) {
       console.error('❌ Error updating item status:', err);
       setError(err.message);
+      
       // On error, reload full data to ensure consistency
+      console.log('🔧 Reloading full data due to update error');
       await loadChecklistData();
     } finally {
       setUpdatingItems(prev => ({ ...prev, [itemId]: false }));
@@ -145,7 +165,10 @@ const MarketingFoundations = () => {
 
   const getCategoryProgress = (category) => {
     const totalItems = category.items.length;
-    const completedItems = category.items.filter(item => item.status === 'completed').length;
+    // Defensive programming: handle null/undefined status values
+    const completedItems = category.items.filter(item =>
+      item.status === 'completed'
+    ).length;
     const percentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
     
     return {
@@ -207,7 +230,15 @@ const MarketingFoundations = () => {
 
   // Calculate potential weekly revenue based on completed revenue-generating activities
   const calculateRevenueImpact = () => {
-    if (!categories.length) return 0;
+    if (!categories.length) {
+      console.log('🔧 Revenue calculation: No categories available');
+      return {
+        weeklyPotential: 0,
+        completedValue: 0,
+        totalPotential: 0,
+        completionPercentage: 0
+      };
+    }
 
     // Revenue impact values for different activity types (weekly potential)
     const revenueImpacts = {
@@ -244,18 +275,24 @@ const MarketingFoundations = () => {
 
     let totalPotential = 0;
     let completedRevenue = 0;
+    let completedCount = 0;
+    let totalCount = 0;
 
     // Calculate based on completed items
     categories.forEach(category => {
       category.items.forEach(item => {
+        totalCount++;
+        
         // Map item titles/descriptions to revenue impact categories
         const itemKey = getRevenueCategory(item.title, item.description);
         const impact = revenueImpacts[itemKey] || 0;
         
         totalPotential += impact;
         
+        // Defensive programming: ensure status is properly handled
         if (item.status === 'completed') {
           completedRevenue += impact;
+          completedCount++;
         }
       });
     });
@@ -263,12 +300,21 @@ const MarketingFoundations = () => {
     // Calculate remaining potential (what they could earn by completing remaining tasks)
     const remainingPotential = totalPotential - completedRevenue;
     
-    return {
+    const result = {
       weeklyPotential: Math.round(remainingPotential),
       completedValue: Math.round(completedRevenue),
       totalPotential: Math.round(totalPotential),
       completionPercentage: totalPotential > 0 ? Math.round((completedRevenue / totalPotential) * 100) : 0
     };
+    
+    console.log('🔧 Revenue calculation result:', {
+      ...result,
+      completedCount,
+      totalCount,
+      categoriesCount: categories.length
+    });
+    
+    return result;
   };
 
   // Map checklist items to revenue categories

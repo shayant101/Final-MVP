@@ -123,7 +123,7 @@ async def update_item_status(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error updating status for restaurant {restaurant_id}, item {item_id}: {str(e)}")
+        logger.error(f"❌ Error updating status for restaurant {restaurant_id}, item {item_id}: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail="Failed to update status"
@@ -164,6 +164,7 @@ async def get_restaurant_progress(
 async def get_categories_with_items(
     type: Optional[ChecklistType] = Query(None, description="Filter by category type: foundational or ongoing"),
     restaurant_id: Optional[str] = Query(None, description="Include status for specific restaurant"),
+    restaurantId: Optional[str] = Query(None, description="Include status for specific restaurant (camelCase alias)"),
     current_user: TokenData = Depends(get_current_user)
 ):
     """
@@ -173,15 +174,29 @@ async def get_categories_with_items(
     - **restaurant_id**: Optional restaurant ID to include status information
     """
     try:
+        # Use camelCase parameter if provided, otherwise fall back to snake_case
+        effective_restaurant_id = restaurantId or restaurant_id
+        logger.info(f"📥 FETCH REQUEST: restaurant_id={restaurant_id}, restaurantId={restaurantId}, effective={effective_restaurant_id}, type_filter={type}")
+        
         service = get_checklist_service()
         # If restaurant_id is provided, verify access
-        if restaurant_id:
-            await service.verify_restaurant_access(current_user, restaurant_id)
+        if effective_restaurant_id:
+            await service.verify_restaurant_access(current_user, effective_restaurant_id)
         
         categories = await service.get_categories_with_items(
             type_filter=type,
-            restaurant_id=restaurant_id
+            restaurant_id=effective_restaurant_id
         )
+        
+        # Log status information for debugging
+        if effective_restaurant_id and categories:
+            completed_items = []
+            for category in categories:
+                for item in category.get('items', []):
+                    if item.get('status') == 'completed':
+                        completed_items.append(f"{item['title']} ({item['item_id']})")
+            
+            logger.info(f"📊 FETCH RESULT: Found {len(completed_items)} completed items: {completed_items[:3]}{'...' if len(completed_items) > 3 else ''}")
         
         return {
             "success": True,
@@ -190,7 +205,7 @@ async def get_categories_with_items(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error fetching categories with items: {str(e)}")
+        logger.error(f"❌ Error fetching categories with items: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail="Failed to fetch categories with items"

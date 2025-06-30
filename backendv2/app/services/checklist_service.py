@@ -324,7 +324,7 @@ class ChecklistService:
             raise
 
     async def get_categories_with_items(
-        self, 
+        self,
         type_filter: Optional[ChecklistType] = None,
         restaurant_id: Optional[str] = None
     ) -> List[Dict[str, Any]]:
@@ -333,6 +333,20 @@ class ChecklistService:
             # Get categories
             categories = await self.get_categories(type_filter)
             
+            # If restaurant_id is provided, get all statuses in one query for performance
+            status_map = {}
+            if restaurant_id and ObjectId.is_valid(restaurant_id):
+                cursor = self.status_collection.find({
+                    "restaurant_id": ObjectId(restaurant_id)
+                })
+                async for status_doc in cursor:
+                    item_id = str(status_doc["item_id"])
+                    status_map[item_id] = {
+                        "status": status_doc["status"],
+                        "notes": status_doc.get("notes"),
+                        "status_updated_at": status_doc["last_updated_at"]
+                    }
+            
             # For each category, get items with optional status
             for category in categories:
                 category_id = category["category_id"]
@@ -340,23 +354,19 @@ class ChecklistService:
                 # Get items for this category
                 items = await self.get_category_items(category_id)
                 
-                # If restaurant_id is provided, get status for each item
+                # Apply status from the pre-fetched map
                 if restaurant_id and ObjectId.is_valid(restaurant_id):
                     for item in items:
                         item_id = item["item_id"]
                         
-                        # Get status for this item and restaurant
-                        status_doc = await self.status_collection.find_one({
-                            "restaurant_id": ObjectId(restaurant_id),
-                            "item_id": ObjectId(item_id)
-                        })
-                        
-                        if status_doc:
-                            item["status"] = status_doc["status"]
-                            item["notes"] = status_doc.get("notes")
-                            item["status_updated_at"] = status_doc["last_updated_at"]
+                        if item_id in status_map:
+                            status_info = status_map[item_id]
+                            item["status"] = status_info["status"]
+                            item["notes"] = status_info["notes"]
+                            item["status_updated_at"] = status_info["status_updated_at"]
                         else:
-                            item["status"] = None
+                            # Default to 'pending' status for items without explicit status
+                            item["status"] = "pending"
                             item["notes"] = None
                             item["status_updated_at"] = None
                 

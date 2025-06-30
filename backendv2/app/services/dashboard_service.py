@@ -158,7 +158,7 @@ class DashboardService:
                 "campaignStats": {
                     "recentCampaigns": recent_campaigns_count
                 },
-                "momentumMetrics": await DashboardService._calculate_momentum_metrics_exact(restaurant_id)
+                "momentumMetrics": momentum_metrics
             }
             
         except Exception as e:
@@ -350,60 +350,88 @@ class DashboardService:
     
     @staticmethod
     async def _calculate_momentum_metrics_exact(restaurant_id: str) -> Dict[str, Any]:
-        """Calculate marketing score and revenue potential exactly like MarketingFoundations.js - SIMPLIFIED"""
+        """Calculate marketing score and revenue potential exactly like MarketingFoundations.js - OPTIMIZED"""
         try:
             # Get collection references
             checklist_status_collection = db.database.restaurant_checklist_status
             checklist_items_collection = db.database.checklist_items
             checklist_categories_collection = db.database.checklist_categories
             
-            # Use simple, fast queries instead of complex aggregation
-            # Get all categories
-            categories_dict = {}
-            async for category in checklist_categories_collection.find():
-                categories_dict[category["_id"]] = {
-                    "type": category.get("type", ""),
-                    "items": []
+            # Use single optimized aggregation query to get all data at once
+            pipeline = [
+                # Start with categories
+                {"$match": {}},
+                # Join with items
+                {
+                    "$lookup": {
+                        "from": "checklist_items",
+                        "localField": "_id",
+                        "foreignField": "category_id",
+                        "as": "items"
+                    }
+                },
+                # Unwind items
+                {"$unwind": {"path": "$items", "preserveNullAndEmptyArrays": True}},
+                # Join with status for this restaurant
+                {
+                    "$lookup": {
+                        "from": "restaurant_checklist_status",
+                        "let": {"item_id": "$items._id"},
+                        "pipeline": [
+                            {
+                                "$match": {
+                                    "$expr": {
+                                        "$and": [
+                                            {"$eq": ["$item_id", "$$item_id"]},
+                                            {"$eq": ["$restaurant_id", ObjectId(restaurant_id)]}
+                                        ]
+                                    }
+                                }
+                            }
+                        ],
+                        "as": "status"
+                    }
+                },
+                # Project needed fields
+                {
+                    "$project": {
+                        "category_type": "$type",
+                        "item_title": "$items.title",
+                        "item_description": "$items.description",
+                        "is_critical": "$items.is_critical",
+                        "is_completed": {
+                            "$cond": [
+                                {"$gt": [{"$size": "$status"}, 0]},
+                                {"$eq": [{"$arrayElemAt": ["$status.status", 0]}, "completed"]},
+                                False
+                            ]
+                        }
+                    }
                 }
+            ]
             
-            # Get all items
-            items_by_category = {}
-            async for item in checklist_items_collection.find():
-                category_id = item["category_id"]
-                if category_id not in items_by_category:
-                    items_by_category[category_id] = []
-                items_by_category[category_id].append({
-                    "id": item["_id"],
-                    "title": item.get("title", ""),
-                    "description": item.get("description", ""),
-                    "is_critical": item.get("is_critical", False)
-                })
+            # Execute aggregation
+            results = await checklist_categories_collection.aggregate(pipeline).to_list(length=None)
             
-            # Get all status records for this restaurant
-            status_dict = {}
-            async for status in checklist_status_collection.find({"restaurant_id": ObjectId(restaurant_id)}):
-                status_dict[status["item_id"]] = status.get("status") == "completed"
-            
-            # Combine data efficiently
+            # Process results
             foundational_items = []
             ongoing_items = []
             
-            for category_id, category_data in categories_dict.items():
-                category_type = category_data["type"]
-                items = items_by_category.get(category_id, [])
-                
-                for item in items:
-                    item_data = {
-                        "title": item["title"],
-                        "description": item["description"],
-                        "is_critical": item["is_critical"],
-                        "status": "completed" if status_dict.get(item["id"], False) else "pending"
-                    }
+            for result in results:
+                if not result.get("item_title"):  # Skip categories without items
+                    continue
                     
-                    if category_type == "foundational":
-                        foundational_items.append(item_data)
-                    elif category_type == "ongoing":
-                        ongoing_items.append(item_data)
+                item_data = {
+                    "title": result.get("item_title", ""),
+                    "description": result.get("item_description", ""),
+                    "is_critical": result.get("is_critical", False),
+                    "status": "completed" if result.get("is_completed", False) else "pending"
+                }
+                
+                if result.get("category_type") == "foundational":
+                    foundational_items.append(item_data)
+                elif result.get("category_type") == "ongoing":
+                    ongoing_items.append(item_data)
             
             # Calculate progress exactly like getOverallProgress() in MarketingFoundations.js
             foundational_total = len(foundational_items)
