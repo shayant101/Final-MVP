@@ -62,7 +62,7 @@ const Login = () => {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <h1>Momentum Growth Starter</h1>
+          <h1>Uplit</h1>
           <p>{isLogin ? 'Welcome back!' : 'Join the platform'}</p>
         </div>
 

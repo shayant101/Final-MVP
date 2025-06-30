@@ -50,7 +50,7 @@ const RestaurantDashboard = ({ setActiveTab }) => {
   return (
     <div className="restaurant-dashboard">
       <div className="dashboard-header">
-        <h1>Your Momentum Hub</h1>
+        <h1>Your Growth Command Center</h1>
         <p>Welcome back to {restaurant.name}!</p>
       </div>
 

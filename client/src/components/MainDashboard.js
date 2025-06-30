@@ -123,7 +123,7 @@ const MainDashboard = () => {
             )}
           </div>
           <div className="header-text">
-            <h1 className="app-title">Momentum Growth Starter</h1>
+            <h1 className="app-title">Uplit</h1>
             <p className="app-subtitle">
               {isImpersonating
                 ? `Impersonating: ${user?.impersonating_restaurant?.name || 'Restaurant'}`
@@ -159,7 +159,7 @@ const MainDashboard = () => {
       </main>
 
       <footer className="app-footer">
-        <p>&copy; 2024 Momentum Growth Starter - Helping restaurants grow one customer at a time</p>
+        <p>&copy; 2024 Uplit - Helping restaurants grow one customer at a time</p>
       </footer>
     </div>
   );
