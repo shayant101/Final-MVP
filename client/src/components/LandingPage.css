@@ -370,17 +370,45 @@ body {
   font-size: 1.75rem;
   font-weight: 800;
   margin: 0;
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 50%, #dbeafe 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   letter-spacing: -0.02em;
+  position: relative;
+  color: white;
+}
+
+/* Light mode specific - solid black logo with no effects */
+[data-theme="light"] .logo {
+  color: #000000 !important;
+  background: none !important;
+  background-image: none !important;
+  background-clip: initial !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: #000000 !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+.logo::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #60A5FA, #3B82F6, #1D4ED8);
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
 }
 
 .login-btn {
   position: relative;
   background: var(--bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   color: var(--text-primary);
   padding: var(--spacing-sm) var(--spacing-lg);
   border-radius: var(--radius-lg);
@@ -388,12 +416,25 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   overflow: hidden;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] .login-btn {
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 .login-btn:hover {
   background: var(--bg-card-hover);
   border-color: var(--accent-primary);
   transform: translateY(-1px);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 0 0 2px var(--accent-primary);
 }
 
 .btn-glow {
@@ -414,7 +455,7 @@ body {
 .theme-toggle {
   position: relative;
   background: var(--bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: var(--radius-xl);
   padding: var(--spacing-xs);
   cursor: pointer;
@@ -426,16 +467,25 @@ body {
   width: 60px;
   height: 32px;
   overflow: hidden;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 [data-theme="light"] .theme-toggle {
-  border-color: rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 .theme-toggle:hover {
   background: var(--bg-card-hover);
   border-color: var(--accent-primary);
   transform: translateY(-1px);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 0 0 2px var(--accent-primary);
 }
 
 .theme-toggle-track {
@@ -574,20 +624,42 @@ body {
   font-weight: 900;
   line-height: 1.05;
   margin: 0 0 var(--spacing-xl) 0;
-  color: var(--text-primary) !important; /* Use theme variable with !important */
+  color: #ffffff !important; /* Pure white for dark mode - maximum contrast */
   letter-spacing: -0.03em;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
   text-align: center;
   width: 100%;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Add text shadow for better visibility */
+  /* Remove ALL effects that could cause blur or transparency */
+  text-shadow: none !important;
+  background: none !important;
+  background-image: none !important;
+  background-clip: initial !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: initial !important;
+  /* Add font smoothing for crisp text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Ensure no filters are applied */
+  filter: none !important;
+  /* Ensure no transforms that could cause pixelation */
+  transform: none !important;
+  /* Ensure full opacity */
+  opacity: 1 !important;
+  /* Optimize text rendering */
+  text-rendering: optimizeLegibility;
 }
 
-/* Light mode specific adjustments */
+/* Light mode specific adjustments - Enhanced contrast */
 [data-theme="light"] .hero-title {
-  color: var(--text-primary) !important;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8); /* Light shadow for light mode */
+  color: #000000 !important; /* Pure black for maximum contrast in light mode */
+  text-shadow: none !important; /* Remove any shadow effects */
+  background: none !important;
+  background-image: none !important;
+  background-clip: initial !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: initial !important;
 }
 
 .title-line-1,
@@ -598,18 +670,42 @@ body {
   text-align: center;
   width: 100%;
   color: inherit !important; /* Inherit from parent with !important */
+  /* Ensure crisp text rendering for all title lines */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Remove ALL effects that could cause blur or transparency */
+  text-shadow: none !important;
+  background: none !important;
+  background-image: none !important;
+  background-clip: initial !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: initial !important;
+  filter: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+  text-rendering: optimizeLegibility;
 }
 
-/* Ensure proper contrast for first two lines in both themes */
+/* Ensure proper contrast for first two lines in both themes - SOLID COLORS ONLY */
 .title-line-1,
 .title-line-2 {
-  color: var(--text-primary) !important; /* Use theme variable with !important */
+  color: #ffffff !important; /* Pure white for dark mode - SOLID COLOR */
+  background: none !important;
+  background-image: none !important;
+  background-clip: initial !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: #ffffff !important; /* Force solid white */
 }
 
-/* Light mode specific color for title lines */
+/* Light mode specific color for title lines - SOLID BLACK ONLY */
 [data-theme="light"] .title-line-1,
 [data-theme="light"] .title-line-2 {
-  color: var(--text-primary) !important;
+  color: #000000 !important; /* Pure black for maximum contrast in light mode */
+  background: none !important;
+  background-image: none !important;
+  background-clip: initial !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: #000000 !important; /* Force solid black */
 }
 
 .gradient-text {
@@ -1900,6 +1996,36 @@ body {
   .metric-item,
   .dashboard-preview {
     border-width: 2px;
+  }
+  
+  /* Enhanced dark mode support for logo to match dashboard */
+  [data-theme="dark"] .logo {
+    background: linear-gradient(135deg, #F7FAFC 0%, #E2E8F0 50%, #CBD5E1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    color: #F7FAFC;
+  }
+  
+  [data-theme="dark"] .logo::after {
+    background: linear-gradient(90deg, #60A5FA, #3B82F6, #2563EB);
+    box-shadow: 0 2px 8px rgba(96, 165, 250, 0.5);
+  }
+  
+  /* Light mode specific adjustments for logo */
+  [data-theme="light"] .logo {
+    background: linear-gradient(135deg, #1E293B 0%, #334155 50%, #475569 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: #1E293B;
+  }
+  
+  [data-theme="light"] .logo::after {
+    background: linear-gradient(90deg, #1D4ED8, #3B82F6, #60A5FA);
+    box-shadow: 0 2px 8px rgba(29, 78, 216, 0.3);
   }
 }
 
