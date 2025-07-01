@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       
       // Redirect to main dashboard after successful login
-      window.location.href = '/';
+      window.location.href = '/dashboard';
       
       return response;
     } catch (error) {

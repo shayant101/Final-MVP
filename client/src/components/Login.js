@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import MarketingAIAssistant from './MarketingAIAssistant';
 import './Login.css';
 
 const Login = () => {
@@ -60,6 +61,9 @@ const Login = () => {
 
   return (
     <div className="login-container">
+      {/* Marketing AI Assistant for customer acquisition */}
+      <MarketingAIAssistant />
+      
       <div className="login-card">
         <div className="login-header">
           <h1>Uplit</h1>

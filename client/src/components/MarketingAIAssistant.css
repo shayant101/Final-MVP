@@ -1,0 +1,278 @@
+/* Marketing AI Assistant Floating Button - Login Screen Specific */
+.marketing-ai-container {
+  position: fixed;
+  bottom: 30px;
+  left: 30px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.marketing-ai-button {
+  position: relative;
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Enhanced glass morphism effect */
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  
+  /* AI gradient overlay */
+  background-image: linear-gradient(135deg,
+    rgba(102, 126, 234, 0.9) 0%,
+    rgba(139, 92, 246, 0.9) 25%,
+    rgba(168, 85, 247, 0.9) 50%,
+    rgba(79, 70, 229, 0.9) 75%,
+    rgba(99, 102, 241, 0.9) 100%);
+  
+  /* Enhanced glow effects */
+  box-shadow:
+    0 0 25px rgba(139, 92, 246, 0.5),
+    0 8px 32px rgba(102, 126, 234, 0.4),
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  
+  /* Smooth transitions */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Always active pulse animation with floating movement */
+  animation: ai-pulse 2s infinite, marketing-float 3s ease-in-out infinite;
+}
+
+.marketing-ai-button:hover {
+  transform: translateY(-3px) scale(1.1);
+  
+  /* Ultra-bright effect on hover */
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  
+  /* Intense glow on hover */
+  box-shadow:
+    0 0 35px rgba(139, 92, 246, 0.7),
+    0 0 20px rgba(255, 255, 255, 0.5),
+    0 15px 45px rgba(102, 126, 234, 0.6),
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    inset 0 2px 0 rgba(255, 255, 255, 0.8);
+  
+  animation: ai-pulse-fast 1s infinite, marketing-float-fast 2s ease-in-out infinite;
+}
+
+.marketing-ai-button:active {
+  transform: translateY(-2px) scale(1.1);
+}
+
+.marketing-ai-icon {
+  font-size: 24px;
+  color: white;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  animation: sparkle-rotate 3s infinite linear;
+}
+
+/* Pulse ring animations */
+.marketing-pulse-ring {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  border: 2px solid rgba(139, 92, 246, 0.4);
+  border-radius: 50%;
+  animation: pulse-ring-animation 2s infinite;
+}
+
+.marketing-pulse-ring-2 {
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  right: -15px;
+  bottom: -15px;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 50%;
+  animation: pulse-ring-animation 2s infinite 0.5s;
+}
+
+/* Tooltip */
+.marketing-ai-tooltip {
+  position: relative;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.marketing-ai-container:hover .marketing-ai-tooltip {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.marketing-tooltip-arrow {
+  position: absolute;
+  top: 50%;
+  left: -6px;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-right: 6px solid rgba(0, 0, 0, 0.85);
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+}
+
+/* Keyframe animations */
+@keyframes ai-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 25px rgba(139, 92, 246, 0.5),
+      0 8px 32px rgba(102, 126, 234, 0.4),
+      0 4px 16px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  }
+  50% {
+    box-shadow:
+      0 0 35px rgba(139, 92, 246, 0.7),
+      0 8px 32px rgba(102, 126, 234, 0.6),
+      0 4px 16px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+}
+
+@keyframes ai-pulse-fast {
+  0%, 100% {
+    box-shadow:
+      0 0 35px rgba(139, 92, 246, 0.7),
+      0 0 20px rgba(255, 255, 255, 0.5),
+      0 15px 45px rgba(102, 126, 234, 0.6),
+      0 8px 24px rgba(0, 0, 0, 0.15),
+      inset 0 2px 0 rgba(255, 255, 255, 0.8);
+  }
+  50% {
+    box-shadow:
+      0 0 45px rgba(139, 92, 246, 0.9),
+      0 0 30px rgba(255, 255, 255, 0.7),
+      0 20px 55px rgba(102, 126, 234, 0.8),
+      0 12px 32px rgba(0, 0, 0, 0.2),
+      inset 0 3px 0 rgba(255, 255, 255, 1);
+  }
+}
+
+@keyframes pulse-ring-animation {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes sparkle-rotate {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(90deg) scale(1.1); }
+  50% { transform: rotate(180deg); }
+  75% { transform: rotate(270deg) scale(1.1); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes marketing-float {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  25% {
+    transform: translateY(-8px) translateX(3px);
+  }
+  50% {
+    transform: translateY(-4px) translateX(-2px);
+  }
+  75% {
+    transform: translateY(-10px) translateX(4px);
+  }
+}
+
+@keyframes marketing-float-fast {
+  0%, 100% {
+    transform: translateY(-3px) scale(1.1) translateX(0px);
+  }
+  25% {
+    transform: translateY(-12px) scale(1.1) translateX(4px);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.1) translateX(-3px);
+  }
+  75% {
+    transform: translateY(-15px) scale(1.1) translateX(5px);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .marketing-ai-container {
+    bottom: 20px;
+    left: 20px;
+  }
+  
+  .marketing-ai-button {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .marketing-ai-icon {
+    font-size: 24px;
+  }
+  
+  .marketing-ai-tooltip {
+    display: none; /* Hide tooltip on mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .marketing-ai-container {
+    bottom: 15px;
+    left: 15px;
+  }
+  
+  .marketing-ai-button {
+    width: 55px;
+    height: 55px;
+  }
+  
+  .marketing-ai-icon {
+    font-size: 22px;
+  }
+}
+
+/* Ensure it doesn't interfere with login form on small screens */
+@media (max-width: 480px) and (max-height: 700px) {
+  .marketing-ai-container {
+    bottom: 10px;
+    left: 10px;
+  }
+  
+  .marketing-ai-button {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .marketing-ai-icon {
+    font-size: 20px;
+  }
+}

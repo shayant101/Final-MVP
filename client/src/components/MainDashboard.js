@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import RestaurantDashboard from './RestaurantDashboard';
 import AdminDashboard from './AdminDashboard';
 import GetNewCustomers from './GetNewCustomers';
@@ -8,25 +9,8 @@ import MarketingFoundations from './MarketingFoundations';
 
 const MainDashboard = () => {
   const { user, isAdmin, isImpersonating, endImpersonation, logout } = useAuth();
+  const { theme, toggleTheme, isDark } = useTheme();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const saved = localStorage.getItem('darkMode');
-    return saved ? JSON.parse(saved) : false;
-  });
-
-  // Update localStorage and apply dark mode class when isDarkMode changes
-  React.useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
-    if (isDarkMode) {
-      document.body.classList.add('dark-mode');
-    } else {
-      document.body.classList.remove('dark-mode');
-    }
-  }, [isDarkMode]);
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-  };
 
   const handleLogout = () => {
     logout();
@@ -73,7 +57,7 @@ const MainDashboard = () => {
   };
 
   return (
-    <div className={`App ${isDarkMode ? 'dark-mode' : ''}`}>
+    <div className="App">
       {/* Impersonation Banner */}
       {isImpersonating && (
         <div className="impersonation-banner" style={{
@@ -136,10 +120,10 @@ const MainDashboard = () => {
           <div className="header-actions">
             <button
               className="dark-mode-toggle"
-              onClick={toggleDarkMode}
-              aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              onClick={toggleTheme}
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
-              {isDarkMode ? '☀️' : '🌙'}
+              {isDark ? '☀️' : '🌙'}
             </button>
             <button
               className="logout-button"

@@ -230,7 +230,7 @@ const RestaurantDashboard = ({ setActiveTab }) => {
               className="ai-marketing-cta"
               onClick={() => window.location.href = '/ai-features'}
             >
-              <span className="cta-icon">✨</span>
+              <span className="cta-icon">🪄</span>
               Explore AI Features
               <span className="cta-arrow">→</span>
             </button>
