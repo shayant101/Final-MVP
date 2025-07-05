@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { dashboardAPI } from '../services/api';
+import { dashboardAPI, adminAnalyticsAPI } from '../services/api';
+import AIAnalytics from './AIAnalytics';
+import ContentModeration from './ContentModeration';
+import FeatureManagement from './FeatureManagement';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
+  const [realTimeMetrics, setRealTimeMetrics] = useState(null);
   const [restaurants, setRestaurants] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeView, setActiveView] = useState('overview'); // 'overview' or 'restaurants'
+  const [activeView, setActiveView] = useState('overview'); // 'overview', 'analytics', 'moderation', 'features', 'restaurants'
   const { impersonate } = useAuth();
 
   useEffect(() => {
@@ -17,6 +21,10 @@ const AdminDashboard = () => {
     if (activeView === 'restaurants') {
       fetchRestaurants();
     }
+    
+    // Set up real-time metrics updates every 30 seconds
+    const interval = setInterval(fetchRealTimeMetrics, 30000);
+    return () => clearInterval(interval);
   }, [activeView]);
 
   const fetchDashboardData = async () => {
@@ -37,6 +45,15 @@ const AdminDashboard = () => {
       setRestaurants(data.restaurants);
     } catch (error) {
       setError('Failed to fetch restaurants');
+    }
+  };
+
+  const fetchRealTimeMetrics = async () => {
+    try {
+      const response = await adminAnalyticsAPI.getRealTimeMetrics();
+      setRealTimeMetrics(response.data);
+    } catch (error) {
+      console.error('Failed to fetch real-time metrics:', error);
     }
   };
 
@@ -89,19 +106,68 @@ const AdminDashboard = () => {
       </div>
 
       <div className="admin-nav">
-        <button 
+        <button
           className={`nav-button ${activeView === 'overview' ? 'active' : ''}`}
           onClick={() => setActiveView('overview')}
         >
           📊 Overview
         </button>
-        <button 
+        <button
+          className={`nav-button ${activeView === 'analytics' ? 'active' : ''}`}
+          onClick={() => setActiveView('analytics')}
+        >
+          📈 AI Analytics
+        </button>
+        <button
+          className={`nav-button ${activeView === 'moderation' ? 'active' : ''}`}
+          onClick={() => setActiveView('moderation')}
+        >
+          🛡️ Content Moderation
+        </button>
+        <button
+          className={`nav-button ${activeView === 'features' ? 'active' : ''}`}
+          onClick={() => setActiveView('features')}
+        >
+          ⚙️ Feature Management
+        </button>
+        <button
           className={`nav-button ${activeView === 'restaurants' ? 'active' : ''}`}
           onClick={() => setActiveView('restaurants')}
         >
-          🏪 Manage Restaurants
+          🏪 Restaurants
         </button>
       </div>
+
+      {/* Real-time Metrics Bar */}
+      {realTimeMetrics && (
+        <div className="real-time-metrics-bar">
+          <div className="metric-item">
+            <div className="metric-value">{realTimeMetrics.today_requests}</div>
+            <div className="metric-label">Today's AI Requests</div>
+          </div>
+          <div className="metric-item">
+            <div className="metric-value">{realTimeMetrics.success_rate}%</div>
+            <div className="metric-label">Success Rate</div>
+          </div>
+          <div className="metric-item">
+            <div className="metric-value">{realTimeMetrics.avg_response_time}ms</div>
+            <div className="metric-label">Avg Response Time</div>
+          </div>
+          <div className="metric-item">
+            <div className="metric-value">${realTimeMetrics.daily_cost}</div>
+            <div className="metric-label">Daily Cost</div>
+          </div>
+          <div className="metric-item">
+            <div className="metric-value">{realTimeMetrics.active_requests}</div>
+            <div className="metric-label">Active Requests</div>
+          </div>
+          <div className="metric-item last-updated">
+            <div className="metric-label">
+              Last Updated: {new Date(realTimeMetrics.last_updated).toLocaleTimeString()}
+            </div>
+          </div>
+        </div>
+      )}
 
       {activeView === 'overview' && dashboardData && (
         <div className="overview-content">
@@ -233,6 +299,27 @@ const AdminDashboard = () => {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* AI Analytics Tab */}
+      {activeView === 'analytics' && (
+        <div className="analytics-content">
+          <AIAnalytics />
+        </div>
+      )}
+
+      {/* Content Moderation Tab */}
+      {activeView === 'moderation' && (
+        <div className="moderation-content">
+          <ContentModeration />
+        </div>
+      )}
+
+      {/* Feature Management Tab */}
+      {activeView === 'features' && (
+        <div className="features-content">
+          <FeatureManagement />
         </div>
       )}
     </div>

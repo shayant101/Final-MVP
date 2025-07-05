@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from datetime import datetime
 from enum import Enum
 
@@ -229,3 +229,137 @@ class TokenData(BaseModel):
     email: Optional[str] = None
     role: Optional[str] = None
     impersonating_restaurant_id: Optional[str] = None
+
+# Image Enhancement Models
+class ImageEnhancementOptions(BaseModel):
+    brightness: Optional[float] = Field(default=1.1, ge=0.5, le=2.0)
+    contrast: Optional[float] = Field(default=1.2, ge=0.5, le=2.0)
+    saturation: Optional[float] = Field(default=1.15, ge=0.5, le=2.0)
+    sharpness: Optional[float] = Field(default=1.1, ge=0.5, le=2.0)
+    food_styling_optimization: Optional[bool] = Field(default=True)
+
+class ImageUploadRequest(BaseModel):
+    filename: str = Field(..., min_length=1)
+    enhancement_options: Optional[ImageEnhancementOptions] = None
+
+class ImageAnalysis(BaseModel):
+    food_identification: Dict[str, Any]
+    visual_quality: Dict[str, Any]
+    marketing_potential: Dict[str, Any]
+    suggested_improvements: List[str]
+    color_palette: List[str]
+    dominant_colors: List[str]
+    image_dimensions: str
+    analysis_timestamp: str
+
+class EnhancedImage(BaseModel):
+    image_id: str
+    restaurant_id: str
+    original_filename: str
+    file_size: int
+    enhanced_file_size: int
+    enhancement_options: Optional[Dict[str, Any]] = None
+    ai_analysis: Optional[Dict[str, Any]] = None
+    created_at: str
+    status: str
+
+class ImageContentGenerationRequest(BaseModel):
+    image_id: str
+    content_types: Optional[List[str]] = Field(default=['social_media_caption', 'menu_description', 'promotional_content'])
+
+class GeneratedImageContent(BaseModel):
+    image_id: str
+    generated_content: Dict[str, Any]
+    content_types: List[str]
+    generation_timestamp: str
+    image_analysis_used: Dict[str, Any]
+
+class ImageListResponse(BaseModel):
+    success: bool
+    message: str
+    data: Dict[str, Any]
+
+class ImageEnhancementResponse(BaseModel):
+    success: bool
+    message: str
+    data: Optional[Dict[str, Any]] = None
+    error: Optional[str] = None
+    error_type: Optional[str] = None
+
+# Analytics Models for Enhanced Admin Dashboard
+class AIUsageAnalytics(BaseModel):
+    analytics_id: str
+    restaurant_id: str
+    feature_type: str  # image_enhancement, content_generation, marketing_assistant
+    operation_type: str  # specific operation like enhance_image, generate_content
+    timestamp: datetime
+    processing_time_ms: int
+    tokens_used: Optional[int] = 0
+    estimated_cost: Optional[float] = 0.0
+    status: str  # success, error, timeout
+    metadata: Optional[Dict[str, Any]] = None
+    created_at: datetime
+
+class AIContentModeration(BaseModel):
+    moderation_id: str
+    restaurant_id: str
+    content_type: str  # social_media_caption, menu_description, etc.
+    content_id: Optional[str] = None
+    status: str  # approved, flagged, pending_review
+    content_data: Dict[str, Any]
+    flags: Optional[List[str]] = []
+    reviewed_by: Optional[str] = None
+    flagged_at: datetime
+    reviewed_at: Optional[datetime] = None
+
+class AIPerformanceMetrics(BaseModel):
+    metric_id: str
+    feature_type: str
+    metric_date: datetime
+    total_requests: int
+    successful_requests: int
+    failed_requests: int
+    avg_processing_time: float
+    total_cost: float
+    hourly_breakdown: Dict[str, Dict[str, Any]]
+    created_at: datetime
+
+class AIFeatureToggles(BaseModel):
+    toggle_id: str
+    restaurant_id: str
+    feature_name: str  # image_enhancement, content_generation, etc.
+    enabled: bool
+    rate_limits: Optional[Dict[str, int]] = None
+    updated_at: datetime
+    updated_by: str
+
+# Admin Analytics Request/Response Models
+class AnalyticsDateRange(BaseModel):
+    start_date: datetime
+    end_date: datetime
+    feature_type: Optional[str] = None
+
+class RealTimeMetrics(BaseModel):
+    today_requests: int
+    success_rate: float
+    avg_response_time: int
+    daily_cost: float
+    active_requests: int
+    last_updated: str
+
+class UsageAnalyticsResponse(BaseModel):
+    usage_over_time: List[Dict[str, Any]]
+    feature_breakdown: List[Dict[str, Any]]
+    error_analysis: List[Dict[str, Any]]
+    date_range: Dict[str, str]
+
+class ContentModerationRequest(BaseModel):
+    content_ids: List[str]
+    action: str  # approve, flag, reject
+    reason: Optional[str] = None
+
+class FeatureToggleRequest(BaseModel):
+    restaurant_id: str
+    feature_name: str
+    enabled: bool
+    rate_limits: Optional[Dict[str, int]] = None

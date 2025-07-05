@@ -100,9 +100,6 @@ const LandingPage = () => {
               <p className="hero-subtitle-main">
                 Advanced AI marketing platform designed exclusively for restaurants
               </p>
-              <p className="hero-subtitle-secondary">
-                Automate customer acquisition, optimize retention, and scale revenue with precision-engineered technology
-              </p>
             </div>
             
             {/* Performance stats with improved spacing */}

@@ -6,18 +6,32 @@ import AdminDashboard from './AdminDashboard';
 import GetNewCustomers from './GetNewCustomers';
 import BringBackRegulars from './BringBackRegulars';
 import MarketingFoundations from './MarketingFoundations';
+import LoadingScreen from './LoadingScreen';
 
 const MainDashboard = () => {
   const { user, isAdmin, isImpersonating, endImpersonation, logout } = useAuth();
   const { theme, toggleTheme, isDark } = useTheme();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const handleTabChange = async (newTab) => {
+    if (newTab === activeTab) return;
+    
+    setIsTransitioning(true);
+    
+    // Simulate loading time for tab transition
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    setActiveTab(newTab);
+    setIsTransitioning(false);
+  };
 
   const handleLogout = () => {
     logout();
   };
 
   const handleBackToDashboard = () => {
-    setActiveTab('dashboard');
+    handleTabChange('dashboard');
   };
 
   const renderActiveComponent = () => {
@@ -29,7 +43,7 @@ const MainDashboard = () => {
         return (isAdmin && !isImpersonating) ? (
           <AdminDashboard />
         ) : (
-          <RestaurantDashboard setActiveTab={setActiveTab} />
+          <RestaurantDashboard setActiveTab={handleTabChange} />
         );
       case 'get-new-customers':
         return <GetNewCustomers onBackToDashboard={handleBackToDashboard} />;
@@ -41,7 +55,7 @@ const MainDashboard = () => {
         return (isAdmin && !isImpersonating) ? (
           <AdminDashboard />
         ) : (
-          <RestaurantDashboard setActiveTab={setActiveTab} />
+          <RestaurantDashboard setActiveTab={handleTabChange} />
         );
     }
   };
@@ -55,6 +69,10 @@ const MainDashboard = () => {
       console.error('Failed to end impersonation:', error);
     }
   };
+
+  if (isTransitioning) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div className="App">
@@ -113,7 +131,7 @@ const MainDashboard = () => {
                 ? `Impersonating: ${user?.impersonating_restaurant?.name || 'Restaurant'}`
                 : isAdmin
                 ? 'Platform Administration'
-                : `Welcome back, ${user?.restaurant?.name || user?.email}!`
+                : 'AI-Powered Restaurant Marketing Platform'
               }
             </p>
           </div>

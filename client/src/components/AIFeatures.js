@@ -1,9 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './AIFeatures.css';
 import ScoreBreakdown from './ScoreBreakdown';
+import ImageEnhancement from './ImageEnhancement';
 
 const AIFeatures = () => {
-  const [activeFeature, setActiveFeature] = useState('grader');
+  // Get initial active feature from URL parameter or default to 'grader'
+  const getInitialActiveFeature = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    
+    // Valid tab IDs
+    const validTabs = ['grader', 'menu', 'content'];
+    
+    // Return tab from URL if valid, otherwise default to 'grader'
+    return validTabs.includes(tabParam) ? tabParam : 'grader';
+  };
+
+  const [activeFeature, setActiveFeature] = useState(getInitialActiveFeature());
   const [analysisResult, setAnalysisResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showScoreBreakdown, setShowScoreBreakdown] = useState(false);
@@ -17,6 +30,30 @@ const AIFeatures = () => {
 
   // Ref for the results section to enable auto-scrolling
   const resultsRef = useRef(null);
+
+  // Update URL when active feature changes
+  useEffect(() => {
+    const url = new URL(window.location);
+    url.searchParams.set('tab', activeFeature);
+    
+    // Update URL without triggering a page reload
+    window.history.replaceState({}, '', url);
+  }, [activeFeature]);
+
+  // Handle browser back/forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      const newActiveFeature = getInitialActiveFeature();
+      setActiveFeature(newActiveFeature);
+      setAnalysisResult(null); // Clear results when navigating
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
 
   // Auto-scroll to results when analysis is complete
   useEffect(() => {
@@ -52,9 +89,8 @@ const AIFeatures = () => {
       id: 'content',
       name: 'Content Creator',
       icon: '📝',
-      description: 'Generate marketing content across all channels',
-      color: '#7C3AED',
-      comingSoon: true
+      description: 'AI-powered image enhancement and content generation',
+      color: '#7C3AED'
     }
   ];
 
@@ -164,6 +200,24 @@ const AIFeatures = () => {
   const renderFeatureContent = () => {
     const feature = aiFeatures.find(f => f.id === activeFeature);
     
+    // For content creator, render the ImageEnhancement component directly
+    if (activeFeature === 'content') {
+      return (
+        <div className="feature-content">
+          <div className="feature-header">
+            <div className="feature-icon" style={{ backgroundColor: feature.color }}>
+              {feature.icon}
+            </div>
+            <div>
+              <h3>{feature.name}</h3>
+              <p>{feature.description}</p>
+            </div>
+          </div>
+          <ImageEnhancement />
+        </div>
+      );
+    }
+    
     return (
       <div className="feature-content">
         <div className="feature-header">
@@ -181,8 +235,8 @@ const AIFeatures = () => {
           <div className="restaurant-info">
             <div className="info-item">
               <label>Restaurant Name:</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={restaurantData.name}
                 onChange={(e) => setRestaurantData({...restaurantData, name: e.target.value})}
               />
@@ -215,8 +269,8 @@ const AIFeatures = () => {
             </div>
             <div className="info-item">
               <label>Location:</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={restaurantData.location}
                 onChange={(e) => setRestaurantData({...restaurantData, location: e.target.value})}
               />

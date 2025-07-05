@@ -10,6 +10,7 @@ from .openai_service import openai_service
 from .ai_grader_service import ai_grader_service
 from .ai_menu_optimizer import ai_menu_optimizer
 from .ai_marketing_assistant import ai_marketing_assistant
+from .admin_analytics_service import admin_analytics_service
 
 logger = logging.getLogger(__name__)
 
@@ -24,8 +25,10 @@ class AIContentEngineService:
         """
         Generate comprehensive content suite using all AI services
         """
+        start_time = datetime.now()
         try:
             restaurant_name = restaurant_data.get('name', 'Restaurant')
+            restaurant_id = restaurant_data.get('restaurant_id') or restaurant_data.get('user_id', 'unknown')
             
             # Initialize results container
             content_suite = {
@@ -54,6 +57,8 @@ class AIContentEngineService:
                     content_suite["generated_content"]["review_responses"] = await self._generate_review_responses(restaurant_data)
                 elif content_type == "seasonal_content":
                     content_suite["generated_content"]["seasonal"] = await self._generate_seasonal_content(restaurant_data)
+                elif content_type == "image_enhancement":
+                    content_suite["generated_content"]["image_enhancement"] = await self._generate_image_enhancement_content(restaurant_data)
             
             # Generate AI insights and recommendations
             content_suite["ai_insights"] = await self._generate_content_insights(restaurant_data, content_suite["generated_content"])
@@ -64,10 +69,44 @@ class AIContentEngineService:
             # Calculate content performance projections
             content_suite["performance_projections"] = self._calculate_content_performance_projections(content_suite["generated_content"])
             
+            # Log analytics (non-blocking)
+            processing_time = int((datetime.now() - start_time).total_seconds() * 1000)
+            estimated_tokens = len(str(content_suite["generated_content"])) // 4  # Rough token estimate
+            asyncio.create_task(admin_analytics_service.log_ai_usage(
+                restaurant_id=restaurant_id,
+                feature_type="content_generation",
+                operation_type="comprehensive_suite",
+                processing_time=processing_time,
+                tokens_used=estimated_tokens,
+                status="success",
+                metadata={
+                    "content_types": content_types,
+                    "content_count": len(content_types),
+                    "restaurant_name": restaurant_name
+                }
+            ))
+            
             return content_suite
             
         except Exception as e:
             logger.error(f"Content suite generation failed: {str(e)}")
+            
+            # Log analytics for error (non-blocking)
+            processing_time = int((datetime.now() - start_time).total_seconds() * 1000)
+            asyncio.create_task(admin_analytics_service.log_ai_usage(
+                restaurant_id=restaurant_id,
+                feature_type="content_generation",
+                operation_type="comprehensive_suite",
+                processing_time=processing_time,
+                tokens_used=0,
+                status="error",
+                metadata={
+                    "error_details": str(e),
+                    "content_types": content_types,
+                    "restaurant_name": restaurant_name
+                }
+            ))
+            
             return await self._generate_mock_content_suite(restaurant_data, content_types)
     
     async def _generate_social_media_campaign(self, restaurant_data: Dict) -> Dict[str, Any]:
@@ -969,6 +1008,144 @@ class AIContentEngineService:
                 "Brand awareness metrics"
             ]
         }
+    
+    async def _generate_image_enhancement_content(self, restaurant_data: Dict) -> Dict[str, Any]:
+        """
+        Generate image enhancement guidance and content suggestions
+        """
+        try:
+            restaurant_name = restaurant_data.get('name', 'Restaurant')
+            cuisine_type = restaurant_data.get('cuisine_type', 'American')
+            
+            # Generate image enhancement guidance
+            image_enhancement_content = {
+                "photography_tips": {
+                    "lighting": [
+                        "Use natural light when possible for food photography",
+                        "Avoid harsh shadows with diffused lighting",
+                        "Golden hour lighting creates warm, appetizing tones",
+                        "Use reflectors to fill in shadows on food"
+                    ],
+                    "composition": [
+                        "Follow the rule of thirds for balanced compositions",
+                        "Shoot from multiple angles - overhead, 45-degree, and straight-on",
+                        "Include props that complement your restaurant's style",
+                        "Leave negative space to avoid cluttered images"
+                    ],
+                    "styling": [
+                        "Garnish dishes just before photographing",
+                        "Use fresh ingredients for vibrant colors",
+                        "Wipe plates clean for professional presentation",
+                        "Add steam or condensation for hot/cold beverages"
+                    ]
+                },
+                "enhancement_guidelines": {
+                    "color_adjustments": [
+                        "Boost saturation slightly to make food more appetizing",
+                        "Adjust white balance for accurate food colors",
+                        "Enhance contrast to make details pop",
+                        "Warm up colors slightly for comfort food appeal"
+                    ],
+                    "technical_improvements": [
+                        "Sharpen images for crisp details",
+                        "Remove distracting background elements",
+                        "Adjust exposure for proper brightness",
+                        "Crop for better composition and focus"
+                    ]
+                },
+                "content_suggestions": {
+                    "social_media_optimization": [
+                        f"Create Instagram-worthy shots of {restaurant_name}'s signature dishes",
+                        "Use consistent filters/editing style for brand recognition",
+                        "Include behind-the-scenes kitchen shots",
+                        "Show the cooking process in action shots"
+                    ],
+                    "menu_photography": [
+                        "Photograph each menu item consistently",
+                        "Create appetizing hero shots for featured items",
+                        "Show portion sizes accurately",
+                        "Include ingredient close-ups for premium items"
+                    ],
+                    "marketing_materials": [
+                        "Create high-quality images for print materials",
+                        "Develop a library of seasonal food photography",
+                        "Capture lifestyle shots of dining experience",
+                        "Document special events and celebrations"
+                    ]
+                },
+                "ai_enhancement_features": {
+                    "automatic_improvements": [
+                        "AI-powered color correction for food photography",
+                        "Smart cropping for social media formats",
+                        "Background enhancement and cleanup",
+                        "Lighting optimization for appetizing appeal"
+                    ],
+                    "content_generation": [
+                        "Generate social media captions from food images",
+                        "Create menu descriptions based on visual analysis",
+                        "Suggest promotional content for featured dishes",
+                        "Generate email marketing content from food photos"
+                    ]
+                },
+                "best_practices": {
+                    "consistency": [
+                        "Maintain consistent style across all food photography",
+                        "Use the same props and backgrounds for brand cohesion",
+                        "Apply similar editing techniques to all images",
+                        "Create templates for different types of content"
+                    ],
+                    "optimization": [
+                        "Optimize image sizes for different platforms",
+                        "Create multiple formats (square, vertical, horizontal)",
+                        "Maintain high resolution for print materials",
+                        "Compress images appropriately for web use"
+                    ]
+                },
+                "seasonal_considerations": {
+                    "current_season": self._get_current_season(),
+                    "seasonal_tips": [
+                        "Incorporate seasonal ingredients in food styling",
+                        "Use seasonal colors and props in photography",
+                        "Create holiday-themed food presentations",
+                        "Capture seasonal ambiance in restaurant shots"
+                    ]
+                }
+            }
+            
+            return {
+                "image_enhancement_suite": "Complete Food Photography & Enhancement Guide",
+                "restaurant_focus": f"Customized for {restaurant_name} ({cuisine_type} cuisine)",
+                "content": image_enhancement_content,
+                "implementation_priority": [
+                    "Start with signature dish photography",
+                    "Establish consistent editing style",
+                    "Create social media content templates",
+                    "Build comprehensive menu photo library"
+                ],
+                "roi_potential": {
+                    "social_media_engagement": "30-50% increase with quality food photography",
+                    "menu_appeal": "20% increase in item orders with appetizing photos",
+                    "brand_perception": "Professional imagery improves perceived quality",
+                    "marketing_effectiveness": "Visual content performs 40x better than text-only"
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Image enhancement content generation failed: {str(e)}")
+            return {
+                "image_enhancement_suite": "Basic Food Photography Guide",
+                "content": {
+                    "photography_tips": {
+                        "lighting": ["Use natural light for food photography"],
+                        "composition": ["Follow rule of thirds"],
+                        "styling": ["Keep food fresh and clean"]
+                    },
+                    "enhancement_guidelines": {
+                        "color_adjustments": ["Boost saturation slightly"],
+                        "technical_improvements": ["Sharpen for crisp details"]
+                    }
+                }
+            }
 
 # Create service instance
 ai_content_engine = AIContentEngineService()

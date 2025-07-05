@@ -1,8 +1,9 @@
 """
 AI Features API Routes
 Provides endpoints for all AI-powered restaurant marketing features
+Including image enhancement capabilities
 """
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Form
 from typing import Dict, Any, List, Optional
 import logging
 from datetime import datetime
@@ -11,7 +12,9 @@ from ..services.ai_grader_service import ai_grader_service
 from ..services.ai_menu_optimizer import ai_menu_optimizer
 from ..services.ai_marketing_assistant import ai_marketing_assistant
 from ..services.ai_content_engine import ai_content_engine
-from ..auth import get_current_user
+from ..services.ai_image_enhancement import ai_image_enhancement
+from ..auth import get_current_user, get_restaurant_id
+from ..models import ImageEnhancementOptions, ImageContentGenerationRequest
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/ai", tags=["AI Features"])
@@ -588,3 +591,186 @@ def _calculate_combined_roi(digital_analysis: Dict, menu_analysis: Dict, marketi
             "Marketing campaign effectiveness"
         ]
     }
+
+# AI Image Enhancement Endpoints
+@router.post("/content/image-enhancement")
+async def upload_and_enhance_image(
+    file: UploadFile = File(...),
+    brightness: Optional[float] = Form(1.1),
+    contrast: Optional[float] = Form(1.2),
+    saturation: Optional[float] = Form(1.15),
+    sharpness: Optional[float] = Form(1.1),
+    food_styling_optimization: Optional[bool] = Form(True),
+    enhancement_prompt: Optional[str] = Form(None),
+    current_user = Depends(get_current_user),
+    restaurant_id: str = Depends(get_restaurant_id)
+):
+    """
+    Upload and enhance an image with AI-powered improvements
+    """
+    try:
+        logger.info(f"Image enhancement request from restaurant: {restaurant_id}")
+        logger.info(f"File details: {file.filename}, {file.content_type}, size: {file.size if hasattr(file, 'size') else 'unknown'}")
+        
+        # Validate file type
+        if not file.content_type or not file.content_type.startswith('image/'):
+            logger.error(f"Invalid file type: {file.content_type}")
+            raise HTTPException(status_code=400, detail="File must be an image")
+        
+        # Read image data
+        logger.info("Reading image data...")
+        image_data = await file.read()
+        logger.info(f"Image data read successfully: {len(image_data)} bytes")
+        
+        # Create enhancement options
+        enhancement_options = {
+            "brightness": brightness,
+            "contrast": contrast,
+            "saturation": saturation,
+            "sharpness": sharpness,
+            "food_styling_optimization": food_styling_optimization
+        }
+        logger.info(f"Enhancement options: {enhancement_options}")
+        
+        if enhancement_prompt:
+            logger.info(f"Enhancement prompt provided: {enhancement_prompt}")
+        
+        # Process image enhancement
+        logger.info("Starting image enhancement process...")
+        result = await ai_image_enhancement.upload_and_enhance_image(
+            image_data=image_data,
+            filename=file.filename,
+            restaurant_id=restaurant_id,
+            enhancement_options=enhancement_options,
+            enhancement_prompt=enhancement_prompt
+        )
+        logger.info("Image enhancement process completed")
+        
+        if not result.get('success'):
+            raise HTTPException(
+                status_code=400,
+                detail=result.get('error', 'Image enhancement failed')
+            )
+        
+        return {
+            "success": True,
+            "message": "Image enhanced successfully",
+            "data": result['data']
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Image enhancement error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Image enhancement failed: {str(e)}")
+
+@router.post("/content/image/generate-content")
+async def generate_content_from_image(
+    request: ImageContentGenerationRequest,
+    current_user = Depends(get_current_user),
+    restaurant_id: str = Depends(get_restaurant_id)
+):
+    """
+    Generate marketing content based on enhanced image
+    """
+    try:
+        logger.info(f"Content generation from image {request.image_id} for restaurant: {restaurant_id}")
+        
+        # Generate marketing content from image
+        result = await ai_image_enhancement.generate_marketing_content_from_image(
+            image_id=request.image_id,
+            restaurant_id=restaurant_id,
+            content_types=request.content_types
+        )
+        
+        if not result.get('success'):
+            raise HTTPException(
+                status_code=400,
+                detail=result.get('error', 'Content generation failed')
+            )
+        
+        return {
+            "success": True,
+            "message": f"Generated {len(request.content_types)} content types from image",
+            "data": result['data']
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Content generation from image error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Content generation failed: {str(e)}")
+
+@router.get("/content/images")
+async def get_user_images(
+    limit: int = 20,
+    offset: int = 0,
+    current_user = Depends(get_current_user),
+    restaurant_id: str = Depends(get_restaurant_id)
+):
+    """
+    Get list of user's enhanced images
+    """
+    try:
+        logger.info(f"Retrieving images for restaurant: {restaurant_id}")
+        
+        # Get user's images
+        result = await ai_image_enhancement.get_user_images(
+            restaurant_id=restaurant_id,
+            limit=limit,
+            offset=offset
+        )
+        
+        if not result.get('success'):
+            raise HTTPException(
+                status_code=400,
+                detail=result.get('error', 'Failed to retrieve images')
+            )
+        
+        return {
+            "success": True,
+            "message": f"Retrieved {len(result['data']['images'])} images",
+            "data": result['data']
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Image retrieval error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve images: {str(e)}")
+
+@router.delete("/content/images/{image_id}")
+async def delete_image(
+    image_id: str,
+    current_user = Depends(get_current_user),
+    restaurant_id: str = Depends(get_restaurant_id)
+):
+    """
+    Delete an enhanced image and its associated content
+    """
+    try:
+        logger.info(f"Deleting image {image_id} for restaurant: {restaurant_id}")
+        
+        # Delete image
+        result = await ai_image_enhancement.delete_image(
+            image_id=image_id,
+            restaurant_id=restaurant_id
+        )
+        
+        if not result.get('success'):
+            raise HTTPException(
+                status_code=400,
+                detail=result.get('error', 'Failed to delete image')
+            )
+        
+        return {
+            "success": True,
+            "message": f"Image {image_id} deleted successfully",
+            "data": result['data']
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Image deletion error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete image: {str(e)}")

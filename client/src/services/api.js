@@ -232,6 +232,127 @@ export const dashboardAPI = {
   }
 };
 
+// Admin Analytics API calls
+export const adminAnalyticsAPI = {
+  // Real-time metrics
+  getRealTimeMetrics: async () => {
+    try {
+      const response = await api.get('/admin/analytics/real-time');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch real-time metrics');
+    }
+  },
+
+  // Usage analytics
+  getUsageAnalytics: async (days = 7, featureType = null) => {
+    try {
+      const params = { days };
+      if (featureType) params.feature_type = featureType;
+      const response = await api.get('/admin/analytics/usage', { params });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch usage analytics');
+    }
+  },
+
+  // Restaurant analytics
+  getRestaurantAnalytics: async (restaurantId, days = 30) => {
+    try {
+      const response = await api.get(`/admin/analytics/restaurant/${restaurantId}`, {
+        params: { days }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch restaurant analytics');
+    }
+  },
+
+  // Dashboard summary
+  getDashboardSummary: async () => {
+    try {
+      const response = await api.get('/admin/dashboard/summary');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch dashboard summary');
+    }
+  },
+
+  // Flagged content
+  getFlaggedContent: async (status = 'flagged', limit = 50) => {
+    try {
+      const response = await api.get('/admin/moderation/flagged-content', {
+        params: { status, limit }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch flagged content');
+    }
+  },
+
+  // Moderate content
+  moderateContent: async (moderationId, action, reason = null) => {
+    try {
+      const response = await api.post('/admin/moderation/moderate-content', null, {
+        params: { moderation_id: moderationId, action, reason }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to moderate content');
+    }
+  },
+
+  // Bulk moderate content
+  bulkModerateContent: async (contentIds, action, reason = null) => {
+    try {
+      const response = await api.post('/admin/moderation/bulk-moderate', {
+        content_ids: contentIds,
+        action,
+        reason
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to bulk moderate content');
+    }
+  },
+
+  // Feature toggles
+  getFeatureToggles: async (restaurantId = null) => {
+    try {
+      const params = restaurantId ? { restaurant_id: restaurantId } : {};
+      const response = await api.get('/admin/features/toggles', { params });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch feature toggles');
+    }
+  },
+
+  // Update feature toggle
+  updateFeatureToggle: async (restaurantId, featureName, enabled, rateLimits = null) => {
+    try {
+      const response = await api.post('/admin/features/toggle', {
+        restaurant_id: restaurantId,
+        feature_name: featureName,
+        enabled,
+        rate_limits: rateLimits
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to update feature toggle');
+    }
+  },
+
+  // Check feature status
+  checkFeatureStatus: async (restaurantId, featureName) => {
+    try {
+      const response = await api.get(`/admin/features/check/${restaurantId}/${featureName}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to check feature status');
+    }
+  }
+};
+
 // Checklist API calls
 export const checklistAPI = {
   // Get all categories with optional type filter
@@ -302,6 +423,85 @@ export const checklistAPI = {
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.error || 'Failed to fetch categories with items');
+    }
+  }
+};
+
+// AI Image Enhancement API calls
+export const imageEnhancementAPI = {
+  // Upload and enhance image
+  enhanceImage: async (formData, onProgress = null) => {
+    try {
+      console.log('API: Starting image enhancement request...');
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        timeout: 15000, // 15 seconds for image processing
+      };
+
+      if (onProgress) {
+        config.onUploadProgress = (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          console.log('API: Upload progress:', percentCompleted + '%');
+          onProgress(percentCompleted);
+        };
+      }
+
+      console.log('API: Making POST request to /ai/content/image-enhancement');
+      const response = await api.post('/ai/content/image-enhancement', formData, config);
+      console.log('API: Response received:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('API: Image enhancement error:', error);
+      console.error('API: Error response:', error.response?.data);
+      console.error('API: Error status:', error.response?.status);
+      throw new Error(error.response?.data?.error || error.message || 'Image enhancement failed');
+    }
+  },
+
+  // Generate marketing content from image
+  generateContent: async (requestData) => {
+    try {
+      const response = await api.post('/ai/content/image/generate-content', requestData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        timeout: 45000, // 45 seconds for content generation
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Content generation failed');
+    }
+  },
+
+  // Get user's enhanced images
+  getImages: async () => {
+    try {
+      const response = await api.get('/ai/content/images');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch images');
+    }
+  },
+
+  // Delete an image
+  deleteImage: async (imageId) => {
+    try {
+      const response = await api.delete(`/ai/content/images/${imageId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to delete image');
+    }
+  },
+
+  // Get image details
+  getImageDetails: async (imageId) => {
+    try {
+      const response = await api.get(`/ai/content/images/${imageId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch image details');
     }
   }
 };

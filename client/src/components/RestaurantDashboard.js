@@ -76,25 +76,16 @@ const RestaurantDashboard = ({ setActiveTab }) => {
           <div className="performance-insights-compact">
             <div className="compact-stats">
               <div className="compact-stat">
-                <span className="compact-icon">💰</span>
-                <span className="compact-value">$763</span>
-                <span className="compact-label">Revenue Increase</span>
+                <span className="compact-value">${Math.round((performanceSnapshot.newCustomersAcquired * 45) + (performanceSnapshot.customersReengaged * 32))}</span>
+                <span className="compact-label">Revenue Generated</span>
               </div>
               <div className="compact-stat">
-                <span className="compact-icon">🎯</span>
-                <span className="compact-value">{Math.round(((performanceSnapshot.newCustomersAcquired + performanceSnapshot.customersReengaged) / 2) * 1.2)}</span>
-                <span className="compact-label">Monthly Goal</span>
+                <span className="compact-value">{performanceSnapshot.newCustomersAcquired + performanceSnapshot.customersReengaged}</span>
+                <span className="compact-label">Total Customers</span>
               </div>
               <div className="compact-stat">
-                <span className="compact-icon">
-                  {performanceSnapshot.newCustomersAcquired >= 8 ? '🔥' : performanceSnapshot.newCustomersAcquired >= 5 ? '📈' : '💪'}
-                </span>
-                <span className="compact-value">
-                  {performanceSnapshot.newCustomersAcquired >= 8 ? 'Great' :
-                   performanceSnapshot.newCustomersAcquired >= 5 ? 'Good' :
-                   'Growing'}
-                </span>
-                <span className="compact-label">Performance</span>
+                <span className="compact-value">{Math.round(((performanceSnapshot.newCustomersAcquired + performanceSnapshot.customersReengaged) / 25) * 100)}%</span>
+                <span className="compact-label">Growth Rate</span>
               </div>
             </div>
           </div>
@@ -215,12 +206,12 @@ const RestaurantDashboard = ({ setActiveTab }) => {
           <div className="edge-highlight"></div>
           
           <div className="card-header">
-            <h3>✨ AI Marketing</h3>
+            <h3>🤖 AI Marketing</h3>
             <span className="period">Powered by AI</span>
           </div>
           <div className="ai-marketing-content">
             <div className="ai-marketing-icon">
-              <div className="ai-brain-animation">✨</div>
+              <div className="ai-brain-animation">🤖</div>
             </div>
             <div className="ai-marketing-text">
               <h4>Unlock AI-Powered Growth</h4>
@@ -230,7 +221,6 @@ const RestaurantDashboard = ({ setActiveTab }) => {
               className="ai-marketing-cta"
               onClick={() => window.location.href = '/ai-features'}
             >
-              <span className="cta-icon">🪄</span>
               Explore AI Features
               <span className="cta-arrow">→</span>
             </button>
@@ -348,7 +338,7 @@ const RestaurantDashboard = ({ setActiveTab }) => {
         {/* Revenue Potential Card */}
         <div className="dashboard-card revenue-potential-card">
           <div className="card-header">
-            <h3>💰 Revenue Potential</h3>
+            <h3>💰 Revenue</h3>
             <span className="period">Weekly Opportunity</span>
           </div>
           <div className="revenue-potential-content">

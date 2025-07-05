@@ -89,18 +89,40 @@ body {
 }
 
 .app-title {
-  font-size: 2.5rem;
-  font-weight: 700;
+  font-size: 3rem;
+  font-weight: 800;
   margin-bottom: 0.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 50%, #dbeafe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  letter-spacing: -0.02em;
+  position: relative;
   color: white;
 }
 
+.app-title::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #60A5FA, #3B82F6, #1D4ED8);
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+}
+
 .app-subtitle {
-  font-size: 1.1rem;
-  opacity: 0.9;
-  font-weight: 300;
-  color: white;
+  font-size: 1.2rem;
+  opacity: 0.95;
+  font-weight: 500;
+  color: #e2e8f0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.01em;
+  margin-top: 0.25rem;
 }
 
 .header-actions {
@@ -110,7 +132,7 @@ body {
 }
 
 .dark-mode-toggle {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.25);
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50px;
   width: 60px;
@@ -121,19 +143,21 @@ body {
   font-size: 1.5rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(15px);
   flex-shrink: 0;
   color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .dark-mode-toggle:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: scale(1.1);
-  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .logout-button {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 12px;
   padding: 0.75rem 1.25rem;
@@ -142,23 +166,24 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(15px);
   display: flex;
   align-items: center;
   gap: 0.5rem;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .logout-button:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.35);
   border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .logout-button:active {
   transform: translateY(0);
-  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 /* ========================================
@@ -427,7 +452,13 @@ body {
 
 @media (max-width: 768px) {
   .app-title {
-    font-size: 2rem;
+    font-size: 2.25rem;
+    font-weight: 800;
+  }
+  
+  .app-title::after {
+    width: 50px;
+    height: 2px;
   }
   
   .app-main {
@@ -510,11 +541,17 @@ body {
   }
   
   .app-title {
-    font-size: 1.75rem;
+    font-size: 2rem;
+    font-weight: 800;
   }
   
+  .app-title::after {
+    width: 40px;
+    height: 2px;
+  }
+
   .app-subtitle {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
   
   .dark-mode-toggle {
@@ -610,35 +647,49 @@ body {
 }
 
 .dark-mode .app-title {
+  background: linear-gradient(135deg, #F7FAFC 0%, #E2E8F0 50%, #CBD5E1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
   color: #F7FAFC;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .app-title::after {
+  background: linear-gradient(90deg, #60A5FA, #3B82F6, #2563EB);
+  box-shadow: 0 2px 8px rgba(96, 165, 250, 0.5);
 }
 
 .dark-mode .app-subtitle {
-  color: #E2E8F0;
+  color: #CBD5E1;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* Fix header buttons in dark mode */
 .dark-mode .dark-mode-toggle {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   color: #F7FAFC;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .dark-mode .dark-mode-toggle:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.3);
   border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .dark-mode .logout-button {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   color: #F7FAFC;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .dark-mode .logout-button:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.3);
   border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .dark-mode .back-to-dashboard-button {
