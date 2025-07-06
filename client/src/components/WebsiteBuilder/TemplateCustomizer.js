@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './TemplateCustomizer.css';
+import { websiteBuilderAPI } from '../../services/websiteBuilderAPI';
+import { dashboardAPI } from '../../services/api';
 
 const TemplateCustomizer = () => {
   const { templateId } = useParams();
@@ -282,19 +284,20 @@ const TemplateCustomizer = () => {
   const handleSaveAndPreview = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      console.log('🔍 DEBUG: TemplateCustomizer - Starting save using centralized API service');
       
-      // Get restaurant data
-      const restaurantResponse = await fetch('/api/dashboard/restaurant', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      // Get restaurant data using the same successful method as working features
+      const restaurantData = await dashboardAPI.getRestaurantDashboard();
+      console.log('🔍 DEBUG: TemplateCustomizer - Restaurant data from dashboard API:', restaurantData);
       
-      if (!restaurantResponse.ok) {
-        throw new Error('Failed to fetch restaurant data');
+      if (!restaurantData || !restaurantData.restaurant || !restaurantData.restaurant.restaurant_id) {
+        console.error('🔍 DEBUG: TemplateCustomizer - Invalid restaurant data structure');
+        alert('No restaurant found. Please create a restaurant first.');
+        return;
       }
       
-      const restaurantData = await restaurantResponse.json();
       const restaurant_id = restaurantData.restaurant.restaurant_id;
+      console.log('🔍 DEBUG: TemplateCustomizer - Using restaurant_id:', restaurant_id);
 
       // Create website from template
       const websiteData = {
@@ -310,23 +313,13 @@ const TemplateCustomizer = () => {
         status: 'ready'
       };
 
-      const response = await fetch('/api/website-builder/templates/create', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(websiteData)
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        navigate(`/website-builder/preview/${result.website_id}`);
-      } else {
-        alert('Failed to create website from template');
-      }
+      // Use the centralized API service
+      const result = await websiteBuilderAPI.createFromTemplate(websiteData);
+      console.log('🔍 DEBUG: TemplateCustomizer - Template creation result:', result);
+      
+      navigate(`/website-builder/preview/${result.website_id}`);
     } catch (error) {
-      console.error('Error creating website:', error);
+      console.error('🔍 DEBUG: TemplateCustomizer - Error creating website:', error);
       alert('Error creating website: ' + error.message);
     } finally {
       setLoading(false);

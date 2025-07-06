@@ -757,4 +757,77 @@ export const billingAPI = {
   }
 };
 
+// Website Builder API calls
+export const websiteBuilderAPI = {
+  // Get all websites for the current user
+  getWebsites: async () => {
+    try {
+      const response = await api.get('/website-builder/websites');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch websites');
+    }
+  },
+
+  // Get specific website details
+  getWebsiteDetails: async (websiteId) => {
+    try {
+      const response = await api.get(`/website-builder/websites/${websiteId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch website details');
+    }
+  },
+
+  // Generate new website
+  generateWebsite: async (requestData) => {
+    try {
+      const response = await api.post('/website-builder/generate', requestData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to generate website');
+    }
+  },
+
+  // Get generation progress
+  getGenerationProgress: async (generationId) => {
+    try {
+      const response = await api.get(`/website-builder/generation/${generationId}/progress`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to get generation progress');
+    }
+  },
+
+  // Create website from template
+  createFromTemplate: async (templateData) => {
+    try {
+      const response = await api.post('/website-builder/templates/create', templateData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to create website from template');
+    }
+  },
+
+  // Update website
+  updateWebsite: async (websiteId, updateData) => {
+    try {
+      const response = await api.put(`/website-builder/websites/${websiteId}`, updateData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to update website');
+    }
+  },
+
+  // Delete website
+  deleteWebsite: async (websiteId) => {
+    try {
+      const response = await api.delete(`/website-builder/websites/${websiteId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to delete website');
+    }
+  }
+};
+
 export default api;

@@ -176,26 +176,39 @@ async def list_websites(
 @router.get("/websites/{website_id}", response_model=RestaurantWebsite)
 async def get_website(
     website_id: str,
-    current_user = Depends(get_current_user),
+    restaurant_id: str = Depends(get_restaurant_id),
+    current_user = Depends(require_restaurant),
     db = Depends(get_database)
 ):
     """
-    Get a specific website by ID
+    Get a specific website by ID - FIXED to use working feature pattern
     """
     try:
+        logger.info(f"🔍 DEBUG: Website Builder - get_website called for website: {website_id}")
+        logger.info(f"🔍 DEBUG: Website Builder - User: {current_user.user_id}, Role: {current_user.role}")
+        logger.info(f"🔍 DEBUG: Website Builder - Restaurant ID from auth: {restaurant_id}")
+        
         website = await db.websites.find_one({"website_id": website_id})
         if not website:
+            logger.error(f"🔍 DEBUG: Website Builder - Website not found: {website_id}")
             raise HTTPException(status_code=404, detail="Website not found")
         
-        # Verify user has access to this website's restaurant
-        await _verify_restaurant_access(website["restaurant_id"], current_user, db)
+        logger.info(f"🔍 DEBUG: Website Builder - Found website with restaurant_id: {website.get('restaurant_id')}")
         
+        # Verify user has access to this website's restaurant using the same pattern as working features
+        if website.get("restaurant_id") != restaurant_id:
+            logger.error(f"🔍 DEBUG: Website Builder - Access denied. Website restaurant_id: {website.get('restaurant_id')}, User restaurant_id: {restaurant_id}")
+            raise HTTPException(status_code=403, detail="Access denied to this website")
+        
+        logger.info(f"🔍 DEBUG: Website Builder - Access granted, returning website data")
         return RestaurantWebsite(**website)
         
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to get website: {str(e)}")
+        logger.error(f"🔍 DEBUG: Website Builder - Failed to get website: {str(e)}")
+        import traceback
+        logger.error(f"🔍 DEBUG: Website Builder - Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail="Failed to get website")
 
 @router.put("/websites/{website_id}", response_model=RestaurantWebsite)

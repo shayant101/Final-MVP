@@ -1,61 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './WebsiteBuilder.css';
-
-// Import the centralized API service like working features do
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-
-// Create API helper that matches working features pattern
-const websiteBuilderAPI = {
-  getWebsites: async () => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/api/website-builder/websites`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.text();
-      throw new Error(`Failed to fetch websites: ${errorData}`);
-    }
-    
-    return response.json();
-  },
-  
-  generateWebsite: async (requestData) => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/api/website-builder/generate`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(requestData)
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Failed to generate website');
-    }
-    
-    return response.json();
-  },
-  
-  getGenerationProgress: async (generationId) => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/api/website-builder/generation/${generationId}/progress`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to get generation progress');
-    }
-    
-    return response.json();
-  }
-};
+import { websiteBuilderAPI } from '../../services/websiteBuilderAPI';
 
 const WebsiteBuilder = () => {
   const [websites, setWebsites] = useState([]);
@@ -70,9 +16,9 @@ const WebsiteBuilder = () => {
 
   const fetchWebsites = async () => {
     try {
-      console.log('🔍 DEBUG: Website Builder - Starting fetchWebsites using new API pattern');
+      console.log('🔍 DEBUG: Website Builder - Starting fetchWebsites using centralized API service');
       
-      // Use the new API helper that matches working features
+      // Use the centralized API service
       const data = await websiteBuilderAPI.getWebsites();
       console.log('🔍 DEBUG: Website Builder - Response data:', data);
       setWebsites(data.websites || []);
@@ -259,7 +205,7 @@ const GenerateWebsiteModal = ({ onClose, onGenerate }) => {
         ...formData
       };
 
-      // Use the new API helper that matches working features pattern
+      // Use the centralized API service
       const result = await websiteBuilderAPI.generateWebsite(requestData);
       console.log('🔍 DEBUG: Website Generation - Generation result:', result);
       onGenerate(result);
@@ -323,7 +269,7 @@ const GenerationProgressModal = ({ progress, onComplete }) => {
 
     const pollProgress = async () => {
       try {
-        // Use the new API helper that matches working features pattern
+        // Use the centralized API service
         const data = await websiteBuilderAPI.getGenerationProgress(progress.generation_id);
         setCurrentProgress(data);
 

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './WebsiteEditor.css';
+import { websiteBuilderAPI } from '../../services/websiteBuilderAPI';
 
 const WebsiteEditor = () => {
   const { id } = useParams();
@@ -21,42 +22,38 @@ const WebsiteEditor = () => {
     design_preferences: {}
   });
 
-  useEffect(() => {
-    fetchWebsiteData();
-  }, [id]);
-
-  const fetchWebsiteData = async () => {
+  const fetchWebsiteData = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/website-builder/websites/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      console.log('🔍 DEBUG: WebsiteEditor - Starting fetchWebsiteData using centralized API service');
+      console.log('🔍 DEBUG: WebsiteEditor - Website ID:', id);
+      
+      // Use the centralized API service
+      const data = await websiteBuilderAPI.getWebsiteDetails(id);
+      console.log('🔍 DEBUG: WebsiteEditor - Response data:', data);
+      
+      setWebsite(data);
+      
+      // Initialize editable content
+      setEditableContent({
+        website_name: data.website_name || '',
+        html: data.generated_content?.html || '',
+        css: data.generated_content?.css || '',
+        custom_requirements: data.custom_requirements || '',
+        design_preferences: data.design_preferences || {}
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        setWebsite(data.website);
-        
-        // Initialize editable content
-        setEditableContent({
-          website_name: data.website.website_name || '',
-          html: data.website.generated_content?.html || '',
-          css: data.website.generated_content?.css || '',
-          custom_requirements: data.website.custom_requirements || '',
-          design_preferences: data.website.design_preferences || {}
-        });
-      } else {
-        setError('Failed to load website data');
-      }
+      
+      console.log('🔍 DEBUG: WebsiteEditor - Website data loaded successfully');
     } catch (error) {
-      console.error('Error fetching website:', error);
-      setError('Error loading website');
+      console.error('🔍 DEBUG: WebsiteEditor - Error fetching website:', error);
+      setError('Error loading website: ' + error.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchWebsiteData();
+  }, [fetchWebsiteData]);
 
   const handleContentChange = (field, value) => {
     setEditableContent(prev => ({
@@ -69,34 +66,28 @@ const WebsiteEditor = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/website-builder/websites/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      console.log('🔍 DEBUG: WebsiteEditor - Starting save using centralized API service');
+      
+      const updateData = {
+        website_name: editableContent.website_name,
+        generated_content: {
+          html: editableContent.html,
+          css: editableContent.css
         },
-        body: JSON.stringify({
-          website_name: editableContent.website_name,
-          generated_content: {
-            html: editableContent.html,
-            css: editableContent.css
-          },
-          custom_requirements: editableContent.custom_requirements,
-          design_preferences: editableContent.design_preferences
-        })
-      });
-
-      if (response.ok) {
-        setHasChanges(false);
-        alert('Website saved successfully!');
-        fetchWebsiteData(); // Refresh data
-      } else {
-        alert('Failed to save website');
-      }
+        custom_requirements: editableContent.custom_requirements,
+        design_preferences: editableContent.design_preferences
+      };
+      
+      // Use the centralized API service
+      await websiteBuilderAPI.updateWebsite(id, updateData);
+      
+      setHasChanges(false);
+      alert('Website saved successfully!');
+      fetchWebsiteData(); // Refresh data
+      console.log('🔍 DEBUG: WebsiteEditor - Save completed successfully');
     } catch (error) {
-      console.error('Error saving website:', error);
-      alert('Error saving website');
+      console.error('🔍 DEBUG: WebsiteEditor - Error saving website:', error);
+      alert('Error saving website: ' + error.message);
     } finally {
       setSaving(false);
     }
@@ -112,31 +103,25 @@ const WebsiteEditor = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/website-builder/websites/${id}/regenerate`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          custom_requirements: editableContent.custom_requirements,
-          design_preferences: editableContent.design_preferences
-        })
-      });
-
-      if (response.ok) {
-        alert('Website regeneration started! You will be redirected when complete.');
-        // Could implement polling here similar to the generation progress
-        setTimeout(() => {
-          fetchWebsiteData();
-        }, 5000);
-      } else {
-        alert('Failed to start regeneration');
-      }
+      console.log('🔍 DEBUG: WebsiteEditor - Starting regenerate using centralized API service');
+      
+      const regenerateData = {
+        custom_requirements: editableContent.custom_requirements,
+        design_preferences: editableContent.design_preferences
+      };
+      
+      // Use the centralized API service
+      await websiteBuilderAPI.regenerateWebsite(id, regenerateData);
+      
+      alert('Website regeneration started! You will be redirected when complete.');
+      // Could implement polling here similar to the generation progress
+      setTimeout(() => {
+        fetchWebsiteData();
+      }, 5000);
+      console.log('🔍 DEBUG: WebsiteEditor - Regenerate started successfully');
     } catch (error) {
-      console.error('Error regenerating website:', error);
-      alert('Error regenerating website');
+      console.error('🔍 DEBUG: WebsiteEditor - Error regenerating website:', error);
+      alert('Error regenerating website: ' + error.message);
     }
   };
 
