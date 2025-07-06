@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Query
 from fastapi.responses import JSONResponse
+from .media_upload import router as media_router
 from ..models_website_builder import (
     WebsiteGenerationRequest, WebsiteGenerationResponse, RestaurantWebsite,
     WebsiteListResponse, WebsiteUpdateRequest, ComponentUpdateRequest,
@@ -352,6 +353,288 @@ async def publish_website(
     except Exception as e:
         logger.error(f"Failed to publish website: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to publish website")
+
+@router.patch("/websites/{website_id}/content")
+async def update_website_content(
+    website_id: str,
+    content_updates: dict,
+    restaurant_id: str = Depends(get_restaurant_id),
+    current_user = Depends(require_restaurant),
+    db = Depends(get_database)
+):
+    """
+    Update website content for inline editing
+    """
+    try:
+        logger.info(f"🔍 DEBUG: Website Builder - update_website_content called for website: {website_id}")
+        logger.info(f"🔍 DEBUG: Website Builder - Content updates: {content_updates}")
+        logger.info(f"🔍 DEBUG: Website Builder - User: {current_user.user_id}, Role: {current_user.role}")
+        logger.info(f"🔍 DEBUG: Website Builder - Restaurant ID from auth: {restaurant_id}")
+        
+        # Get existing website
+        website = await db.websites.find_one({"website_id": website_id})
+        if not website:
+            logger.error(f"🔍 DEBUG: Website Builder - Website not found: {website_id}")
+            raise HTTPException(status_code=404, detail="Website not found")
+        
+        logger.info(f"🔍 DEBUG: Website Builder - Found website with restaurant_id: {website.get('restaurant_id')}")
+        
+        # Verify user has access to this website's restaurant
+        if website.get("restaurant_id") != restaurant_id:
+            logger.error(f"🔍 DEBUG: Website Builder - Access denied. Website restaurant_id: {website.get('restaurant_id')}, User restaurant_id: {restaurant_id}")
+            raise HTTPException(status_code=403, detail="Access denied to this website")
+        
+        # Prepare update data
+        update_data = {"updated_at": datetime.now()}
+        
+        # Handle different types of content updates
+        for field_path, new_value in content_updates.items():
+            logger.info(f"🔍 DEBUG: Website Builder - Updating field: {field_path} = {new_value}")
+            
+            if field_path == "website_name":
+                update_data["website_name"] = new_value
+            elif field_path.startswith("menu_items["):
+                # Handle menu item updates like "menu_items[0].name"
+                import re
+                match = re.match(r'menu_items\[(\d+)\]\.(.+)', field_path)
+                if match:
+                    index = int(match.group(1))
+                    field_name = match.group(2)
+                    
+                    # Initialize menu_items array if it doesn't exist
+                    if "menu_items" not in update_data:
+                        # Get current menu items or create default ones
+                        current_menu_items = website.get("menu_items", [
+                            {"name": "Signature Pasta", "description": "Fresh handmade pasta with our chef's special sauce", "price": "$18.99"},
+                            {"name": "Grilled Salmon", "description": "Atlantic salmon with seasonal vegetables and lemon butter", "price": "$24.99"},
+                            {"name": "Classic Margherita", "description": "Wood-fired pizza with fresh mozzarella and basil", "price": "$16.99"}
+                        ])
+                        update_data["menu_items"] = current_menu_items.copy()
+                    
+                    # Ensure the array is large enough
+                    while len(update_data["menu_items"]) <= index:
+                        update_data["menu_items"].append({"name": "", "description": "", "price": "$0.00"})
+                    
+                    # Update the specific field
+                    update_data["menu_items"][index][field_name] = new_value
+                    logger.info(f"🔍 DEBUG: Website Builder - Updated menu item {index}.{field_name} = {new_value}")
+            elif field_path.startswith("pages[0].sections."):
+                # Handle nested page section updates
+                section_path = field_path.replace("pages[0].sections.", "")
+                if "." in section_path:
+                    section_name, field_name = section_path.split(".", 1)
+                    update_data[f"pages.0.sections.{section_name}.{field_name}"] = new_value
+                else:
+                    update_data[f"pages.0.sections.{section_path}"] = new_value
+            else:
+                # Direct field update
+                update_data[field_path] = new_value
+        
+        logger.info(f"🔍 DEBUG: Website Builder - Final update data: {update_data}")
+        
+        # Update website in database
+        result = await db.websites.update_one(
+            {"website_id": website_id},
+            {"$set": update_data}
+        )
+        
+        if result.modified_count == 0:
+            logger.warning(f"🔍 DEBUG: Website Builder - No documents were modified for website: {website_id}")
+        else:
+            logger.info(f"🔍 DEBUG: Website Builder - Successfully updated website: {website_id}")
+        
+        # Return success response
+        return {"success": True, "message": "Content updated successfully", "updated_fields": list(content_updates.keys())}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"🔍 DEBUG: Website Builder - Failed to update website content: {str(e)}")
+        import traceback
+        logger.error(f"🔍 DEBUG: Website Builder - Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail="Failed to update website content")
+
+@router.patch("/websites/{website_id}/colors")
+async def update_website_colors(
+    website_id: str,
+    color_updates: dict,
+    restaurant_id: str = Depends(get_restaurant_id),
+    current_user = Depends(require_restaurant),
+    db = Depends(get_database)
+):
+    """
+    Update website color theme
+    """
+    try:
+        logger.info(f"🔍 DEBUG: Website Builder - update_website_colors called for website: {website_id}")
+        logger.info(f"🔍 DEBUG: Website Builder - Color updates: {color_updates}")
+        
+        # Get existing website
+        website = await db.websites.find_one({"website_id": website_id})
+        if not website:
+            raise HTTPException(status_code=404, detail="Website not found")
+        
+        # Verify user has access
+        if website.get("restaurant_id") != restaurant_id:
+            raise HTTPException(status_code=403, detail="Access denied to this website")
+        
+        # Prepare color theme update
+        current_design_system = website.get("design_system", {})
+        current_color_palette = current_design_system.get("color_palette", {})
+        
+        # Update color palette
+        updated_color_palette = {**current_color_palette, **color_updates}
+        
+        update_data = {
+            "updated_at": datetime.now(),
+            "design_system.color_palette": updated_color_palette
+        }
+        
+        # Update website in database
+        await db.websites.update_one(
+            {"website_id": website_id},
+            {"$set": update_data}
+        )
+        
+        logger.info(f"🔍 DEBUG: Website Builder - Successfully updated colors for website: {website_id}")
+        
+        return {
+            "success": True,
+            "message": "Colors updated successfully",
+            "color_palette": updated_color_palette
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"🔍 DEBUG: Website Builder - Failed to update website colors: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update website colors")
+
+@router.get("/websites/{website_id}/colors")
+async def get_website_colors(
+    website_id: str,
+    restaurant_id: str = Depends(get_restaurant_id),
+    current_user = Depends(require_restaurant),
+    db = Depends(get_database)
+):
+    """
+    Get website color theme
+    """
+    try:
+        # Get website
+        website = await db.websites.find_one({"website_id": website_id})
+        if not website:
+            raise HTTPException(status_code=404, detail="Website not found")
+        
+        # Verify user has access
+        if website.get("restaurant_id") != restaurant_id:
+            raise HTTPException(status_code=403, detail="Access denied to this website")
+        
+        # Get color palette
+        design_system = website.get("design_system", {})
+        color_palette = design_system.get("color_palette", {
+            "primary": "#015af6",
+            "secondary": "#0ea5e9",
+            "accent": "#f39c12",
+            "neutral": "#ecf0f1"
+        })
+        
+        return {
+            "success": True,
+            "color_palette": color_palette
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get website colors: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get website colors")
+
+@router.post("/websites/{website_id}/colors/preset")
+async def apply_color_preset(
+    website_id: str,
+    preset_data: dict,
+    restaurant_id: str = Depends(get_restaurant_id),
+    current_user = Depends(require_restaurant),
+    db = Depends(get_database)
+):
+    """
+    Apply color preset to website
+    """
+    try:
+        preset_name = preset_data.get("preset_name")
+        
+        # Define color presets
+        color_presets = {
+            "ocean": {
+                "primary": "#0ea5e9",
+                "secondary": "#06b6d4",
+                "accent": "#14b8a6",
+                "neutral": "#f1f5f9"
+            },
+            "forest": {
+                "primary": "#10b981",
+                "secondary": "#059669",
+                "accent": "#84cc16",
+                "neutral": "#f0fdf4"
+            },
+            "sunset": {
+                "primary": "#f97316",
+                "secondary": "#ea580c",
+                "accent": "#fbbf24",
+                "neutral": "#fffbeb"
+            },
+            "royal": {
+                "primary": "#8b5cf6",
+                "secondary": "#7c3aed",
+                "accent": "#a855f7",
+                "neutral": "#faf5ff"
+            },
+            "classic": {
+                "primary": "#015af6",
+                "secondary": "#0ea5e9",
+                "accent": "#f39c12",
+                "neutral": "#ecf0f1"
+            }
+        }
+        
+        if preset_name not in color_presets:
+            raise HTTPException(status_code=400, detail="Invalid color preset")
+        
+        # Apply preset
+        color_updates = color_presets[preset_name]
+        
+        # Get existing website
+        website = await db.websites.find_one({"website_id": website_id})
+        if not website:
+            raise HTTPException(status_code=404, detail="Website not found")
+        
+        # Verify user has access
+        if website.get("restaurant_id") != restaurant_id:
+            raise HTTPException(status_code=403, detail="Access denied to this website")
+        
+        # Update color palette
+        update_data = {
+            "updated_at": datetime.now(),
+            "design_system.color_palette": color_updates
+        }
+        
+        await db.websites.update_one(
+            {"website_id": website_id},
+            {"$set": update_data}
+        )
+        
+        return {
+            "success": True,
+            "message": f"Applied {preset_name} color preset",
+            "color_palette": color_updates
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to apply color preset: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to apply color preset")
 
 @router.post("/templates/create", response_model=RestaurantWebsite)
 async def create_website_from_template(

@@ -1,0 +1,446 @@
+/* ========================================
+   EDITABLE IMAGE ELEMENT
+   ======================================== */
+
+.editable-image-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.editable-image-element {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-tertiary);
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.editable-image-element.edit-mode {
+  cursor: pointer;
+  border-color: var(--border-color);
+}
+
+.editable-image-element.edit-mode:hover {
+  border-color: #015af6;
+  box-shadow: 0 0 0 1px rgba(1, 90, 246, 0.2);
+  transform: translateY(-2px);
+}
+
+.editable-image-element.drag-over {
+  border-color: #015af6 !important;
+  background: rgba(1, 90, 246, 0.05) !important;
+  box-shadow: 0 0 0 2px rgba(1, 90, 246, 0.2) !important;
+}
+
+.editable-image-element.uploading {
+  pointer-events: none;
+}
+
+.editable-image-element.error {
+  border-color: var(--accent-error);
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2);
+}
+
+.editable-image-element.no-image {
+  background: var(--bg-card);
+  border: 2px dashed var(--border-color);
+}
+
+.editable-image-element.no-image.edit-mode:hover {
+  border-color: #015af6;
+  background: rgba(1, 90, 246, 0.02);
+}
+
+/* ========================================
+   IMAGE PREVIEW
+   ======================================== */
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: all 0.3s ease;
+}
+
+.editable-image-element.edit-mode:hover .image-preview {
+  opacity: 0.8;
+}
+
+/* ========================================
+   IMAGE PLACEHOLDER
+   ======================================== */
+
+.image-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 200px;
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.placeholder-icon {
+  margin-bottom: 1rem;
+  opacity: 0.6;
+  color: var(--text-muted);
+}
+
+.image-placeholder p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* ========================================
+   UPLOAD OVERLAY
+   ======================================== */
+
+.upload-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+  border-radius: var(--radius-lg);
+}
+
+.editable-image-element.edit-mode:hover .upload-overlay,
+.editable-image-element.drag-over .upload-overlay,
+.editable-image-element.uploading .upload-overlay {
+  opacity: 1;
+}
+
+.editable-image-element.no-image .upload-overlay {
+  background: transparent;
+  backdrop-filter: none;
+  opacity: 1;
+}
+
+.editable-image-element.no-image.edit-mode:hover .upload-overlay {
+  background: rgba(1, 90, 246, 0.05);
+}
+
+/* ========================================
+   UPLOAD PROMPT
+   ======================================== */
+
+.upload-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: white;
+  padding: 1.5rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.editable-image-element.no-image .upload-prompt {
+  color: #333333;
+  text-shadow: none;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  border: 2px dashed #015af6;
+  margin: 1rem;
+}
+
+.upload-icon {
+  margin-bottom: 1rem;
+  opacity: 0.9;
+  color: white;
+}
+
+.editable-image-element.no-image .upload-icon {
+  color: #015af6;
+  opacity: 1;
+}
+
+.upload-prompt p {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.editable-image-element.no-image .upload-prompt p {
+  color: #015af6;
+  font-weight: 700;
+}
+
+.upload-hint {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  color: inherit;
+}
+
+.editable-image-element.no-image .upload-hint {
+  color: #666666;
+  opacity: 1;
+  font-weight: 500;
+}
+
+/* ========================================
+   UPLOAD PROGRESS
+   ======================================== */
+
+.upload-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: white;
+  padding: 1.5rem;
+}
+
+.progress-circle {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: white;
+}
+
+.upload-progress p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+/* ========================================
+   ERROR HANDLING
+   ======================================== */
+
+.upload-error {
+  position: absolute;
+  bottom: -50px;
+  left: 0;
+  right: 0;
+  background: var(--accent-error);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: var(--shadow-md);
+  z-index: 10;
+  animation: slideInError 0.3s ease-out;
+}
+
+@keyframes slideInError {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.error-icon {
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.upload-error span {
+  flex: 1;
+  font-weight: 500;
+}
+
+.error-dismiss {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.error-dismiss:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 768px) {
+  .editable-image-element {
+    min-height: 150px;
+  }
+  
+  .image-placeholder {
+    min-height: 150px;
+    padding: 1.5rem;
+  }
+  
+  .placeholder-icon svg {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .image-placeholder p {
+    font-size: 0.9rem;
+  }
+  
+  .upload-prompt {
+    padding: 1rem;
+  }
+  
+  .upload-prompt p {
+    font-size: 1rem;
+  }
+  
+  .upload-hint {
+    font-size: 0.8rem;
+  }
+  
+  .upload-error {
+    bottom: -45px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .editable-image-element {
+    min-height: 120px;
+  }
+  
+  .image-placeholder {
+    min-height: 120px;
+    padding: 1rem;
+  }
+  
+  .placeholder-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .image-placeholder p {
+    font-size: 0.85rem;
+  }
+  
+  .upload-prompt p {
+    font-size: 0.9rem;
+  }
+  
+  .upload-hint {
+    font-size: 0.75rem;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+.editable-image-element:focus {
+  outline: 2px solid #015af6;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .editable-image-element {
+    border-width: 3px;
+  }
+  
+  .upload-overlay {
+    background: rgba(0, 0, 0, 0.9);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .editable-image-element,
+  .image-preview,
+  .upload-overlay,
+  .upload-error {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ========================================
+   SPECIFIC IMAGE TYPES
+   ======================================== */
+
+/* Hero images - larger, more prominent */
+.editable-image-element[data-image-type="hero"] {
+  min-height: 300px;
+}
+
+.editable-image-element[data-image-type="hero"] .image-placeholder {
+  min-height: 300px;
+}
+
+/* Logo images - smaller, square aspect ratio */
+.editable-image-element[data-image-type="logo"] {
+  min-height: 100px;
+  max-height: 150px;
+  aspect-ratio: 1;
+}
+
+.editable-image-element[data-image-type="logo"] .image-placeholder {
+  min-height: 100px;
+}
+
+.editable-image-element[data-image-type="logo"] .image-preview {
+  object-fit: contain;
+  padding: 0.5rem;
+}
+
+/* Menu item images - consistent sizing */
+.editable-image-element[data-image-type="menu_item"] {
+  min-height: 180px;
+  max-height: 220px;
+  aspect-ratio: 4/3;
+}
+
+.editable-image-element[data-image-type="menu_item"] .image-placeholder {
+  min-height: 180px;
+}
+
+/* About section images - medium size */
+.editable-image-element[data-image-type="about"] {
+  min-height: 250px;
+  max-height: 350px;
+}
+
+.editable-image-element[data-image-type="about"] .image-placeholder {
+  min-height: 250px;
+}

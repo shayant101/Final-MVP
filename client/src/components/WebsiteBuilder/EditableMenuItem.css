@@ -1,0 +1,140 @@
+/* Editable Menu Item Styles */
+.editable-menu-item {
+  position: relative;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.editable-menu-item.edit-mode:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+}
+
+.editable-menu-item .menu-item-name {
+  color: var(--primary-color, #2c3e50);
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.editable-menu-item .menu-item-description {
+  color: var(--text-secondary, #666666);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.editable-menu-item .price {
+  color: var(--accent-color, #f39c12);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+/* Edit mode indicators for menu items */
+.editable-menu-item.edit-mode .editable-element:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin: -2px -4px;
+}
+
+.editable-menu-item.edit-mode .editable-element:hover::after {
+  content: "Click to edit";
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* Menu item controls */
+.menu-item-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.editable-menu-item.edit-mode:hover .menu-item-controls {
+  opacity: 1;
+}
+
+.menu-item-control-btn {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px 6px;
+  margin-left: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.menu-item-control-btn:hover {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.menu-item-control-btn.delete {
+  color: #dc3545;
+}
+
+.menu-item-control-btn.delete:hover {
+  background: #dc3545;
+  color: white;
+}
+
+/* Add menu item button */
+.add-menu-item-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 123, 255, 0.1);
+  border: 2px dashed #007bff;
+  border-radius: 8px;
+  padding: 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #007bff;
+  font-weight: 500;
+  min-height: 150px;
+}
+
+.add-menu-item-btn:hover {
+  background: rgba(0, 123, 255, 0.15);
+  border-color: #0056b3;
+  color: #0056b3;
+}
+
+.add-menu-item-btn svg {
+  margin-right: 8px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .editable-menu-item {
+    padding: 1rem;
+  }
+  
+  .menu-item-controls {
+    position: static;
+    opacity: 1;
+    margin-top: 1rem;
+    text-align: right;
+  }
+  
+  .add-menu-item-btn {
+    padding: 1.5rem;
+    min-height: 120px;
+  }
+}

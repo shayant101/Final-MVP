@@ -289,6 +289,13 @@
   box-shadow: 0 4px 12px rgba(1, 90, 246, 0.2) !important;
 }
 
+.btn-secondary.active {
+  background: rgba(1, 90, 246, 0.1) !important;
+  color: #015af6 !important;
+  border-color: #015af6 !important;
+  box-shadow: 0 2px 8px rgba(1, 90, 246, 0.2) !important;
+}
+
 /* ========================================
    ENHANCED INFO PANEL
    ======================================== */
@@ -392,10 +399,16 @@
   background: white;
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-xl);
-  overflow: hidden;
+  overflow: auto;
   transition: all 0.3s ease;
   border: 1px solid var(--border-color);
   margin: 0 auto;
+}
+
+/* Ensure preview frame content takes full width */
+.preview-frame > * {
+  width: 100% !important;
+  max-width: none !important;
 }
 
 .preview-frame::before {
@@ -1012,4 +1025,162 @@
     box-shadow: none;
     border: 1px solid #ccc;
   }
+}
+
+/* ========================================
+   EDITABLE WEBSITE STYLES
+   ======================================== */
+
+.editable-website {
+  width: 100% !important;
+  min-height: 100% !important;
+  height: auto !important;
+  overflow-y: auto;
+  background: white;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: none !important;
+  min-width: 100% !important;
+  box-sizing: border-box !important;
+  display: block !important;
+}
+
+/* Force full width for all direct children */
+.editable-website > * {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.editable-website .hero-section {
+  position: relative !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 4rem 0 !important;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+  color: white !important;
+  text-align: center !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.editable-website .section {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 3rem 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure containers within sections are properly centered with full-width backgrounds */
+.editable-website .container {
+  max-width: 1200px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 20px !important;
+  box-sizing: border-box !important;
+}
+
+/* Hero section container - centered content with full-width background */
+.editable-website .hero-section .container {
+  max-width: 1200px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 20px !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* Other sections container - centered content with full-width background */
+.editable-website .section .container {
+  max-width: 1200px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 20px !important;
+  box-sizing: border-box !important;
+}
+
+.editable-website .hero-title {
+  font-size: 3rem !important;
+  margin-bottom: 1rem !important;
+  color: white !important;
+  font-weight: bold !important;
+}
+
+.editable-website .hero-tagline {
+  font-size: 1.2rem !important;
+  margin-bottom: 2rem !important;
+  color: white !important;
+}
+
+.editable-website .hero-description {
+  font-size: 1rem !important;
+  margin-bottom: 1rem !important;
+  color: white !important;
+}
+
+.editable-website .section-title {
+  font-size: 2rem !important;
+  margin-bottom: 1rem !important;
+  font-weight: 600 !important;
+}
+
+.editable-website .section-content {
+  font-size: 1rem !important;
+  line-height: 1.7 !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Edit mode specific styles for the editable website */
+.editable-website .editable-element.edit-mode:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 2px dashed rgba(255, 255, 255, 0.5) !important;
+  border-radius: 4px !important;
+}
+
+.editable-website .section .editable-element.edit-mode:hover {
+  background: rgba(1, 90, 246, 0.05) !important;
+  border: 2px dashed rgba(1, 90, 246, 0.3) !important;
+}
+
+/* Responsive styles for editable website */
+@media (max-width: 768px) {
+  .editable-website .hero-title {
+    font-size: 2rem !important;
+  }
+  
+  .editable-website .section-title {
+    font-size: 1.5rem !important;
+  }
+  
+  .editable-website .container {
+    padding: 0 15px !important;
+  }
+}
+
+/* Edit mode indicator for the preview frame */
+.preview-frame.edit-mode {
+  border: 3px solid #015af6 !important;
+  box-shadow: 0 0 0 1px rgba(1, 90, 246, 0.2), var(--shadow-xl) !important;
+}
+
+.preview-frame.edit-mode::before {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  height: 3px !important;
+}
+
+.preview-frame.edit-mode::after {
+  content: '✏️ Edit Mode Active';
+  position: absolute;
+  top: -35px;
+  left: 0;
+  background: #10b981;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 10;
 }

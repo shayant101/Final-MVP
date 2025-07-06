@@ -151,6 +151,148 @@ export const websiteBuilderAPI = {
     });
     
     return handleResponse(response);
+  },
+
+  // Update website content (for inline editing)
+  updateContent: async (websiteId, contentUpdates) => {
+    const response = await fetch(`${API_BASE_URL}/api/website-builder/websites/${websiteId}/content`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(contentUpdates)
+    });
+    
+    return handleResponse(response);
+  },
+
+  // Media Upload Methods
+  
+  // Upload image
+  uploadImage: async (file, imageType = 'general', websiteId = null, onProgress = null) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('image_type', imageType);
+    if (websiteId) {
+      formData.append('website_id', websiteId);
+    }
+
+    const token = localStorage.getItem('token');
+    const headers = {
+      'Authorization': `Bearer ${token}`
+      // Don't set Content-Type for FormData, let browser set it with boundary
+    };
+
+    // Use XMLHttpRequest for progress tracking
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+
+      // Track upload progress
+      if (onProgress) {
+        xhr.upload.addEventListener('progress', (e) => {
+          if (e.lengthComputable) {
+            const percentComplete = (e.loaded / e.total) * 100;
+            onProgress(percentComplete);
+          }
+        });
+      }
+
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response);
+          } catch (error) {
+            reject(new Error('Invalid response format'));
+          }
+        } else {
+          reject(new Error(`Upload failed: ${xhr.statusText}`));
+        }
+      });
+
+      xhr.addEventListener('error', () => {
+        reject(new Error('Upload failed: Network error'));
+      });
+
+      xhr.addEventListener('timeout', () => {
+        reject(new Error('Upload failed: Request timeout'));
+      });
+
+      xhr.timeout = 30000; // 30 seconds
+
+      xhr.open('POST', `${API_BASE_URL}/api/website-builder/upload-image`);
+      
+      // Set headers
+      Object.keys(headers).forEach(key => {
+        xhr.setRequestHeader(key, headers[key]);
+      });
+
+      xhr.send(formData);
+    });
+  },
+
+  // Get image
+  getImage: (filename) => {
+    return `${API_BASE_URL}/api/website-builder/images/${filename}`;
+  },
+
+  // Get thumbnail
+  getThumbnail: (filename, size = 'medium', format = 'jpeg') => {
+    return `${API_BASE_URL}/api/website-builder/images/thumbnail/${filename}?size=${size}&format=${format}`;
+  },
+
+  // List images
+  listImages: async (imageType = null, websiteId = null) => {
+    const url = new URL(`${API_BASE_URL}/api/website-builder/images`);
+    if (imageType) url.searchParams.append('image_type', imageType);
+    if (websiteId) url.searchParams.append('website_id', websiteId);
+
+    const response = await fetch(url, {
+      headers: getAuthHeaders()
+    });
+    
+    return handleResponse(response);
+  },
+
+  // Delete image
+  deleteImage: async (imageId) => {
+    const response = await fetch(`${API_BASE_URL}/api/website-builder/images/${imageId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    
+    return handleResponse(response);
+  },
+
+  // Color Theme Methods
+  
+  // Update color theme
+  updateColorTheme: async (websiteId, colorUpdates) => {
+    const response = await fetch(`${API_BASE_URL}/api/website-builder/websites/${websiteId}/colors`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(colorUpdates)
+    });
+    
+    return handleResponse(response);
+  },
+
+  // Get color theme
+  getColorTheme: async (websiteId) => {
+    const response = await fetch(`${API_BASE_URL}/api/website-builder/websites/${websiteId}/colors`, {
+      headers: getAuthHeaders()
+    });
+    
+    return handleResponse(response);
+  },
+
+  // Apply color preset
+  applyColorPreset: async (websiteId, presetName) => {
+    const response = await fetch(`${API_BASE_URL}/api/website-builder/websites/${websiteId}/colors/preset`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ preset_name: presetName })
+    });
+    
+    return handleResponse(response);
   }
 };
 
