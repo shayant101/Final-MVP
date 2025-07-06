@@ -506,4 +506,255 @@ export const imageEnhancementAPI = {
   }
 };
 
+// Phase 3 Business Intelligence API calls
+export const businessIntelligenceAPI = {
+  // Get comprehensive BI dashboard
+  getDashboard: async () => {
+    try {
+      const response = await api.get('/business-intelligence/dashboard');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch BI dashboard');
+    }
+  },
+
+  // Generate executive report
+  generateExecutiveReport: async (period = 'monthly') => {
+    try {
+      const response = await api.get('/business-intelligence/reports/executive', {
+        params: { period }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to generate executive report');
+    }
+  },
+
+  // Get business alerts
+  getBusinessAlerts: async () => {
+    try {
+      const response = await api.get('/business-intelligence/alerts');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch business alerts');
+    }
+  }
+};
+
+// Revenue Analytics API calls
+export const revenueAnalyticsAPI = {
+  // Get customer lifetime value
+  getCustomerLifetimeValue: async (restaurantId) => {
+    try {
+      const response = await api.get(`/revenue/customer-lifetime-value/${restaurantId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch CLV data');
+    }
+  },
+
+  // Get revenue correlation analysis
+  getCorrelationAnalysis: async (featureType = 'all', timePeriod = 30) => {
+    try {
+      const response = await api.get('/revenue/correlation-analysis', {
+        params: { feature_type: featureType, time_period: timePeriod }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch correlation analysis');
+    }
+  },
+
+  // Get churn prediction
+  getChurnPrediction: async (restaurantId) => {
+    try {
+      const response = await api.get(`/revenue/churn-prediction/${restaurantId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch churn prediction');
+    }
+  },
+
+  // Get pricing optimization
+  getPricingOptimization: async (planId) => {
+    try {
+      const response = await api.get(`/revenue/pricing-optimization/${planId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch pricing optimization');
+    }
+  },
+
+  // Generate revenue forecast
+  getRevenueForecast: async (monthsAhead = 12) => {
+    try {
+      const response = await api.get('/revenue/forecast', {
+        params: { months_ahead: monthsAhead }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to generate revenue forecast');
+    }
+  },
+
+  // Get upsell opportunities
+  getUpsellOpportunities: async (restaurantId) => {
+    try {
+      const response = await api.get(`/revenue/upsell-opportunities/${restaurantId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch upsell opportunities');
+    }
+  },
+
+  // Calculate feature ROI
+  getFeatureROI: async (restaurantId, featureType) => {
+    try {
+      const response = await api.get(`/revenue/feature-roi/${restaurantId}/${featureType}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to calculate feature ROI');
+    }
+  }
+};
+
+// AI Business Assistant API calls
+export const aiBusinessAssistantAPI = {
+  // Chat with AI assistant
+  chat: async (query, context = 'business_intelligence', includeInsights = true) => {
+    try {
+      const response = await api.post('/ai-assistant/chat', {
+        query,
+        context,
+        include_insights: includeInsights
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to get AI response');
+    }
+  },
+
+  // Get platform performance analysis
+  getPlatformPerformance: async (timePeriod = '30d') => {
+    try {
+      const response = await api.get('/ai-assistant/platform-performance', {
+        params: { time_period: timePeriod }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to get platform performance');
+    }
+  },
+
+  // Get strategic recommendations
+  getStrategicRecommendations: async (focusArea = 'general') => {
+    try {
+      const response = await api.get('/ai-assistant/strategic-recommendations', {
+        params: { focus_area: focusArea }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to get strategic recommendations');
+    }
+  },
+
+  // Predict business outcomes
+  predictBusinessOutcomes: async (scenario) => {
+    try {
+      const response = await api.post('/ai-assistant/predict-outcomes', scenario);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to predict business outcomes');
+    }
+  },
+
+  // Get at-risk customers
+  getAtRiskCustomers: async () => {
+    try {
+      const response = await api.get('/ai-assistant/at-risk-customers');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to get at-risk customers');
+    }
+  },
+
+  // Get monetization optimization
+  getMonetizationOptimization: async () => {
+    try {
+      const response = await api.get('/ai-assistant/monetization-optimization');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to get monetization optimization');
+    }
+  },
+
+  // Generate executive insights
+  generateExecutiveInsights: async (reportType = 'monthly_review') => {
+    try {
+      const response = await api.get('/ai-assistant/executive-insights', {
+        params: { report_type: reportType }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to generate executive insights');
+    }
+  }
+};
+
+// Billing & Subscription Management API calls
+export const billingAPI = {
+  // Create subscription
+  createSubscription: async (subscriptionData) => {
+    try {
+      const response = await api.post('/billing/subscriptions', subscriptionData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to create subscription');
+    }
+  },
+
+  // Update subscription
+  updateSubscription: async (subscriptionId, updateData) => {
+    try {
+      const response = await api.put(`/billing/subscriptions/${subscriptionId}`, updateData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to update subscription');
+    }
+  },
+
+  // Purchase credits
+  purchaseCredits: async (creditRequest) => {
+    try {
+      const response = await api.post('/billing/credits', creditRequest);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to purchase credits');
+    }
+  },
+
+  // Get billing dashboard
+  getBillingDashboard: async () => {
+    try {
+      const response = await api.get('/billing/dashboard');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch billing dashboard');
+    }
+  },
+
+  // Track usage
+  trackUsage: async (featureType, usageAmount = 1) => {
+    try {
+      const response = await api.post('/billing/usage/track', {
+        feature_type: featureType,
+        usage_amount: usageAmount
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to track usage');
+    }
+  }
+};
+
 export default api;

@@ -4,6 +4,10 @@ import { dashboardAPI, adminAnalyticsAPI } from '../services/api';
 import AIAnalytics from './AIAnalytics';
 import ContentModeration from './ContentModeration';
 import FeatureManagement from './FeatureManagement';
+import BusinessIntelligence from './BusinessIntelligence';
+import RevenueAnalytics from './RevenueAnalytics';
+import AIBusinessAssistant from './AIBusinessAssistant';
+import SubscriptionManagement from './SubscriptionManagement';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -13,8 +17,9 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeView, setActiveView] = useState('overview'); // 'overview', 'analytics', 'moderation', 'features', 'restaurants'
-  const { impersonate } = useAuth();
+  const [activeView, setActiveView] = useState('overview'); // 'overview', 'analytics', 'moderation', 'features', 'restaurants', 'business-intelligence', 'revenue-analytics', 'ai-assistant', 'subscriptions'
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { impersonate, logout } = useAuth();
 
   useEffect(() => {
     fetchDashboardData();
@@ -25,7 +30,7 @@ const AdminDashboard = () => {
     // Set up real-time metrics updates every 30 seconds
     const interval = setInterval(fetchRealTimeMetrics, 30000);
     return () => clearInterval(interval);
-  }, [activeView]);
+  }, [activeView]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchDashboardData = async () => {
     try {
@@ -76,6 +81,14 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/';
+  };
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
 
   if (loading && !dashboardData) {
     return (
@@ -100,228 +113,373 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
-      <div className="admin-header">
-        <h1>Platform Overview</h1>
-        <p>Manage your restaurant platform</p>
-      </div>
-
-      <div className="admin-nav">
-        <button
-          className={`nav-button ${activeView === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveView('overview')}
-        >
-          📊 Overview
-        </button>
-        <button
-          className={`nav-button ${activeView === 'analytics' ? 'active' : ''}`}
-          onClick={() => setActiveView('analytics')}
-        >
-          📈 AI Analytics
-        </button>
-        <button
-          className={`nav-button ${activeView === 'moderation' ? 'active' : ''}`}
-          onClick={() => setActiveView('moderation')}
-        >
-          🛡️ Content Moderation
-        </button>
-        <button
-          className={`nav-button ${activeView === 'features' ? 'active' : ''}`}
-          onClick={() => setActiveView('features')}
-        >
-          ⚙️ Feature Management
-        </button>
-        <button
-          className={`nav-button ${activeView === 'restaurants' ? 'active' : ''}`}
-          onClick={() => setActiveView('restaurants')}
-        >
-          🏪 Restaurants
-        </button>
-      </div>
-
-      {/* Real-time Metrics Bar */}
-      {realTimeMetrics && (
-        <div className="real-time-metrics-bar">
-          <div className="metric-item">
-            <div className="metric-value">{realTimeMetrics.today_requests}</div>
-            <div className="metric-label">Today's AI Requests</div>
+      {/* Left Sidebar Navigation */}
+      <div className={`admin-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+        <div className="sidebar-header">
+          <div className="sidebar-title">
+            {!sidebarCollapsed && (
+              <>
+                <h2>🚀 Uplit Admin</h2>
+                <p>Platform Management</p>
+              </>
+            )}
           </div>
-          <div className="metric-item">
-            <div className="metric-value">{realTimeMetrics.success_rate}%</div>
-            <div className="metric-label">Success Rate</div>
-          </div>
-          <div className="metric-item">
-            <div className="metric-value">{realTimeMetrics.avg_response_time}ms</div>
-            <div className="metric-label">Avg Response Time</div>
-          </div>
-          <div className="metric-item">
-            <div className="metric-value">${realTimeMetrics.daily_cost}</div>
-            <div className="metric-label">Daily Cost</div>
-          </div>
-          <div className="metric-item">
-            <div className="metric-value">{realTimeMetrics.active_requests}</div>
-            <div className="metric-label">Active Requests</div>
-          </div>
-          <div className="metric-item last-updated">
-            <div className="metric-label">
-              Last Updated: {new Date(realTimeMetrics.last_updated).toLocaleTimeString()}
-            </div>
-          </div>
+          <button 
+            className="sidebar-toggle"
+            onClick={toggleSidebar}
+            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {sidebarCollapsed ? '→' : '←'}
+          </button>
         </div>
-      )}
 
-      {activeView === 'overview' && dashboardData && (
-        <div className="overview-content">
-          <div className="admin-grid">
-            {/* Platform Stats */}
-            <div className="admin-card stats-card">
-              <div className="card-header">
-                <h3>📈 Platform Statistics</h3>
-                <span className="period">{dashboardData.platformStats.period}</span>
+        <nav className="sidebar-nav">
+          {/* Core Analytics Section */}
+          <div className="nav-section">
+            {!sidebarCollapsed && <div className="nav-section-title">📊 Analytics & Intelligence</div>}
+            <button
+              className={`nav-item ${activeView === 'overview' ? 'active' : ''}`}
+              onClick={() => setActiveView('overview')}
+              title="Platform Overview"
+            >
+              <span className="nav-icon">📈</span>
+              {!sidebarCollapsed && <span className="nav-label">Platform Overview</span>}
+            </button>
+            <button
+              className={`nav-item ${activeView === 'business-intelligence' ? 'active' : ''}`}
+              onClick={() => setActiveView('business-intelligence')}
+              title="Business Intelligence"
+            >
+              <span className="nav-icon">🧠</span>
+              {!sidebarCollapsed && <span className="nav-label">Business Intelligence</span>}
+            </button>
+            <button
+              className={`nav-item ${activeView === 'revenue-analytics' ? 'active' : ''}`}
+              onClick={() => setActiveView('revenue-analytics')}
+              title="Revenue Analytics"
+            >
+              <span className="nav-icon">💰</span>
+              {!sidebarCollapsed && <span className="nav-label">Revenue Analytics</span>}
+            </button>
+          </div>
+
+          {/* AI & Automation Section */}
+          <div className="nav-section">
+            {!sidebarCollapsed && <div className="nav-section-title">🤖 AI & Automation</div>}
+            <button
+              className={`nav-item ${activeView === 'ai-assistant' ? 'active' : ''}`}
+              onClick={() => setActiveView('ai-assistant')}
+              title="AI Business Assistant"
+            >
+              <span className="nav-icon">🤖</span>
+              {!sidebarCollapsed && <span className="nav-label">AI Business Assistant</span>}
+            </button>
+            <button
+              className={`nav-item ${activeView === 'analytics' ? 'active' : ''}`}
+              onClick={() => setActiveView('analytics')}
+              title="AI Analytics"
+            >
+              <span className="nav-icon">📊</span>
+              {!sidebarCollapsed && <span className="nav-label">AI Analytics</span>}
+            </button>
+          </div>
+
+          {/* Management Section */}
+          <div className="nav-section">
+            {!sidebarCollapsed && <div className="nav-section-title">⚙️ Management</div>}
+            <button
+              className={`nav-item ${activeView === 'subscriptions' ? 'active' : ''}`}
+              onClick={() => setActiveView('subscriptions')}
+              title="Subscription Management"
+            >
+              <span className="nav-icon">💳</span>
+              {!sidebarCollapsed && <span className="nav-label">Subscription Management</span>}
+            </button>
+            <button
+              className={`nav-item ${activeView === 'restaurants' ? 'active' : ''}`}
+              onClick={() => setActiveView('restaurants')}
+              title="Restaurant Management"
+            >
+              <span className="nav-icon">🏪</span>
+              {!sidebarCollapsed && <span className="nav-label">Restaurant Management</span>}
+            </button>
+            <button
+              className={`nav-item ${activeView === 'moderation' ? 'active' : ''}`}
+              onClick={() => setActiveView('moderation')}
+              title="Content Moderation"
+            >
+              <span className="nav-icon">🛡️</span>
+              {!sidebarCollapsed && <span className="nav-label">Content Moderation</span>}
+            </button>
+            <button
+              className={`nav-item ${activeView === 'features' ? 'active' : ''}`}
+              onClick={() => setActiveView('features')}
+              title="Feature Management"
+            >
+              <span className="nav-icon">⚙️</span>
+              {!sidebarCollapsed && <span className="nav-label">Feature Management</span>}
+            </button>
+          </div>
+
+          {/* Logout Section */}
+          <div className="nav-section logout-section">
+            <button
+              className="nav-item logout-button"
+              onClick={handleLogout}
+              title="Logout"
+            >
+              <span className="nav-icon">🚪</span>
+              {!sidebarCollapsed && <span className="nav-label">Logout</span>}
+            </button>
+          </div>
+        </nav>
+      </div>
+
+      {/* Main Content Area */}
+      <div className={`admin-main-content ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+        {/* Header with Real-time Metrics */}
+        <div className="main-header">
+          <div className="header-title">
+            <h1>
+              {activeView === 'overview' && 'Platform Overview'}
+              {activeView === 'business-intelligence' && 'Business Intelligence'}
+              {activeView === 'revenue-analytics' && 'Revenue Analytics'}
+              {activeView === 'ai-assistant' && 'AI Business Assistant'}
+              {activeView === 'subscriptions' && 'Subscription Management'}
+              {activeView === 'analytics' && 'AI Analytics'}
+              {activeView === 'moderation' && 'Content Moderation'}
+              {activeView === 'features' && 'Feature Management'}
+              {activeView === 'restaurants' && 'Restaurant Management'}
+            </h1>
+            <p>
+              {activeView === 'overview' && 'Monitor your restaurant platform performance'}
+              {activeView === 'business-intelligence' && 'Advanced business insights and analytics'}
+              {activeView === 'revenue-analytics' && 'Revenue forecasting and financial analytics'}
+              {activeView === 'ai-assistant' && 'AI-powered business assistance and insights'}
+              {activeView === 'subscriptions' && 'Monitor billing, usage, and subscription lifecycle'}
+              {activeView === 'analytics' && 'AI performance metrics and analytics'}
+              {activeView === 'moderation' && 'Content moderation and safety controls'}
+              {activeView === 'features' && 'Platform feature toggles and management'}
+              {activeView === 'restaurants' && 'Manage all restaurants on the platform'}
+            </p>
+          </div>
+
+          {/* Real-time Metrics Bar */}
+          {realTimeMetrics && (
+            <div className="real-time-metrics-bar">
+              <div className="metric-item">
+                <div className="metric-value">{realTimeMetrics.today_requests}</div>
+                <div className="metric-label">Today's AI Requests</div>
               </div>
-              <div className="stats-grid">
-                <div className="stat-item">
-                  <div className="stat-value">{dashboardData.platformStats.totalRestaurants}</div>
-                  <div className="stat-label">Total Active Restaurants</div>
-                </div>
-                <div className="stat-item">
-                  <div className="stat-value">{dashboardData.platformStats.recentCampaigns}</div>
-                  <div className="stat-label">Campaigns Launched</div>
+              <div className="metric-item">
+                <div className="metric-value">{realTimeMetrics.success_rate}%</div>
+                <div className="metric-label">Success Rate</div>
+              </div>
+              <div className="metric-item">
+                <div className="metric-value">{realTimeMetrics.avg_response_time}ms</div>
+                <div className="metric-label">Avg Response Time</div>
+              </div>
+              <div className="metric-item">
+                <div className="metric-value">${realTimeMetrics.daily_cost}</div>
+                <div className="metric-label">Daily Cost</div>
+              </div>
+              <div className="metric-item">
+                <div className="metric-value">{realTimeMetrics.active_requests}</div>
+                <div className="metric-label">Active Requests</div>
+              </div>
+              <div className="metric-item last-updated">
+                <div className="metric-label">
+                  Last Updated: {new Date(realTimeMetrics.last_updated).toLocaleTimeString()}
                 </div>
               </div>
             </div>
+          )}
+        </div>
 
-            {/* Needs Attention */}
-            <div className="admin-card attention-card">
-              <div className="card-header">
-                <h3>⚠️ Needs Attention</h3>
-              </div>
-              <div className="attention-items">
-                <div className="attention-item">
-                  <div className="attention-icon">🔧</div>
-                  <div className="attention-content">
-                    <div className="attention-title">Incomplete Setups</div>
-                    <div className="attention-description">
-                      {dashboardData.needsAttention.incompleteSetups} restaurants have pending setup tasks
+        {/* Content Area */}
+        <div className="content-area">
+          {activeView === 'overview' && dashboardData && (
+            <div className="overview-content">
+              <div className="admin-grid">
+                {/* Platform Stats */}
+                <div className="admin-card stats-card">
+                  <div className="card-header">
+                    <h3>📈 Platform Statistics</h3>
+                    <span className="period">{dashboardData.platformStats.period}</span>
+                  </div>
+                  <div className="stats-grid">
+                    <div className="stat-item">
+                      <div className="stat-value">{dashboardData.platformStats.totalRestaurants}</div>
+                      <div className="stat-label">Total Active Restaurants</div>
                     </div>
+                    <div className="stat-item">
+                      <div className="stat-value">{dashboardData.platformStats.recentCampaigns}</div>
+                      <div className="stat-label">Campaigns Launched</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Needs Attention */}
+                <div className="admin-card attention-card">
+                  <div className="card-header">
+                    <h3>⚠️ Needs Attention</h3>
+                  </div>
+                  <div className="attention-items">
+                    <div className="attention-item">
+                      <div className="attention-icon">🔧</div>
+                      <div className="attention-content">
+                        <div className="attention-title">Incomplete Setups</div>
+                        <div className="attention-description">
+                          {dashboardData.needsAttention.incompleteSetups} restaurants have pending setup tasks
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="admin-card actions-card">
+                  <div className="card-header">
+                    <h3>⚡ Quick Actions</h3>
+                  </div>
+                  <div className="admin-actions">
+                    <button 
+                      className="action-button primary"
+                      onClick={() => setActiveView('restaurants')}
+                    >
+                      <span className="button-icon">🏪</span>
+                      Manage All Restaurants
+                    </button>
+                    <button className="action-button secondary" disabled>
+                      <span className="button-icon">⚙️</span>
+                      Platform Settings
+                      <span className="coming-soon">(Coming Soon)</span>
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
+          )}
 
-            {/* Quick Actions */}
-            <div className="admin-card actions-card">
-              <div className="card-header">
-                <h3>⚡ Quick Actions</h3>
+          {activeView === 'restaurants' && (
+            <div className="restaurants-content">
+              <div className="restaurants-header">
+                <form onSubmit={handleSearchSubmit} className="search-form">
+                  <input
+                    type="text"
+                    placeholder="Search restaurants by name..."
+                    value={searchTerm}
+                    onChange={handleSearch}
+                    className="search-input"
+                  />
+                  <button type="submit" className="search-button">Search</button>
+                </form>
               </div>
-              <div className="admin-actions">
-                <button 
-                  className="action-button primary"
-                  onClick={() => setActiveView('restaurants')}
-                >
-                  <span className="button-icon">🏪</span>
-                  Manage All Restaurants
-                </button>
-                <button className="action-button secondary" disabled>
-                  <span className="button-icon">⚙️</span>
-                  Platform Settings
-                  <span className="coming-soon">(Coming Soon)</span>
-                </button>
+
+              {error && (
+                <div className="error-message">
+                  {error}
+                </div>
+              )}
+
+              <div className="restaurants-table-container">
+                <table className="restaurants-table">
+                  <thead>
+                    <tr>
+                      <th>Restaurant Name</th>
+                      <th>Owner Email</th>
+                      <th>Signup Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {restaurants.map(restaurant => (
+                      <tr key={restaurant.restaurant_id}>
+                        <td>
+                          <div className="restaurant-info">
+                            <div className="restaurant-name">{restaurant.name}</div>
+                            {restaurant.address && (
+                              <div className="restaurant-address">{restaurant.address}</div>
+                            )}
+                          </div>
+                        </td>
+                        <td>{restaurant.email}</td>
+                        <td>{new Date(restaurant.signup_date).toLocaleDateString()}</td>
+                        <td>
+                          <button
+                            className="impersonate-button"
+                            onClick={() => handleImpersonate(restaurant.restaurant_id)}
+                          >
+                            🎭 Impersonate
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {restaurants.length === 0 && !loading && (
+                  <div className="no-restaurants">
+                    <p>No restaurants found</p>
+                    {searchTerm && (
+                      <p>Try adjusting your search terms</p>
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {activeView === 'restaurants' && (
-        <div className="restaurants-content">
-          <div className="restaurants-header">
-            <h2>Manage All Restaurants</h2>
-            <form onSubmit={handleSearchSubmit} className="search-form">
-              <input
-                type="text"
-                placeholder="Search restaurants by name..."
-                value={searchTerm}
-                onChange={handleSearch}
-                className="search-input"
-              />
-              <button type="submit" className="search-button">Search</button>
-            </form>
-          </div>
-
-          {error && (
-            <div className="error-message">
-              {error}
             </div>
           )}
 
-          <div className="restaurants-table-container">
-            <table className="restaurants-table">
-              <thead>
-                <tr>
-                  <th>Restaurant Name</th>
-                  <th>Owner Email</th>
-                  <th>Signup Date</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {restaurants.map(restaurant => (
-                  <tr key={restaurant.restaurant_id}>
-                    <td>
-                      <div className="restaurant-info">
-                        <div className="restaurant-name">{restaurant.name}</div>
-                        {restaurant.address && (
-                          <div className="restaurant-address">{restaurant.address}</div>
-                        )}
-                      </div>
-                    </td>
-                    <td>{restaurant.email}</td>
-                    <td>{new Date(restaurant.signup_date).toLocaleDateString()}</td>
-                    <td>
-                      <button
-                        className="impersonate-button"
-                        onClick={() => handleImpersonate(restaurant.restaurant_id)}
-                      >
-                        🎭 Impersonate
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {/* AI Analytics Tab */}
+          {activeView === 'analytics' && (
+            <div className="analytics-content">
+              <AIAnalytics />
+            </div>
+          )}
 
-            {restaurants.length === 0 && !loading && (
-              <div className="no-restaurants">
-                <p>No restaurants found</p>
-                {searchTerm && (
-                  <p>Try adjusting your search terms</p>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+          {/* Content Moderation Tab */}
+          {activeView === 'moderation' && (
+            <div className="moderation-content">
+              <ContentModeration />
+            </div>
+          )}
 
-      {/* AI Analytics Tab */}
-      {activeView === 'analytics' && (
-        <div className="analytics-content">
-          <AIAnalytics />
-        </div>
-      )}
+          {/* Feature Management Tab */}
+          {activeView === 'features' && (
+            <div className="features-content">
+              <FeatureManagement />
+            </div>
+          )}
 
-      {/* Content Moderation Tab */}
-      {activeView === 'moderation' && (
-        <div className="moderation-content">
-          <ContentModeration />
-        </div>
-      )}
+          {/* Business Intelligence Tab */}
+          {activeView === 'business-intelligence' && (
+            <div className="business-intelligence-content">
+              <BusinessIntelligence />
+            </div>
+          )}
 
-      {/* Feature Management Tab */}
-      {activeView === 'features' && (
-        <div className="features-content">
-          <FeatureManagement />
+          {/* Revenue Analytics Tab */}
+          {activeView === 'revenue-analytics' && (
+            <div className="revenue-analytics-content">
+              <RevenueAnalytics />
+            </div>
+          )}
+
+          {/* AI Assistant Tab */}
+          {activeView === 'ai-assistant' && (
+            <div className="ai-assistant-content">
+              <AIBusinessAssistant />
+            </div>
+          )}
+
+          {/* Subscriptions Tab */}
+          {activeView === 'subscriptions' && (
+            <div className="subscriptions-content">
+              <SubscriptionManagement />
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

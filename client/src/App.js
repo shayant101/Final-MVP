@@ -8,6 +8,11 @@ import Login from './components/Login';
 import LandingPage from './components/LandingPage';
 import AIFeatures from './components/AIFeatures';
 import AIAssistant from './components/AIAssistant';
+import WebsiteBuilder from './components/WebsiteBuilder/WebsiteBuilder';
+import WebsitePreview from './components/WebsiteBuilder/WebsitePreview';
+import WebsiteEditor from './components/WebsiteBuilder/WebsiteEditor';
+import TemplateGallery from './components/WebsiteBuilder/TemplateGallery';
+import TemplateCustomizer from './components/WebsiteBuilder/TemplateCustomizer';
 import LoadingScreen from './components/LoadingScreen';
 import './App.css';
 
@@ -37,6 +42,51 @@ const AppContent = () => {
           element={
             <ProtectedRoute>
               <AIFeatures />
+              <AIAssistant />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/website-builder"
+          element={
+            <ProtectedRoute>
+              <WebsiteBuilder />
+              <AIAssistant />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/website-builder/preview/:id"
+          element={
+            <ProtectedRoute>
+              <WebsitePreview />
+              <AIAssistant />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/website-builder/edit/:id"
+          element={
+            <ProtectedRoute>
+              <WebsiteEditor />
+              <AIAssistant />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/website-builder/templates"
+          element={
+            <ProtectedRoute>
+              <TemplateGallery />
+              <AIAssistant />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/website-builder/templates/:templateId/customize"
+          element={
+            <ProtectedRoute>
+              <TemplateCustomizer />
               <AIAssistant />
             </ProtectedRoute>
           }

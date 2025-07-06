@@ -1,0 +1,94 @@
+{
+  "timestamp": "2025-07-06T00:44:03.186578",
+  "tests": {
+    "database_connectivity": {
+      "success": false,
+      "error": "object NoneType can't be used in 'await' expression",
+      "details": {
+        "traceback": "Traceback (most recent call last):\n  File \"/Users/user1/Desktop/Final-MVP/backendv2/debug_website_generation_comprehensive.py\", line 127, in test_database_connectivity\n    db = await get_database()\nTypeError: object NoneType can't be used in 'await' expression\n"
+      }
+    },
+    "authentication": {
+      "success": true,
+      "details": {
+        "auth_module_loaded": true,
+        "auth_functions_available": true
+      }
+    },
+    "restaurant_data": {
+      "success": false,
+      "error": "object NoneType can't be used in 'await' expression",
+      "details": {
+        "traceback": "Traceback (most recent call last):\n  File \"/Users/user1/Desktop/Final-MVP/backendv2/debug_website_generation_comprehensive.py\", line 188, in test_restaurant_data_access\n    db = await get_database()\nTypeError: object NoneType can't be used in 'await' expression\n"
+      }
+    },
+    "openai_service": {
+      "success": true,
+      "details": {
+        "openai_response_received": true,
+        "response_length": 12,
+        "response_preview": "TEST_SUCCESS"
+      }
+    },
+    "ai_generator": {
+      "success": true,
+      "details": {
+        "website_generated": true,
+        "website_id": "ai_website_test_restaurant_123_1751787923",
+        "missing_keys": [],
+        "result_keys": [
+          "website_id",
+          "restaurant_name",
+          "generation_date",
+          "design_analysis",
+          "website_structure",
+          "website_sections",
+          "design_system",
+          "seo_optimization",
+          "mobile_optimization",
+          "performance_optimization",
+          "implementation_plan",
+          "ai_insights",
+          "success"
+        ],
+        "generation_method": "unknown"
+      },
+      "error": null
+    },
+    "api_endpoint": {
+      "success": false,
+      "error": "object NoneType can't be used in 'await' expression",
+      "details": {
+        "traceback": "Traceback (most recent call last):\n  File \"/Users/user1/Desktop/Final-MVP/backendv2/debug_website_generation_comprehensive.py\", line 320, in test_website_generation_api\n    db = await get_database()\nTypeError: object NoneType can't be used in 'await' expression\n"
+      }
+    },
+    "background_tasks": {
+      "success": false,
+      "error": "object NoneType can't be used in 'await' expression",
+      "details": {
+        "traceback": "Traceback (most recent call last):\n  File \"/Users/user1/Desktop/Final-MVP/backendv2/debug_website_generation_comprehensive.py\", line 372, in test_background_task_processing\n    db = await get_database()\nTypeError: object NoneType can't be used in 'await' expression\n"
+      }
+    },
+    "end_to_end": {
+      "success": false,
+      "error": "object NoneType can't be used in 'await' expression",
+      "details": {
+        "traceback": "Traceback (most recent call last):\n  File \"/Users/user1/Desktop/Final-MVP/backendv2/debug_website_generation_comprehensive.py\", line 446, in test_end_to_end_generation\n    db = await get_database()\nTypeError: object NoneType can't be used in 'await' expression\n"
+      }
+    }
+  },
+  "errors": [
+    "Database: object NoneType can't be used in 'await' expression",
+    "Restaurant Data: object NoneType can't be used in 'await' expression",
+    "API Endpoint: object NoneType can't be used in 'await' expression",
+    "Background Tasks: object NoneType can't be used in 'await' expression",
+    "End-to-End: object NoneType can't be used in 'await' expression"
+  ],
+  "recommendations": [
+    "\ud83d\udd27 Fix database connectivity issues - check MongoDB connection string and credentials",
+    "\ud83d\udd27 Fix restaurant data access - ensure restaurants exist and have required fields",
+    "\ud83d\udd27 Fix background task processing - check async task handling and progress tracking",
+    "\ud83d\udd27 Fix end-to-end generation - check complete workflow and error propagation",
+    "\u26a0\ufe0f Multiple critical issues detected - prioritize database and OpenAI service fixes"
+  ]
+}

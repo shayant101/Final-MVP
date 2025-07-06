@@ -6,8 +6,15 @@ import asyncio
 import logging
 from datetime import datetime
 from typing import Dict, Any, List, Optional
-from openai import AsyncOpenAI
 from dotenv import load_dotenv
+
+# Try to import OpenAI, fall back gracefully if not available
+try:
+    from openai import AsyncOpenAI
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+    AsyncOpenAI = None
 
 # Load environment variables
 load_dotenv()
@@ -22,7 +29,10 @@ class OpenAIService:
         self.client = None
         self.fallback_to_mock = False
         
-        if not self.api_key:
+        if not OPENAI_AVAILABLE:
+            logger.warning("OpenAI package not installed. Falling back to mock service.")
+            self.fallback_to_mock = True
+        elif not self.api_key:
             logger.warning("OpenAI API key not found. Falling back to mock service.")
             self.fallback_to_mock = True
         else:
@@ -37,7 +47,7 @@ class OpenAIService:
         """Make a request to OpenAI API with error handling"""
         try:
             if self.fallback_to_mock:
-                raise Exception("Using mock service")
+                raise Exception("OpenAI API key not configured - using fallback")
             
             response = await self.client.chat.completions.create(
                 model=model,
@@ -49,8 +59,8 @@ class OpenAIService:
             return response.choices[0].message.content.strip()
             
         except Exception as e:
-            logger.error(f"OpenAI API request failed: {str(e)}")
-            raise
+            logger.error(f"OpenAI API request failed: {str(e)} - AI website generator will use fallback")
+            raise Exception(f"OpenAI service unavailable: {str(e)}")
 
     async def generate_ad_copy(self, restaurant_name: str, item_to_promote: str, offer: str, target_audience: str = "local food lovers") -> Dict[str, Any]:
         """Generate Facebook ad copy using OpenAI"""

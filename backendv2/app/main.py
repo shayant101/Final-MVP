@@ -9,6 +9,8 @@ from .routes.campaigns import router as campaigns_router
 from .routes.content_generation import router as content_router
 from .routes.ai_features import router as ai_router
 from .routes.admin import router as admin_router
+from .routes.website_builder import router as website_builder_router
+from .routes.phase3_routes import get_phase3_routers
 
 # Create FastAPI application instance
 app = FastAPI(
@@ -40,6 +42,12 @@ async def startup_event():
     print("🤖 Content generation endpoints available at /api/content")
     print("🧠 AI Features endpoints available at /api/ai")
     print("👑 Admin endpoints available at /api/admin")
+    print("🌐 Website Builder endpoints available at /api/website-builder")
+    print("💰 Phase 3 Business Intelligence endpoints available:")
+    print("   📊 Billing & Subscriptions at /api/billing")
+    print("   📈 Revenue Analytics at /api/revenue")
+    print("   🤖 AI Assistant at /api/ai-assistant")
+    print("   🧠 Business Intelligence at /api/business-intelligence")
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -54,6 +62,12 @@ app.include_router(campaigns_router)
 app.include_router(content_router)
 app.include_router(ai_router)
 app.include_router(admin_router)
+app.include_router(website_builder_router)
+
+# Include Phase 3 routers
+phase3_routers = get_phase3_routers()
+for router in phase3_routers:
+    app.include_router(router)
 
 # Health check endpoint
 @app.get("/api/health")
@@ -84,7 +98,12 @@ async def root():
         "campaigns": "/api/campaigns",
         "content": "/api/content",
         "ai_features": "/api/ai",
-        "admin": "/api/admin"
+        "admin": "/api/admin",
+        "website_builder": "/api/website-builder",
+        "phase3_billing": "/api/billing",
+        "phase3_revenue": "/api/revenue",
+        "phase3_ai_assistant": "/api/ai-assistant",
+        "phase3_business_intelligence": "/api/business-intelligence"
     }
 
 if __name__ == "__main__":

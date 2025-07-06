@@ -1,11 +1,446 @@
 /* Import Design System */
 @import '../styles/DesignSystem.css';
 
+/* Restaurant Dashboard Layout with Sidebar */
 .restaurant-dashboard {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+  display: flex;
+  min-height: 100vh;
+  width: 100vw;
+  background: var(--color-background-page);
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
 }
+
+/* Override App.css constraints for restaurant dashboard */
+.restaurant-dashboard .app-main {
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  flex: none !important;
+}
+
+/* Ensure the restaurant dashboard takes full viewport */
+.restaurant-dashboard,
+.restaurant-dashboard * {
+  box-sizing: border-box;
+}
+
+/* Reset any global margins/padding that might affect layout */
+.restaurant-dashboard-container {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+
+.dark-mode .restaurant-dashboard {
+  background: var(--color-dark-background-page);
+}
+
+/* Sidebar Styles */
+.restaurant-sidebar {
+  width: 280px;
+  background: var(--color-background-container);
+  border-right: 1px solid var(--color-border);
+  padding: 1rem 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+
+.restaurant-sidebar.collapsed {
+  width: 60px;
+}
+
+.dark-mode .restaurant-sidebar {
+  background: var(--color-dark-background-container);
+  border-right-color: var(--color-dark-border);
+}
+
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 80px;
+}
+
+.dark-mode .sidebar-header {
+  border-bottom-color: #334155;
+}
+
+.sidebar-title h2 {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primary-text);
+  line-height: 1.2;
+}
+
+.dark-mode .sidebar-title h2 {
+  color: #FFFFFF;
+}
+
+.sidebar-title p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-secondary-text);
+  font-weight: 500;
+}
+
+.dark-mode .sidebar-title p {
+  color: #94A3B8;
+}
+
+.sidebar-toggle {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-secondary-text);
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dark-mode .sidebar-toggle {
+  border-color: #475569;
+  color: #94A3B8;
+}
+
+.sidebar-toggle:hover {
+  background: var(--color-background-hover);
+  border-color: var(--color-brand-blue);
+  color: var(--color-brand-blue);
+}
+
+.dark-mode .sidebar-toggle:hover {
+  background: #334155;
+  border-color: #60A5FA;
+  color: #60A5FA;
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 0;
+  overflow-y: auto;
+}
+
+.nav-section {
+  margin-bottom: 24px;
+}
+
+.nav-section-title {
+  padding: 0 20px 8px 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-secondary-text);
+  opacity: 0.8;
+}
+
+.dark-mode .nav-section-title {
+  color: #64748B;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  margin: 0 12px;
+  border: none;
+  background: none;
+  color: var(--color-secondary-text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: calc(100% - 24px);
+  position: relative;
+}
+
+.dark-mode .nav-item {
+  color: #94A3B8;
+}
+
+.nav-item:hover {
+  background: var(--color-background-hover);
+  color: var(--color-primary-text);
+}
+
+.dark-mode .nav-item:hover {
+  background: #334155;
+  color: #FFFFFF;
+}
+
+.nav-item.active {
+  background: rgba(1, 90, 246, 0.1);
+  color: var(--color-brand-blue);
+  font-weight: 600;
+}
+
+.dark-mode .nav-item.active {
+  background: rgba(96, 165, 250, 0.15);
+  color: #60A5FA;
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  background: var(--color-brand-blue);
+  border-radius: 0 2px 2px 0;
+}
+
+.dark-mode .nav-item.active::before {
+  background: #60A5FA;
+}
+
+.nav-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+}
+
+.nav-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.restaurant-sidebar.collapsed .nav-label {
+  display: none;
+}
+
+.restaurant-sidebar.collapsed .nav-section-title {
+  display: none;
+}
+
+.restaurant-sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: 12px;
+  margin: 0 8px;
+  width: calc(100% - 16px);
+}
+
+.logout-section {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.dark-mode .logout-section {
+  border-top-color: #334155;
+}
+
+.logout-button {
+  color: #EF4444 !important;
+}
+
+.dark-mode .logout-button {
+  color: #F87171 !important;
+}
+
+.logout-button:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: #DC2626 !important;
+}
+
+.dark-mode .logout-button:hover {
+  background: rgba(248, 113, 113, 0.15) !important;
+  color: #FCA5A5 !important;
+}
+
+/* Main Content Area */
+.restaurant-main-content {
+  flex: 1;
+  margin-left: 280px;
+  background: var(--color-background-page);
+  min-height: 100vh;
+  width: calc(100vw - 280px);
+  transition: all 0.3s ease;
+  overflow-x: hidden;
+  position: relative;
+  border: none;
+  padding: 0;
+}
+
+.restaurant-main-content.sidebar-collapsed {
+  margin-left: 60px;
+  width: calc(100vw - 60px);
+}
+
+.dark-mode .restaurant-main-content {
+  background: var(--color-dark-background-page);
+}
+
+.main-header {
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-background-container);
+  flex-shrink: 0;
+}
+
+.dark-mode .main-header {
+  border-bottom-color: #334155;
+  background: #1E293B;
+}
+
+.header-title h1 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-primary-text);
+}
+
+.dark-mode .header-title h1 {
+  color: #FFFFFF;
+}
+
+.header-title p {
+  margin: 0;
+  font-size: 16px;
+  color: var(--color-secondary-text);
+}
+
+.dark-mode .header-title p {
+  color: #94A3B8;
+}
+
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 32px;
+}
+
+/* Content Views */
+.overview-content,
+.get-new-customers-content,
+.bring-back-regulars-content,
+.website-builder-content,
+.ai-features-content,
+.marketing-foundations-content {
+  height: 100%;
+}
+
+/* Responsive Design for Sidebar */
+@media (max-width: 1024px) {
+  .restaurant-sidebar {
+    width: 260px;
+  }
+  
+  .restaurant-sidebar.collapsed {
+    width: 60px;
+  }
+  
+  .content-area {
+    padding: 20px 24px;
+  }
+  
+  .main-header {
+    padding: 20px 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .restaurant-dashboard {
+    flex-direction: column;
+  }
+  
+  .restaurant-sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  .dark-mode .restaurant-sidebar {
+    border-bottom-color: #334155;
+  }
+  
+  .restaurant-sidebar.collapsed {
+    width: 100%;
+    height: 60px;
+  }
+  
+  .sidebar-nav {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 8px 16px;
+  }
+  
+  .restaurant-sidebar.collapsed .sidebar-nav {
+    display: none;
+  }
+  
+  .nav-section {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    margin-bottom: 0;
+    margin-right: 16px;
+  }
+  
+  .nav-section-title {
+    display: none;
+  }
+  
+  .nav-item {
+    white-space: nowrap;
+    margin: 0;
+    width: auto;
+  }
+  
+  .content-area {
+    padding: 16px;
+  }
+  
+  .main-header {
+    padding: 16px;
+  }
+  
+  .header-title h1 {
+    font-size: 24px;
+  }
+  
+  .header-title p {
+    font-size: 14px;
+  }
+}
+
+/* Original Dashboard Styles (Updated for Content Area) */
 
 .impersonation-banner {
   background: linear-gradient(135deg, #ff6b6b, #ee5a24);
@@ -1086,6 +1521,17 @@
   box-shadow: 0 8px 25px rgba(124, 58, 237, 0.3);
 }
 
+.quick-link-button.website-builder {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.quick-link-button.website-builder:hover {
+  background: linear-gradient(135deg, #5a6fd8, #6a4190);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
 .quick-link-button.tertiary {
   background: var(--color-warning);
   color: white;
@@ -1113,6 +1559,15 @@
 
 .dark-mode .quick-link-button.ai-features:hover {
   background: linear-gradient(135deg, #7C3AED, #8B5CF6);
+}
+
+.dark-mode .quick-link-button.website-builder {
+  background: linear-gradient(135deg, #818CF8, #A78BFA);
+  color: #FFFFFF !important;
+}
+
+.dark-mode .quick-link-button.website-builder:hover {
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
 }
 
 .dark-mode .quick-link-button.tertiary {
