@@ -17,6 +17,7 @@ const WebsitePreview = () => {
   const [editMode, setEditMode] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
   
   // Media uploader hook
   const { uploadImage } = useMediaUploader();
@@ -36,10 +37,19 @@ const WebsitePreview = () => {
       console.log('🔍 DEBUG: WebsitePreview - Hero section:', data?.pages?.[0]?.sections?.hero);
       console.log('🔍 DEBUG: WebsitePreview - About section:', data?.pages?.[0]?.sections?.about);
       console.log('🔍 DEBUG: WebsitePreview - Contact section:', data?.pages?.[0]?.sections?.contact);
+      console.log('🔍 DEBUG: WebsitePreview - FAQ section:', data?.pages?.[0]?.sections?.faq);
+      console.log('🔍 DEBUG: WebsitePreview - Gallery section:', data?.pages?.[0]?.sections?.gallery);
+      console.log('🔍 DEBUG: WebsitePreview - Reviews section:', data?.pages?.[0]?.sections?.reviews);
       console.log('🔍 DEBUG: WebsitePreview - Design system:', data?.design_system);
       console.log('🔍 DEBUG: WebsitePreview - Menu items:', data?.menu_items);
       console.log('🔍 DEBUG: WebsitePreview - Hero image:', data?.hero_image);
       console.log('🔍 DEBUG: WebsitePreview - Website name:', data?.website_name);
+      
+      // CRITICAL DEBUG: Check what's actually in the database response
+      console.log('🔍 CRITICAL DEBUG: Full data structure:');
+      console.log('🔍 CRITICAL DEBUG: data.hero_image =', data?.hero_image);
+      console.log('🔍 CRITICAL DEBUG: data.menu_items =', JSON.stringify(data?.menu_items, null, 2));
+      console.log('🔍 CRITICAL DEBUG: data.pages[0].sections =', JSON.stringify(data?.pages?.[0]?.sections, null, 2));
       
       // Ensure menu_items are always present with default values if missing
       if (!data.menu_items || data.menu_items.length === 0) {
@@ -677,9 +687,12 @@ const WebsitePreview = () => {
         { question: "Do you offer delivery?", answer: "Yes, we offer delivery through our website and third-party apps" }
       ];
 
-      return faqItems.map(item => `
+      // Filter out FAQ items with empty questions to match edit mode behavior
+      const validFaqItems = faqItems.filter(item => item.question && item.question.trim() !== '');
+
+      return validFaqItems.map(item => `
         <div class="faq-item">
-          <h3 class="faq-question">${item.question || 'Question'}</h3>
+          <h3 class="faq-question">${item.question}</h3>
           <p class="faq-answer">${item.answer || 'Answer'}</p>
         </div>
       `).join('');
@@ -1223,8 +1236,57 @@ const WebsitePreview = () => {
                   padding: '1.5rem',
                   marginBottom: '1rem',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                  transition: 'transform 0.2s ease'
+                  transition: 'transform 0.2s ease',
+                  position: 'relative'
                 }}>
+                  {editMode && (
+                    <button
+                      className="delete-faq-btn"
+                      onClick={async () => {
+                        if (window.confirm('Are you sure you want to delete this FAQ item?')) {
+                          try {
+                            // Send only the delete request to the backend
+                            const contentUpdate = {
+                              [`pages[0].sections.faq.items.delete_index`]: index
+                            };
+                            
+                            await websiteBuilderAPI.updateContent(id, contentUpdate);
+                            
+                            // Refresh data to show the updated list
+                            await fetchWebsiteData();
+                            
+                          } catch (error) {
+                            console.error('Error deleting FAQ item:', error);
+                            alert('Error deleting FAQ item. Please try again.');
+                          }
+                        }
+                      }}
+                      style={{
+                        position: 'absolute',
+                        top: '0.5rem',
+                        right: '0.5rem',
+                        background: '#ef4444',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '24px',
+                        height: '24px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        zIndex: 10,
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = '#dc2626'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = '#ef4444'}
+                      title="Delete FAQ item"
+                    >
+                      ×
+                    </button>
+                  )}
                   <EditableElement
                     type="faq-question"
                     value={item.question}
@@ -1761,7 +1823,7 @@ const WebsitePreview = () => {
   }
 
   return (
-    <div className={`website-preview ${isFullscreen ? 'fullscreen' : ''}`}>
+    <div className={`website-preview ${isFullscreen ? 'fullscreen' : ''} ${darkMode ? 'dark-mode' : ''}`}>
       {/* Enhanced Header with better controls */}
       <div className="preview-header">
         <div className="preview-header-left">
@@ -1789,6 +1851,51 @@ const WebsitePreview = () => {
         </div>
 
         <div className="preview-header-right">
+          {/* Light/Dark Mode Toggle */}
+          <button
+            className={`theme-toggle-btn ${darkMode ? 'dark' : 'light'}`}
+            onClick={() => setDarkMode(!darkMode)}
+            title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            style={{
+              background: darkMode ? '#374151' : '#f3f4f6',
+              color: darkMode ? '#f9fafb' : '#374151',
+              border: `1px solid ${darkMode ? '#4b5563' : '#d1d5db'}`,
+              borderRadius: '8px',
+              padding: '8px 12px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '14px',
+              fontWeight: '500',
+              transition: 'all 0.2s ease',
+              marginRight: '12px'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = darkMode ? '#4b5563' : '#e5e7eb';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = darkMode ? '#374151' : '#f3f4f6';
+            }}
+          >
+            {darkMode ? (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="5"/>
+                  <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                </svg>
+                Light
+              </>
+            ) : (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+                Dark
+              </>
+            )}
+          </button>
+
           <div className="device-selector">
             <button
               className={`device-btn ${previewMode === 'desktop' ? 'active' : ''}`}

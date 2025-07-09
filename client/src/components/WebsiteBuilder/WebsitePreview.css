@@ -2366,3 +2366,307 @@
     font-size: 11px;
   }
 }
+
+/* ========================================
+   DARK MODE STYLES
+   ======================================== */
+
+/* Dark Mode Root Variables */
+.website-preview.dark-mode {
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --bg-card: #1f2937;
+  --bg-card-hover: #374151;
+  --bg-tertiary: #374151;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --border-color: #4b5563;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  --accent-success: #10b981;
+  --accent-warning: #f59e0b;
+  --accent-error: #ef4444;
+  --accent-secondary: #06b6d4;
+}
+
+/* Dark Mode Header */
+.website-preview.dark-mode .preview-header {
+  background: var(--bg-card);
+  border-bottom-color: var(--border-color);
+}
+
+.website-preview.dark-mode .title-info h1 {
+  color: var(--text-primary);
+}
+
+.website-preview.dark-mode .status-badge.draft {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--accent-warning);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.website-preview.dark-mode .status-badge.published {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--accent-success);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.website-preview.dark-mode .preview-url {
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+/* Dark Mode Device Selector */
+.website-preview.dark-mode .device-selector {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+.website-preview.dark-mode .device-btn {
+  color: var(--text-secondary);
+}
+
+.website-preview.dark-mode .device-btn:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+/* Dark Mode Controls */
+.website-preview.dark-mode .control-btn {
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.website-preview.dark-mode .control-btn:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+/* Dark Mode Buttons */
+.website-preview.dark-mode .btn-secondary {
+  background: transparent !important;
+  color: #60a5fa !important;
+  border-color: #60a5fa !important;
+}
+
+.website-preview.dark-mode .btn-secondary:hover {
+  background: rgba(96, 165, 250, 0.1) !important;
+  color: #93c5fd !important;
+  border-color: #93c5fd !important;
+}
+
+.website-preview.dark-mode .btn-secondary.active {
+  background: rgba(96, 165, 250, 0.2) !important;
+  color: #93c5fd !important;
+  border-color: #93c5fd !important;
+}
+
+/* Dark Mode Info Panel */
+.website-preview.dark-mode .website-info-panel {
+  background: var(--bg-card);
+  border-bottom-color: var(--border-color);
+}
+
+.website-preview.dark-mode .info-label {
+  color: var(--text-muted);
+}
+
+.website-preview.dark-mode .info-value {
+  color: var(--text-primary);
+}
+
+.website-preview.dark-mode .dimensions-text {
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+/* Dark Mode Preview Container */
+.website-preview.dark-mode .preview-container {
+  background: var(--bg-secondary);
+}
+
+.website-preview.dark-mode .preview-frame {
+  background: #1f2937;
+  border-color: var(--border-color);
+}
+
+/* Dark Mode Generation Details */
+.website-preview.dark-mode .generation-details {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+.website-preview.dark-mode .details-header h3 {
+  color: var(--text-primary);
+}
+
+.website-preview.dark-mode .detail-item {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+.website-preview.dark-mode .detail-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.website-preview.dark-mode .detail-header strong {
+  color: var(--text-primary);
+}
+
+.website-preview.dark-mode .detail-value {
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+.website-preview.dark-mode .feature-list li {
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+/* Dark Mode Theme Tool */
+.website-preview.dark-mode .info-item.theme-tool-compact {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.98), rgba(17, 24, 39, 0.95));
+  border-color: var(--border-color);
+}
+
+.website-preview.dark-mode .info-item.theme-tool-compact .info-label {
+  color: var(--text-secondary);
+}
+
+.website-preview.dark-mode .color-swatches {
+  background: rgba(17, 24, 39, 0.6);
+  border-color: var(--border-color);
+}
+
+.website-preview.dark-mode .theme-presets-compact {
+  background: rgba(17, 24, 39, 0.6);
+  border-color: var(--border-color);
+}
+
+.website-preview.dark-mode .preset-btn-compact {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.8));
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
+.website-preview.dark-mode .preset-btn-compact:hover {
+  background: linear-gradient(135deg, rgba(55, 65, 81, 1), rgba(31, 41, 55, 0.9));
+  color: #60a5fa;
+  border-color: #60a5fa;
+}
+
+/* Dark Mode Editable Website */
+.website-preview.dark-mode .editable-website {
+  background-color: #1f2937;
+  color: var(--text-primary);
+}
+
+/* Dark Mode for iframe content - subtle inversion */
+.website-preview.dark-mode .website-iframe {
+  filter: invert(0.9) hue-rotate(180deg) brightness(1.1) contrast(0.9);
+  border-radius: inherit;
+}
+
+/* Dark Mode Placeholders */
+.website-preview.dark-mode .preview-placeholder {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+  color: var(--text-muted);
+}
+
+.website-preview.dark-mode .preview-placeholder:hover {
+  border-color: #60a5fa;
+  background: rgba(96, 165, 250, 0.05);
+}
+
+.website-preview.dark-mode .preview-placeholder h3 {
+  color: var(--text-primary);
+}
+
+.website-preview.dark-mode .preview-placeholder p {
+  color: var(--text-secondary);
+}
+
+/* Dark Mode Loading States */
+.website-preview.dark-mode .preview-loading {
+  color: var(--text-secondary);
+}
+
+.website-preview.dark-mode .loading-spinner {
+  border-color: var(--border-color);
+  border-top-color: #60a5fa;
+}
+
+.website-preview.dark-mode .preview-error h3 {
+  color: var(--accent-error);
+}
+
+.website-preview.dark-mode .preview-error p {
+  color: var(--text-secondary);
+}
+
+/* Dark Mode Back Button */
+.website-preview.dark-mode .back-btn {
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.website-preview.dark-mode .back-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: #60a5fa;
+  color: #60a5fa;
+}
+
+/* Dark Mode Theme Toggle Button Styles */
+.theme-toggle-btn {
+  transition: all 0.3s ease;
+}
+
+.theme-toggle-btn:focus {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+}
+
+/* Dark Mode Responsive Adjustments */
+@media (max-width: 768px) {
+  .website-preview.dark-mode .theme-toggle-btn {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .website-preview.dark-mode .theme-toggle-btn {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+}
+
+/* Dark Mode High Contrast Support */
+@media (prefers-contrast: high) {
+  .website-preview.dark-mode {
+    --border-color: #6b7280;
+    --text-secondary: #e5e7eb;
+  }
+  
+  .website-preview.dark-mode .preview-frame {
+    border-width: 2px;
+  }
+  
+  .website-preview.dark-mode .device-btn.active {
+    border: 2px solid #93c5fd;
+  }
+}
+
+/* Dark Mode Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .website-preview.dark-mode .theme-toggle-btn {
+    transition: none;
+  }
+}

@@ -84,6 +84,8 @@ class WebsitePage(BaseModel):
     custom_css: Optional[str] = Field(None, description="Custom CSS for this page")
     is_homepage: bool = Field(default=False)
     published: bool = Field(default=False)
+    # MISSING FIELD ADDED:
+    sections: Dict[str, Any] = Field(default_factory=dict, description="Page sections data")
 
 class SEOSettings(BaseModel):
     site_title: str
@@ -130,6 +132,9 @@ class RestaurantWebsite(BaseModel):
     ai_generation_metadata: Dict[str, Any] = Field(default_factory=dict, description="AI generation details")
     custom_code: Optional[str] = Field(None, description="Custom HTML/CSS/JS")
     backup_versions: List[str] = Field(default_factory=list, description="Backup version IDs")
+    # MISSING FIELDS ADDED:
+    hero_image: Optional[str] = Field(None, description="Hero background image URL")
+    menu_items: List[Dict[str, Any]] = Field(default_factory=list, description="Restaurant menu items")
     created_at: datetime
     updated_at: datetime
     published_at: Optional[datetime] = Field(None)

@@ -202,6 +202,14 @@ async def get_website(
             raise HTTPException(status_code=403, detail="Access denied to this website")
         
         logger.info(f"🔍 DEBUG: Website Builder - Access granted, returning website data")
+        
+        # CRITICAL DEBUG: Log what's actually in the database
+        logger.info(f"🔍 CRITICAL DEBUG: Database website.hero_image = {website.get('hero_image')}")
+        logger.info(f"🔍 CRITICAL DEBUG: Database website.menu_items = {website.get('menu_items')}")
+        logger.info(f"🔍 CRITICAL DEBUG: Database website.pages = {website.get('pages')}")
+        if website.get('pages') and len(website['pages']) > 0:
+            logger.info(f"🔍 CRITICAL DEBUG: Database pages[0].sections = {website['pages'][0].get('sections')}")
+        
         return RestaurantWebsite(**website)
         
     except HTTPException:
@@ -427,115 +435,129 @@ async def update_website_content(
                     update_data["menu_items"] = updated_menu_items
                     logger.info(f"🔍 DEBUG: Website Builder - Updated menu item {index}.{field_name} = {new_value}")
                     logger.info(f"🔍 DEBUG: Website Builder - Complete menu_items array: {updated_menu_items}")
-            elif field_path.startswith("pages[0].sections."):
-                # Handle nested page section updates - FIXED for proper MongoDB array updates
-                section_path = field_path.replace("pages[0].sections.", "")
-                
-                # Initialize pages array if it doesn't exist
-                if "pages" not in update_data:
+            elif field_path.startswith("pages[0].sections.faq.items"):
+                # Handle FAQ item updates and deletions
+                if field_path == "pages[0].sections.faq.items.delete_index":
+                    # Handle FAQ deletion
+                    delete_index = int(new_value)
+                    logger.info(f"🔍 DEBUG: Website Builder - Deleting FAQ item at index: {delete_index}")
+                    
+                    # Always get fresh pages from database for FAQ deletion to avoid cross-contamination
                     current_pages = website.get("pages", [])
                     if not current_pages:
-                        # Create default page structure
-                        current_pages = [{
-                            "page_id": "home",
-                            "page_name": "Home",
-                            "page_slug": "/",
-                            "sections": {
-                                "hero": {},
-                                "about": {},
-                                "contact": {}
-                            }
-                        }]
-                    update_data["pages"] = current_pages.copy()
-                
-                # Ensure we have at least one page
-                if len(update_data["pages"]) == 0:
-                    update_data["pages"].append({
-                        "page_id": "home",
-                        "page_name": "Home",
-                        "page_slug": "/",
-                        "sections": {
-                            "hero": {},
-                            "about": {},
-                            "contact": {}
-                        }
-                    })
-                
-                # Ensure sections exist
-                if "sections" not in update_data["pages"][0]:
-                    update_data["pages"][0]["sections"] = {}
-                
-                # Parse the section path and update
-                if "." in section_path:
-                    section_name, field_name = section_path.split(".", 1)
-                    if section_name not in update_data["pages"][0]["sections"]:
-                        update_data["pages"][0]["sections"][section_name] = {}
-                    update_data["pages"][0]["sections"][section_name][field_name] = new_value
-                    logger.info(f"🔍 DEBUG: Website Builder - Updated pages[0].sections.{section_name}.{field_name} = {new_value}")
-                else:
-                    update_data["pages"][0]["sections"][section_path] = new_value
-                    logger.info(f"🔍 DEBUG: Website Builder - Updated pages[0].sections.{section_path} = {new_value}")
-            elif field_path.startswith("pages[0].sections.faq.items["):
-                # Handle FAQ item updates like "pages[0].sections.faq.items[0].question"
-                import re
-                match = re.match(r'pages\[0\]\.sections\.faq\.items\[(\d+)\]\.(.+)', field_path)
-                if match:
-                    index = int(match.group(1))
-                    field_name = match.group(2)
-
-                    # Get current pages structure
-                    current_pages = website.get("pages", [])
-                    if not current_pages:
-                        current_pages = [{
-                            "page_id": "home",
-                            "page_name": "Home",
-                            "page_slug": "/",
-                            "sections": {}
-                        }]
+                        logger.warning("🔍 DEBUG: Website Builder - No pages found for FAQ deletion")
+                        continue
                     
                     # Deep copy to avoid reference issues
                     import copy
                     updated_pages = copy.deepcopy(current_pages)
                     
-                    # Ensure we have the first page with sections
-                    if len(updated_pages) == 0:
-                        updated_pages.append({
-                            "page_id": "home",
-                            "page_name": "Home",
-                            "page_slug": "/",
-                            "sections": {}
-                        })
+                    # Get existing FAQ data
+                    existing_faq = updated_pages[0].get("sections", {}).get("faq", {})
+                    current_faq_items = existing_faq.get("items", [])
                     
-                    if "sections" not in updated_pages[0]:
-                        updated_pages[0]["sections"] = {}
-                    
-                    # Get existing FAQ data or create new
-                    existing_faq = None
-                    if website.get("pages") and len(website["pages"]) > 0:
-                        existing_faq = website["pages"][0].get("sections", {}).get("faq", {})
-                    
-                    current_faq_items = existing_faq.get("items", []) if existing_faq else []
-                    
-                    # Make a copy of FAQ items
-                    updated_faq_items = copy.deepcopy(current_faq_items)
-                    
-                    # Ensure array is large enough
-                    while len(updated_faq_items) <= index:
-                        updated_faq_items.append({"question": "", "answer": ""})
-                    
-                    # Update the specific field
-                    updated_faq_items[index][field_name] = new_value
-                    
-                    # Set the complete FAQ section (like colors do)
-                    updated_pages[0]["sections"]["faq"] = {
-                        "title": existing_faq.get("title", "Frequently Asked Questions") if existing_faq else "Frequently Asked Questions",
-                        "items": updated_faq_items
-                    }
-                    
-                    # Set the complete pages array directly
-                    update_data["pages"] = updated_pages
-                    logger.info(f"🔍 DEBUG: Website Builder - Updated FAQ item {index}.{field_name} = {new_value}")
-                    logger.info(f"🔍 DEBUG: Website Builder - Complete FAQ items: {updated_faq_items}")
+                    # Remove the item at the specified index
+                    if 0 <= delete_index < len(current_faq_items):
+                        removed_item = current_faq_items.pop(delete_index)
+                        logger.info(f"🔍 DEBUG: Website Builder - Removed FAQ item at index {delete_index}: {removed_item}")
+                        logger.info(f"🔍 DEBUG: Website Builder - Remaining FAQ items: {current_faq_items}")
+                        
+                        # Update the FAQ section
+                        updated_pages[0]["sections"]["faq"]["items"] = current_faq_items
+                        
+                        # Set the complete pages array directly
+                        update_data["pages"] = updated_pages
+                    else:
+                        logger.warning(f"🔍 DEBUG: Website Builder - Invalid delete index {delete_index} for FAQ items")
+                        
+                else:
+                    # Handle regular FAQ item updates like "pages[0].sections.faq.items[0].question"
+                    import re
+                    match = re.match(r'pages\[0\]\.sections\.faq\.items\[(\d+)\]\.(.+)', field_path)
+                    if match:
+                        index = int(match.group(1))
+                        field_name = match.group(2)
+
+                        # Always get fresh pages from database for each FAQ field update to avoid cross-contamination
+                        # This prevents one FAQ item update from affecting another FAQ item
+                        current_pages = website.get("pages", [])
+                        if not current_pages:
+                            current_pages = [{
+                                "page_id": "home",
+                                "page_name": "Home",
+                                "page_slug": "/",
+                                "sections": {}
+                            }]
+                        
+                        # Deep copy to avoid reference issues
+                        import copy
+                        updated_pages = copy.deepcopy(current_pages)
+                        
+                        # Ensure we have the first page with sections
+                        if len(updated_pages) == 0:
+                            updated_pages.append({
+                                "page_id": "home",
+                                "page_name": "Home",
+                                "page_slug": "/",
+                                "sections": {}
+                            })
+                        
+                        if "sections" not in updated_pages[0]:
+                            updated_pages[0]["sections"] = {}
+                        
+                        # Get existing FAQ data or create new (only if not already processed)
+                        existing_faq = None
+                        if website.get("pages") and len(website["pages"]) > 0:
+                            existing_faq = website["pages"][0].get("sections", {}).get("faq", {})
+                        
+                        # Convert flat format to array format if needed
+                        current_faq_items = []
+                        if existing_faq:
+                            if "items" in existing_faq and isinstance(existing_faq["items"], list):
+                                # Already in correct format
+                                current_faq_items = existing_faq["items"]
+                            else:
+                                # Convert from flat format to array format
+                                flat_items = {}
+                                for key, value in existing_faq.items():
+                                    if key.startswith("items[") and "]." in key:
+                                        # Parse items[0].question -> index=0, field=question
+                                        import re
+                                        match = re.match(r'items\[(\d+)\]\.(.+)', key)
+                                        if match:
+                                            idx = int(match.group(1))
+                                            field = match.group(2)
+                                            if idx not in flat_items:
+                                                flat_items[idx] = {}
+                                            flat_items[idx][field] = value
+                                
+                                # Convert to array
+                                for i in sorted(flat_items.keys()):
+                                    current_faq_items.append(flat_items[i])
+                                
+                                logger.info(f"🔍 DEBUG: Website Builder - Converted flat FAQ format to array: {current_faq_items}")
+                        
+                        # Initialize FAQ section if it doesn't exist
+                        if "faq" not in updated_pages[0]["sections"]:
+                            updated_pages[0]["sections"]["faq"] = {
+                                "title": existing_faq.get("title", "Frequently Asked Questions") if existing_faq else "Frequently Asked Questions",
+                                "items": current_faq_items
+                            }
+                        
+                        # Get current FAQ items (either from database conversion or from previous updates in this request)
+                        current_faq_items = updated_pages[0]["sections"]["faq"]["items"]
+                        
+                        # Ensure array is large enough
+                        while len(current_faq_items) <= index:
+                            current_faq_items.append({"question": "", "answer": ""})
+                        
+                        # Update the specific field in the existing array
+                        current_faq_items[index][field_name] = new_value
+                        
+                        # Set the complete pages array directly
+                        update_data["pages"] = updated_pages
+                        logger.info(f"🔍 DEBUG: Website Builder - Updated FAQ item {index}.{field_name} = {new_value}")
+                        logger.info(f"🔍 DEBUG: Website Builder - Complete FAQ items: {current_faq_items}")
             elif field_path.startswith("pages[0].sections.gallery.images["):
                 # Handle Gallery image updates like "pages[0].sections.gallery.images[0].caption"
                 import re
@@ -575,7 +597,32 @@ async def update_website_content(
                     if website.get("pages") and len(website["pages"]) > 0:
                         existing_gallery = website["pages"][0].get("sections", {}).get("gallery", {})
                     
-                    current_gallery_images = existing_gallery.get("images", []) if existing_gallery else []
+                    # Convert flat format to array format if needed
+                    current_gallery_images = []
+                    if existing_gallery:
+                        if "images" in existing_gallery and isinstance(existing_gallery["images"], list):
+                            # Already in correct format
+                            current_gallery_images = existing_gallery["images"]
+                        else:
+                            # Convert from flat format to array format
+                            flat_images = {}
+                            for key, value in existing_gallery.items():
+                                if key.startswith("images[") and "]." in key:
+                                    # Parse images[0].url -> index=0, field=url
+                                    import re
+                                    match = re.match(r'images\[(\d+)\]\.(.+)', key)
+                                    if match:
+                                        idx = int(match.group(1))
+                                        field = match.group(2)
+                                        if idx not in flat_images:
+                                            flat_images[idx] = {}
+                                        flat_images[idx][field] = value
+                            
+                            # Convert to array
+                            for i in sorted(flat_images.keys()):
+                                current_gallery_images.append(flat_images[i])
+                            
+                            logger.info(f"🔍 DEBUG: Website Builder - Converted flat Gallery format to array: {current_gallery_images}")
                     
                     # Make a copy of gallery images
                     updated_gallery_images = copy.deepcopy(current_gallery_images)
@@ -637,7 +684,32 @@ async def update_website_content(
                     if website.get("pages") and len(website["pages"]) > 0:
                         existing_reviews = website["pages"][0].get("sections", {}).get("reviews", {})
                     
-                    current_review_items = existing_reviews.get("items", []) if existing_reviews else []
+                    # Convert flat format to array format if needed
+                    current_review_items = []
+                    if existing_reviews:
+                        if "items" in existing_reviews and isinstance(existing_reviews["items"], list):
+                            # Already in correct format
+                            current_review_items = existing_reviews["items"]
+                        else:
+                            # Convert from flat format to array format
+                            flat_items = {}
+                            for key, value in existing_reviews.items():
+                                if key.startswith("items[") and "]." in key:
+                                    # Parse items[0].name -> index=0, field=name
+                                    import re
+                                    match = re.match(r'items\[(\d+)\]\.(.+)', key)
+                                    if match:
+                                        idx = int(match.group(1))
+                                        field = match.group(2)
+                                        if idx not in flat_items:
+                                            flat_items[idx] = {}
+                                        flat_items[idx][field] = value
+                            
+                            # Convert to array
+                            for i in sorted(flat_items.keys()):
+                                current_review_items.append(flat_items[i])
+                            
+                            logger.info(f"🔍 DEBUG: Website Builder - Converted flat Reviews format to array: {current_review_items}")
                     
                     # Make a copy of review items
                     updated_review_items = copy.deepcopy(current_review_items)
@@ -660,6 +732,54 @@ async def update_website_content(
                     update_data["pages"] = updated_pages
                     logger.info(f"🔍 DEBUG: Website Builder - Updated review item {index}.{field_name} = {new_value}")
                     logger.info(f"🔍 DEBUG: Website Builder - Complete review items: {updated_review_items}")
+            elif field_path.startswith("pages[0].sections."):
+                # Handle nested page section updates - GENERAL HANDLER (must come AFTER specific array handlers)
+                section_path = field_path.replace("pages[0].sections.", "")
+                
+                # Initialize pages array if it doesn't exist
+                if "pages" not in update_data:
+                    current_pages = website.get("pages", [])
+                    if not current_pages:
+                        # Create default page structure
+                        current_pages = [{
+                            "page_id": "home",
+                            "page_name": "Home",
+                            "page_slug": "/",
+                            "sections": {
+                                "hero": {},
+                                "about": {},
+                                "contact": {}
+                            }
+                        }]
+                    update_data["pages"] = current_pages.copy()
+                
+                # Ensure we have at least one page
+                if len(update_data["pages"]) == 0:
+                    update_data["pages"].append({
+                        "page_id": "home",
+                        "page_name": "Home",
+                        "page_slug": "/",
+                        "sections": {
+                            "hero": {},
+                            "about": {},
+                            "contact": {}
+                        }
+                    })
+                
+                # Ensure sections exist
+                if "sections" not in update_data["pages"][0]:
+                    update_data["pages"][0]["sections"] = {}
+                
+                # Parse the section path and update
+                if "." in section_path:
+                    section_name, field_name = section_path.split(".", 1)
+                    if section_name not in update_data["pages"][0]["sections"]:
+                        update_data["pages"][0]["sections"][section_name] = {}
+                    update_data["pages"][0]["sections"][section_name][field_name] = new_value
+                    logger.info(f"🔍 DEBUG: Website Builder - Updated pages[0].sections.{section_name}.{field_name} = {new_value}")
+                else:
+                    update_data["pages"][0]["sections"][section_path] = new_value
+                    logger.info(f"🔍 DEBUG: Website Builder - Updated pages[0].sections.{section_path} = {new_value}")
             else:
                 # Direct field update
                 update_data[field_path] = new_value
