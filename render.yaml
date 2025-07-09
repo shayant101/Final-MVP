@@ -5,8 +5,9 @@ services:
     env: python
     plan: starter  # $7/month - upgrade to standard ($25) for production
     region: oregon  # Choose closest to your users
-    buildCommand: pip install -r backendv2/requirements.txt
-    startCommand: cd backendv2 && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    rootDirectory: backendv2
     healthCheckPath: /api/health
     
     # Environment variables (set these in Render dashboard)
@@ -53,8 +54,9 @@ services:
     name: final-mvp-worker
     env: python
     plan: starter
-    buildCommand: pip install -r backendv2/requirements.txt
-    startCommand: cd backendv2 && python -m app.worker
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m app.worker
+    rootDirectory: backendv2
     envVars:
       - fromService:
           type: web
