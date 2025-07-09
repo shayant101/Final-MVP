@@ -8,6 +8,7 @@ const WebsiteBuilder = () => {
   const [loading, setLoading] = useState(true);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(null);
+  const [currentWebsiteIndex, setCurrentWebsiteIndex] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,7 +21,27 @@ const WebsiteBuilder = () => {
       
       // Use the centralized API service
       const data = await websiteBuilderAPI.getWebsites();
-      console.log('🔍 DEBUG: Website Builder - Response data:', data);
+      console.log('🔍 DEBUG: Website Builder - Response data:', JSON.stringify(data, null, 2));
+      console.log('🔍 DEBUG: Website Builder - Websites array:', JSON.stringify(data.websites, null, 2));
+      console.log('🔍 DEBUG: Website Builder - Websites count:', data.websites ? data.websites.length : 0);
+      
+      // Log each website's structure for debugging
+      if (data.websites && data.websites.length > 0) {
+        data.websites.forEach((website, index) => {
+          console.log(`🔍 DEBUG: Website ${index + 1}:`, JSON.stringify({
+            id: website.website_id,
+            name: website.website_name,
+            status: website.status,
+            category: website.design_category,
+            created: website.created_at,
+            hero_image: website.hero_image,
+            restaurant_id: website.restaurant_id
+          }, null, 2));
+        });
+      } else {
+        console.log('🔍 DEBUG: Website Builder - No websites found, showing empty state');
+      }
+      
       setWebsites(data.websites || []);
     } catch (error) {
       console.error('🔍 DEBUG: Website Builder - Fetch error:', error);
@@ -39,6 +60,18 @@ const WebsiteBuilder = () => {
 
   const handlePreviewWebsite = (websiteId) => {
     navigate(`/website-builder/preview/${websiteId}`);
+  };
+
+  const handlePreviousWebsite = () => {
+    setCurrentWebsiteIndex((prev) =>
+      prev === 0 ? websites.length - 1 : prev - 1
+    );
+  };
+
+  const handleNextWebsite = () => {
+    setCurrentWebsiteIndex((prev) =>
+      prev === websites.length - 1 ? 0 : prev + 1
+    );
   };
 
   if (loading) {
@@ -84,13 +117,14 @@ const WebsiteBuilder = () => {
         </div>
       </div>
 
-      <div className="websites-grid">
+      {/* Website Carousel */}
+      <div className="websites-carousel">
         {websites.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">🌐</div>
             <h3>No websites yet</h3>
             <p>Create your first AI-powered restaurant website</p>
-            <button 
+            <button
               className="btn-primary"
               onClick={handleGenerateWebsite}
             >
@@ -98,45 +132,176 @@ const WebsiteBuilder = () => {
             </button>
           </div>
         ) : (
-          websites.map(website => (
-            <div key={website.website_id} className="website-card">
-              <div className="website-preview">
-                <div className="preview-placeholder">
-                  <span>🍽️</span>
-                </div>
-              </div>
-              
-              <div className="website-info">
-                <h3>{website.website_name}</h3>
-                <p className="website-status">
-                  <span className={`status-badge ${website.status}`}>
-                    {website.status}
-                  </span>
-                </p>
-                <p className="website-category">
-                  {website.design_category?.replace('_', ' ')}
-                </p>
-                <p className="website-date">
-                  Created {new Date(website.created_at).toLocaleDateString()}
-                </p>
-              </div>
+          <div className="carousel-container">
+            {/* Navigation Arrows */}
+            {websites.length > 1 && (
+              <>
+                <button
+                  className="carousel-arrow carousel-arrow-left"
+                  onClick={handlePreviousWebsite}
+                  title="Previous website"
+                >
+                  <span>‹</span>
+                </button>
+                <button
+                  className="carousel-arrow carousel-arrow-right"
+                  onClick={handleNextWebsite}
+                  title="Next website"
+                >
+                  <span>›</span>
+                </button>
+              </>
+            )}
 
-              <div className="website-actions">
-                <button 
-                  className="btn-secondary"
-                  onClick={() => handlePreviewWebsite(website.website_id)}
-                >
-                  👁️ Preview
-                </button>
-                <button 
-                  className="btn-primary"
-                  onClick={() => handleEditWebsite(website.website_id)}
-                >
-                  ✏️ Edit
-                </button>
-              </div>
+            {/* Current Website Display */}
+            <div className="carousel-website">
+              {(() => {
+                const website = websites[currentWebsiteIndex];
+                if (!website) return null;
+                
+                return (
+                  <div className="website-card-fullscreen">
+                    <div className="website-preview-fullscreen">
+                      {website.hero_image ? (
+                        <img
+                          src={website.hero_image.startsWith('http') ? website.hero_image : `http://localhost:8000${website.hero_image}`}
+                          alt={`${website.website_name} preview`}
+                          className="website-preview-image-fullscreen"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      <div className="preview-placeholder-fullscreen" style={{ display: website.hero_image ? 'none' : 'flex' }}>
+                        <div className="website-mockup-fullscreen">
+                          <div className="mockup-header-fullscreen">
+                            <div className="mockup-dots">
+                              <span></span>
+                              <span></span>
+                              <span></span>
+                            </div>
+                            <div className="mockup-url-fullscreen">🌐 {website.website_name?.toLowerCase().replace(/\s+/g, '') || 'website'}.com</div>
+                          </div>
+                          <div className="mockup-content-fullscreen">
+                            <div className="mockup-hero-fullscreen">
+                              <div className="mockup-hero-background">
+                                <div className="mockup-hero-overlay"></div>
+                                <div className="mockup-hero-content">
+                                  <div className="mockup-logo-fullscreen">🍽️</div>
+                                  <div className="mockup-title-fullscreen">{website.website_name || 'Restaurant'}</div>
+                                  <div className="mockup-subtitle-fullscreen">{website.design_category?.replace('_', ' ') || 'Fine Dining'}</div>
+                                  <div className="mockup-hero-buttons">
+                                    <div className="mockup-btn-primary">View Menu</div>
+                                    <div className="mockup-btn-secondary">Book Table</div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="mockup-navigation">
+                              <div className="mockup-nav-item">Home</div>
+                              <div className="mockup-nav-item">Menu</div>
+                              <div className="mockup-nav-item">About</div>
+                              <div className="mockup-nav-item">Contact</div>
+                            </div>
+                            <div className="mockup-sections-fullscreen">
+                              <div className="mockup-section-fullscreen mockup-section-menu">
+                                <div className="mockup-section-title">Our Menu</div>
+                                <div className="mockup-menu-items">
+                                  <div className="mockup-menu-item"></div>
+                                  <div className="mockup-menu-item"></div>
+                                  <div className="mockup-menu-item"></div>
+                                </div>
+                              </div>
+                              <div className="mockup-section-fullscreen mockup-section-about">
+                                <div className="mockup-section-title">About Us</div>
+                                <div className="mockup-about-content"></div>
+                              </div>
+                              <div className="mockup-section-fullscreen mockup-section-contact">
+                                <div className="mockup-section-title">Contact</div>
+                                <div className="mockup-contact-info"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="website-overlay-fullscreen">
+                        <div className="status-indicator">
+                          <span className={`status-dot ${website.status || 'draft'}`}></span>
+                          <span className="status-text">{(website.status || 'draft').toUpperCase()}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="website-info-fullscreen">
+                      <div className="website-header-fullscreen">
+                        <h3>{website.website_name || 'Untitled Website'}</h3>
+                        <span className={`status-badge ${website.status || 'draft'}`}>
+                          {(website.status || 'draft').toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="website-details-fullscreen">
+                        <p className="website-category">
+                          <span className="category-icon">🏷️</span>
+                          {website.design_category?.replace('_', ' ') || 'Restaurant Website'}
+                        </p>
+                        <p className="website-date">
+                          <span className="date-icon">📅</span>
+                          Created {website.created_at ? new Date(website.created_at).toLocaleDateString() : 'Recently'}
+                        </p>
+                        {website.restaurant_name && (
+                          <p className="website-restaurant">
+                            <span className="restaurant-icon">🏪</span>
+                            {website.restaurant_name}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="website-actions-fullscreen">
+                        <button
+                          className="btn-secondary"
+                          onClick={() => handlePreviewWebsite(website.website_id)}
+                          title="Preview website"
+                        >
+                          <span className="btn-icon">👁️</span>
+                          Preview
+                        </button>
+                        <button
+                          className="btn-primary"
+                          onClick={() => handleEditWebsite(website.website_id)}
+                          title="Edit website"
+                        >
+                          <span className="btn-icon">✏️</span>
+                          Edit
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
-          ))
+
+            {/* Carousel Indicators */}
+            {websites.length > 1 && (
+              <div className="carousel-indicators">
+                {websites.map((_, index) => (
+                  <button
+                    key={index}
+                    className={`carousel-indicator ${index === currentWebsiteIndex ? 'active' : ''}`}
+                    onClick={() => setCurrentWebsiteIndex(index)}
+                    title={`Go to website ${index + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Website Counter */}
+            {websites.length > 1 && (
+              <div className="carousel-counter">
+                <span>{currentWebsiteIndex + 1} of {websites.length}</span>
+              </div>
+            )}
+          </div>
         )}
       </div>
 

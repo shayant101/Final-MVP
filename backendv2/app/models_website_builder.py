@@ -31,6 +31,9 @@ class ComponentType(str, Enum):
     gallery = "gallery"
     testimonials = "testimonials"
     footer = "footer"
+    faq_section = "faq_section"        # NEW
+    gallery_section = "gallery_section" # NEW
+    reviews_section = "reviews_section" # NEW
 
 class PublishingPlatform(str, Enum):
     momentum_hosting = "momentum_hosting"

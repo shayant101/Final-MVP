@@ -393,39 +393,273 @@ async def update_website_content(
             
             if field_path == "website_name":
                 update_data["website_name"] = new_value
+            elif field_path == "hero_image":
+                # Handle hero image updates directly
+                update_data["hero_image"] = new_value
+                logger.info(f"🔍 DEBUG: Website Builder - Updated hero_image = {new_value}")
             elif field_path.startswith("menu_items["):
-                # Handle menu item updates like "menu_items[0].name"
+                # Handle menu item updates like "menu_items[0].name" or "menu_items[0].image"
                 import re
                 match = re.match(r'menu_items\[(\d+)\]\.(.+)', field_path)
                 if match:
                     index = int(match.group(1))
                     field_name = match.group(2)
+
+                    # Get current menu items or create default ones
+                    current_menu_items = website.get("menu_items", [
+                        {"name": "Signature Pasta", "description": "Fresh handmade pasta with our chef's special sauce", "price": "$18.99", "image": ""},
+                        {"name": "Grilled Salmon", "description": "Atlantic salmon with seasonal vegetables and lemon butter", "price": "$24.99", "image": ""},
+                        {"name": "Classic Margherita", "description": "Wood-fired pizza with fresh mozzarella and basil", "price": "$16.99", "image": ""}
+                    ])
                     
-                    # Initialize menu_items array if it doesn't exist
-                    if "menu_items" not in update_data:
-                        # Get current menu items or create default ones
-                        current_menu_items = website.get("menu_items", [
-                            {"name": "Signature Pasta", "description": "Fresh handmade pasta with our chef's special sauce", "price": "$18.99"},
-                            {"name": "Grilled Salmon", "description": "Atlantic salmon with seasonal vegetables and lemon butter", "price": "$24.99"},
-                            {"name": "Classic Margherita", "description": "Wood-fired pizza with fresh mozzarella and basil", "price": "$16.99"}
-                        ])
-                        update_data["menu_items"] = current_menu_items.copy()
-                    
+                    # Make a deep copy to avoid reference issues
+                    import copy
+                    updated_menu_items = copy.deepcopy(current_menu_items)
+
                     # Ensure the array is large enough
-                    while len(update_data["menu_items"]) <= index:
-                        update_data["menu_items"].append({"name": "", "description": "", "price": "$0.00"})
-                    
+                    while len(updated_menu_items) <= index:
+                        updated_menu_items.append({"name": "", "description": "", "price": "$0.00", "image": ""})
+
                     # Update the specific field
-                    update_data["menu_items"][index][field_name] = new_value
+                    updated_menu_items[index][field_name] = new_value
+                    
+                    # Set the complete array directly (like colors do)
+                    update_data["menu_items"] = updated_menu_items
                     logger.info(f"🔍 DEBUG: Website Builder - Updated menu item {index}.{field_name} = {new_value}")
+                    logger.info(f"🔍 DEBUG: Website Builder - Complete menu_items array: {updated_menu_items}")
             elif field_path.startswith("pages[0].sections."):
-                # Handle nested page section updates
+                # Handle nested page section updates - FIXED for proper MongoDB array updates
                 section_path = field_path.replace("pages[0].sections.", "")
+                
+                # Initialize pages array if it doesn't exist
+                if "pages" not in update_data:
+                    current_pages = website.get("pages", [])
+                    if not current_pages:
+                        # Create default page structure
+                        current_pages = [{
+                            "page_id": "home",
+                            "page_name": "Home",
+                            "page_slug": "/",
+                            "sections": {
+                                "hero": {},
+                                "about": {},
+                                "contact": {}
+                            }
+                        }]
+                    update_data["pages"] = current_pages.copy()
+                
+                # Ensure we have at least one page
+                if len(update_data["pages"]) == 0:
+                    update_data["pages"].append({
+                        "page_id": "home",
+                        "page_name": "Home",
+                        "page_slug": "/",
+                        "sections": {
+                            "hero": {},
+                            "about": {},
+                            "contact": {}
+                        }
+                    })
+                
+                # Ensure sections exist
+                if "sections" not in update_data["pages"][0]:
+                    update_data["pages"][0]["sections"] = {}
+                
+                # Parse the section path and update
                 if "." in section_path:
                     section_name, field_name = section_path.split(".", 1)
-                    update_data[f"pages.0.sections.{section_name}.{field_name}"] = new_value
+                    if section_name not in update_data["pages"][0]["sections"]:
+                        update_data["pages"][0]["sections"][section_name] = {}
+                    update_data["pages"][0]["sections"][section_name][field_name] = new_value
+                    logger.info(f"🔍 DEBUG: Website Builder - Updated pages[0].sections.{section_name}.{field_name} = {new_value}")
                 else:
-                    update_data[f"pages.0.sections.{section_path}"] = new_value
+                    update_data["pages"][0]["sections"][section_path] = new_value
+                    logger.info(f"🔍 DEBUG: Website Builder - Updated pages[0].sections.{section_path} = {new_value}")
+            elif field_path.startswith("pages[0].sections.faq.items["):
+                # Handle FAQ item updates like "pages[0].sections.faq.items[0].question"
+                import re
+                match = re.match(r'pages\[0\]\.sections\.faq\.items\[(\d+)\]\.(.+)', field_path)
+                if match:
+                    index = int(match.group(1))
+                    field_name = match.group(2)
+
+                    # Get current pages structure
+                    current_pages = website.get("pages", [])
+                    if not current_pages:
+                        current_pages = [{
+                            "page_id": "home",
+                            "page_name": "Home",
+                            "page_slug": "/",
+                            "sections": {}
+                        }]
+                    
+                    # Deep copy to avoid reference issues
+                    import copy
+                    updated_pages = copy.deepcopy(current_pages)
+                    
+                    # Ensure we have the first page with sections
+                    if len(updated_pages) == 0:
+                        updated_pages.append({
+                            "page_id": "home",
+                            "page_name": "Home",
+                            "page_slug": "/",
+                            "sections": {}
+                        })
+                    
+                    if "sections" not in updated_pages[0]:
+                        updated_pages[0]["sections"] = {}
+                    
+                    # Get existing FAQ data or create new
+                    existing_faq = None
+                    if website.get("pages") and len(website["pages"]) > 0:
+                        existing_faq = website["pages"][0].get("sections", {}).get("faq", {})
+                    
+                    current_faq_items = existing_faq.get("items", []) if existing_faq else []
+                    
+                    # Make a copy of FAQ items
+                    updated_faq_items = copy.deepcopy(current_faq_items)
+                    
+                    # Ensure array is large enough
+                    while len(updated_faq_items) <= index:
+                        updated_faq_items.append({"question": "", "answer": ""})
+                    
+                    # Update the specific field
+                    updated_faq_items[index][field_name] = new_value
+                    
+                    # Set the complete FAQ section (like colors do)
+                    updated_pages[0]["sections"]["faq"] = {
+                        "title": existing_faq.get("title", "Frequently Asked Questions") if existing_faq else "Frequently Asked Questions",
+                        "items": updated_faq_items
+                    }
+                    
+                    # Set the complete pages array directly
+                    update_data["pages"] = updated_pages
+                    logger.info(f"🔍 DEBUG: Website Builder - Updated FAQ item {index}.{field_name} = {new_value}")
+                    logger.info(f"🔍 DEBUG: Website Builder - Complete FAQ items: {updated_faq_items}")
+            elif field_path.startswith("pages[0].sections.gallery.images["):
+                # Handle Gallery image updates like "pages[0].sections.gallery.images[0].caption"
+                import re
+                match = re.match(r'pages\[0\]\.sections\.gallery\.images\[(\d+)\]\.(.+)', field_path)
+                if match:
+                    index = int(match.group(1))
+                    field_name = match.group(2)
+
+                    # Get current pages structure
+                    current_pages = website.get("pages", [])
+                    if not current_pages:
+                        current_pages = [{
+                            "page_id": "home",
+                            "page_name": "Home",
+                            "page_slug": "/",
+                            "sections": {}
+                        }]
+                    
+                    # Deep copy to avoid reference issues
+                    import copy
+                    updated_pages = copy.deepcopy(current_pages)
+                    
+                    # Ensure we have the first page with sections
+                    if len(updated_pages) == 0:
+                        updated_pages.append({
+                            "page_id": "home",
+                            "page_name": "Home",
+                            "page_slug": "/",
+                            "sections": {}
+                        })
+                    
+                    if "sections" not in updated_pages[0]:
+                        updated_pages[0]["sections"] = {}
+                    
+                    # Get existing gallery data or create new
+                    existing_gallery = None
+                    if website.get("pages") and len(website["pages"]) > 0:
+                        existing_gallery = website["pages"][0].get("sections", {}).get("gallery", {})
+                    
+                    current_gallery_images = existing_gallery.get("images", []) if existing_gallery else []
+                    
+                    # Make a copy of gallery images
+                    updated_gallery_images = copy.deepcopy(current_gallery_images)
+                    
+                    # Ensure array is large enough
+                    while len(updated_gallery_images) <= index:
+                        updated_gallery_images.append({"url": "", "caption": "", "alt": ""})
+                    
+                    # Update the specific field
+                    updated_gallery_images[index][field_name] = new_value
+                    
+                    # Set the complete gallery section (like colors do)
+                    updated_pages[0]["sections"]["gallery"] = {
+                        "title": existing_gallery.get("title", "Gallery") if existing_gallery else "Gallery",
+                        "description": existing_gallery.get("description", "Take a look at our restaurant and dishes") if existing_gallery else "Take a look at our restaurant and dishes",
+                        "images": updated_gallery_images
+                    }
+                    
+                    # Set the complete pages array directly
+                    update_data["pages"] = updated_pages
+                    logger.info(f"🔍 DEBUG: Website Builder - Updated gallery image {index}.{field_name} = {new_value}")
+                    logger.info(f"🔍 DEBUG: Website Builder - Complete gallery images: {updated_gallery_images}")
+            elif field_path.startswith("pages[0].sections.reviews.items["):
+                # Handle Reviews updates like "pages[0].sections.reviews.items[0].name"
+                import re
+                match = re.match(r'pages\[0\]\.sections\.reviews\.items\[(\d+)\]\.(.+)', field_path)
+                if match:
+                    index = int(match.group(1))
+                    field_name = match.group(2)
+
+                    # Get current pages structure
+                    current_pages = website.get("pages", [])
+                    if not current_pages:
+                        current_pages = [{
+                            "page_id": "home",
+                            "page_name": "Home",
+                            "page_slug": "/",
+                            "sections": {}
+                        }]
+                    
+                    # Deep copy to avoid reference issues
+                    import copy
+                    updated_pages = copy.deepcopy(current_pages)
+                    
+                    # Ensure we have the first page with sections
+                    if len(updated_pages) == 0:
+                        updated_pages.append({
+                            "page_id": "home",
+                            "page_name": "Home",
+                            "page_slug": "/",
+                            "sections": {}
+                        })
+                    
+                    if "sections" not in updated_pages[0]:
+                        updated_pages[0]["sections"] = {}
+                    
+                    # Get existing reviews data or create new
+                    existing_reviews = None
+                    if website.get("pages") and len(website["pages"]) > 0:
+                        existing_reviews = website["pages"][0].get("sections", {}).get("reviews", {})
+                    
+                    current_review_items = existing_reviews.get("items", []) if existing_reviews else []
+                    
+                    # Make a copy of review items
+                    updated_review_items = copy.deepcopy(current_review_items)
+                    
+                    # Ensure array is large enough
+                    while len(updated_review_items) <= index:
+                        updated_review_items.append({"name": "", "rating": 5, "text": "", "date": ""})
+                    
+                    # Update the specific field
+                    updated_review_items[index][field_name] = new_value
+                    
+                    # Set the complete reviews section (like colors do)
+                    updated_pages[0]["sections"]["reviews"] = {
+                        "title": existing_reviews.get("title", "What Our Customers Say") if existing_reviews else "What Our Customers Say",
+                        "overall_rating": existing_reviews.get("overall_rating", 4.5) if existing_reviews else 4.5,
+                        "items": updated_review_items
+                    }
+                    
+                    # Set the complete pages array directly
+                    update_data["pages"] = updated_pages
+                    logger.info(f"🔍 DEBUG: Website Builder - Updated review item {index}.{field_name} = {new_value}")
+                    logger.info(f"🔍 DEBUG: Website Builder - Complete review items: {updated_review_items}")
             else:
                 # Direct field update
                 update_data[field_path] = new_value
