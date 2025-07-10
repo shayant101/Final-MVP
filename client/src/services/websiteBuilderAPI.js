@@ -4,7 +4,24 @@
  * Uses the same pattern as working features for consistency
  */
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+// Determine the correct API base URL based on environment
+const getApiBaseUrl = () => {
+  // If explicitly set via environment variable, use it
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  
+  // Production environment detection
+  if (process.env.NODE_ENV === 'production') {
+    // Use the production backend URL
+    return 'https://final-mvp-jc3a.onrender.com/api';
+  }
+  
+  // Development fallback
+  return 'http://localhost:8000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // Helper function to get auth headers
 const getAuthHeaders = () => {
@@ -27,7 +44,7 @@ const handleResponse = async (response) => {
 export const websiteBuilderAPI = {
   // List all websites for the current restaurant
   getWebsites: async (page = 1, perPage = 10, status = null) => {
-    const url = new URL(`${API_BASE_URL}/api/website-builder/websites`);
+    const url = new URL(`${API_BASE_URL}/website-builder/websites`);
     url.searchParams.append('page', page);
     url.searchParams.append('per_page', perPage);
     if (status) url.searchParams.append('status', status);
@@ -41,7 +58,7 @@ export const websiteBuilderAPI = {
 
   // Get details for a specific website
   getWebsiteDetails: async (websiteId) => {
-    const response = await fetch(`${API_BASE_URL}/api/website-builder/websites/${websiteId}`, {
+    const response = await fetch(`${API_BASE_URL}/website-builder/websites/${websiteId}`, {
       headers: getAuthHeaders()
     });
     
@@ -50,7 +67,7 @@ export const websiteBuilderAPI = {
 
   // Generate a new website using AI
   generateWebsite: async (requestData) => {
-    const response = await fetch(`${API_BASE_URL}/api/website-builder/generate`, {
+    const response = await fetch(`${API_BASE_URL}/website-builder/generate`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(requestData)
@@ -61,7 +78,7 @@ export const websiteBuilderAPI = {
 
   // Get generation progress for an ongoing website generation
   getGenerationProgress: async (generationId) => {
-    const response = await fetch(`${API_BASE_URL}/api/website-builder/generation/${generationId}/progress`, {
+    const response = await fetch(`${API_BASE_URL}/website-builder/generation/${generationId}/progress`, {
       headers: getAuthHeaders()
     });
     
@@ -70,7 +87,7 @@ export const websiteBuilderAPI = {
 
   // Update website settings and content
   updateWebsite: async (websiteId, updateData) => {
-    const response = await fetch(`${API_BASE_URL}/api/website-builder/websites/${websiteId}`, {
+    const response = await fetch(`${API_BASE_URL}/website-builder/websites/${websiteId}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(updateData)
@@ -81,7 +98,7 @@ export const websiteBuilderAPI = {
 
   // Regenerate website with new requirements
   regenerateWebsite: async (websiteId, regenerateData) => {
-    const response = await fetch(`${API_BASE_URL}/api/website-builder/websites/${websiteId}/regenerate`, {
+    const response = await fetch(`${API_BASE_URL}/website-builder/websites/${websiteId}/regenerate`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(regenerateData)
@@ -92,7 +109,7 @@ export const websiteBuilderAPI = {
 
   // Generate website preview
   generatePreview: async (websiteId, previewRequest) => {
-    const response = await fetch(`${API_BASE_URL}/api/website-builder/websites/${websiteId}/preview`, {
+    const response = await fetch(`${API_BASE_URL}/website-builder/websites/${websiteId}/preview`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(previewRequest)
@@ -103,7 +120,7 @@ export const websiteBuilderAPI = {
 
   // Publish website
   publishWebsite: async (websiteId) => {
-    const response = await fetch(`${API_BASE_URL}/api/website-builder/websites/${websiteId}/publish`, {
+    const response = await fetch(`${API_BASE_URL}/website-builder/websites/${websiteId}/publish`, {
       method: 'POST',
       headers: getAuthHeaders()
     });
@@ -113,7 +130,7 @@ export const websiteBuilderAPI = {
 
   // Get website templates
   getTemplates: async (category = null) => {
-    const url = new URL(`${API_BASE_URL}/api/website-builder/templates`);
+    const url = new URL(`${API_BASE_URL}/website-builder/templates`);
     if (category) url.searchParams.append('category', category);
 
     const response = await fetch(url, {
@@ -125,7 +142,7 @@ export const websiteBuilderAPI = {
 
   // Create website from template
   createFromTemplate: async (templateData) => {
-    const response = await fetch(`${API_BASE_URL}/api/website-builder/templates/create`, {
+    const response = await fetch(`${API_BASE_URL}/website-builder/templates/create`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(templateData)
@@ -136,7 +153,7 @@ export const websiteBuilderAPI = {
 
   // Get website builder dashboard data
   getDashboard: async () => {
-    const response = await fetch(`${API_BASE_URL}/api/website-builder/dashboard`, {
+    const response = await fetch(`${API_BASE_URL}/website-builder/dashboard`, {
       headers: getAuthHeaders()
     });
     
@@ -145,7 +162,7 @@ export const websiteBuilderAPI = {
 
   // Delete website (if implemented in backend)
   deleteWebsite: async (websiteId) => {
-    const response = await fetch(`${API_BASE_URL}/api/website-builder/websites/${websiteId}`, {
+    const response = await fetch(`${API_BASE_URL}/website-builder/websites/${websiteId}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
@@ -155,7 +172,7 @@ export const websiteBuilderAPI = {
 
   // Update website content (for inline editing)
   updateContent: async (websiteId, contentUpdates) => {
-    const response = await fetch(`${API_BASE_URL}/api/website-builder/websites/${websiteId}/content`, {
+    const response = await fetch(`${API_BASE_URL}/website-builder/websites/${websiteId}/content`, {
       method: 'PATCH',
       headers: getAuthHeaders(),
       body: JSON.stringify(contentUpdates)
@@ -218,7 +235,7 @@ export const websiteBuilderAPI = {
 
       xhr.timeout = 30000; // 30 seconds
 
-      xhr.open('POST', `${API_BASE_URL}/api/website-builder/upload-image`);
+      xhr.open('POST', `${API_BASE_URL}/website-builder/upload-image`);
       
       // Set headers
       Object.keys(headers).forEach(key => {
@@ -231,17 +248,17 @@ export const websiteBuilderAPI = {
 
   // Get image
   getImage: (filename) => {
-    return `${API_BASE_URL}/api/website-builder/images/${filename}`;
+    return `${API_BASE_URL}/website-builder/images/${filename}`;
   },
 
   // Get thumbnail
   getThumbnail: (filename, size = 'medium', format = 'jpeg') => {
-    return `${API_BASE_URL}/api/website-builder/images/thumbnail/${filename}?size=${size}&format=${format}`;
+    return `${API_BASE_URL}/website-builder/images/thumbnail/${filename}?size=${size}&format=${format}`;
   },
 
   // List images
   listImages: async (imageType = null, websiteId = null) => {
-    const url = new URL(`${API_BASE_URL}/api/website-builder/images`);
+    const url = new URL(`${API_BASE_URL}/website-builder/images`);
     if (imageType) url.searchParams.append('image_type', imageType);
     if (websiteId) url.searchParams.append('website_id', websiteId);
 
@@ -254,7 +271,7 @@ export const websiteBuilderAPI = {
 
   // Delete image
   deleteImage: async (imageId) => {
-    const response = await fetch(`${API_BASE_URL}/api/website-builder/images/${imageId}`, {
+    const response = await fetch(`${API_BASE_URL}/website-builder/images/${imageId}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
@@ -266,7 +283,7 @@ export const websiteBuilderAPI = {
   
   // Update color theme
   updateColorTheme: async (websiteId, colorUpdates) => {
-    const response = await fetch(`${API_BASE_URL}/api/website-builder/websites/${websiteId}/colors`, {
+    const response = await fetch(`${API_BASE_URL}/website-builder/websites/${websiteId}/colors`, {
       method: 'PATCH',
       headers: getAuthHeaders(),
       body: JSON.stringify(colorUpdates)
@@ -277,7 +294,7 @@ export const websiteBuilderAPI = {
 
   // Get color theme
   getColorTheme: async (websiteId) => {
-    const response = await fetch(`${API_BASE_URL}/api/website-builder/websites/${websiteId}/colors`, {
+    const response = await fetch(`${API_BASE_URL}/website-builder/websites/${websiteId}/colors`, {
       headers: getAuthHeaders()
     });
     
@@ -286,7 +303,7 @@ export const websiteBuilderAPI = {
 
   // Apply color preset
   applyColorPreset: async (websiteId, presetName) => {
-    const response = await fetch(`${API_BASE_URL}/api/website-builder/websites/${websiteId}/colors/preset`, {
+    const response = await fetch(`${API_BASE_URL}/website-builder/websites/${websiteId}/colors/preset`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ preset_name: presetName })
