@@ -1568,6 +1568,7 @@
 
 .dark-mode .quick-link-button.website-builder:hover {
   background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  transform: translateY(-2px);
 }
 
 .dark-mode .quick-link-button.tertiary {
