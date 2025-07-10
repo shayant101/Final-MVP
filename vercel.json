@@ -31,11 +31,6 @@
       "GENERATE_SOURCEMAP": "false"
     }
   },
-  "functions": {
-    "client/src/**": {
-      "includeFiles": "client/public/**"
-    }
-  },
   "headers": [
     {
       "source": "/(.*)",
