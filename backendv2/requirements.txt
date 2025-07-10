@@ -11,7 +11,7 @@ twilio==9.6.3
 openai>=1.0.0
 beautifulsoup4==4.12.2
 requests==2.31.0
-selenium==4.11.2
-lxml==4.9.3
+selenium>=4.15.0
+lxml>=4.9.3
 webdriver-manager==4.0.1
-Pillow==9.5.0
+Pillow>=10.0.0
