@@ -1524,6 +1524,11 @@
 .quick-link-button.website-builder {
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
+  padding: 16px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  width: 100%;
+  min-height: 56px;
 }
 
 .quick-link-button.website-builder:hover {
