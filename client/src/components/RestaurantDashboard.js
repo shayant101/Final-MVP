@@ -529,7 +529,7 @@ const RestaurantDashboard = ({ setActiveTab }) => {
           {/* Website Builder Tab */}
           {activeView === 'website-builder' && (
             <div className="website-builder-content">
-              <WebsiteBuilder />
+              <WebsiteBuilder onBackToDashboard={() => setActiveView('overview')} />
             </div>
           )}
 

@@ -100,7 +100,7 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
-/* Enhanced bright pulse animation to draw attention - ALWAYS ACTIVE */
+/* Enhanced bright pulse animation to draw attention - DISABLED FOR CLICK ISSUES */
 .breakdown-button::before {
   content: '';
   position: absolute;
@@ -116,9 +116,10 @@
     rgba(102, 126, 234, 0.6) 100%);
   border-radius: 15px;
   z-index: -1;
-  opacity: 1;
+  opacity: 0;
   filter: blur(1px);
-  animation: bright-pulse-glow 2s infinite;
+  pointer-events: none;
+  animation: none;
 }
 
 .breakdown-button:hover::before {
@@ -138,7 +139,7 @@
   }
 }
 
-/* Add a secondary glow effect for extra shine - ALWAYS ACTIVE */
+/* Add a secondary glow effect for extra shine - DISABLED FOR CLICK ISSUES */
 .breakdown-button::after {
   content: '';
   position: absolute;
@@ -152,9 +153,9 @@
     transparent 70%);
   border-radius: 12px;
   transform: translate(-50%, -50%);
-  opacity: 1;
+  opacity: 0;
   pointer-events: none;
-  animation: shine-effect 3s infinite;
+  animation: none;
 }
 
 .breakdown-button:hover::after {
@@ -211,6 +212,9 @@
   align-items: center;
   gap: 0.5rem;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
 }
 
 .back-button:hover {

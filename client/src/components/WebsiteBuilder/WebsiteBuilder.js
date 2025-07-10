@@ -3,13 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import './WebsiteBuilder.css';
 import { websiteBuilderAPI } from '../../services/websiteBuilderAPI';
 
-const WebsiteBuilder = () => {
+const WebsiteBuilder = ({ onBackToDashboard }) => {
   const [websites, setWebsites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(null);
   const [currentWebsiteIndex, setCurrentWebsiteIndex] = useState(0);
   const navigate = useNavigate();
+
+  const handleBackToDashboard = () => {
+    if (onBackToDashboard) {
+      onBackToDashboard();
+    } else {
+      // Fallback navigation
+      navigate('/dashboard');
+    }
+  };
 
   useEffect(() => {
     fetchWebsites();
@@ -86,6 +95,16 @@ const WebsiteBuilder = () => {
   return (
     <div className="website-builder">
       <div className="website-builder-header">
+        <div className="header-top">
+          <button
+            className="back-button"
+            onClick={handleBackToDashboard}
+            title="Back to Dashboard"
+          >
+            <span className="back-icon">←</span>
+            Back to Dashboard
+          </button>
+        </div>
         <h1>🌐 Website Builder</h1>
         <p>Create stunning restaurant websites with AI-powered design or choose from professional templates</p>
         
