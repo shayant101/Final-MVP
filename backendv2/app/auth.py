@@ -46,7 +46,8 @@ def verify_token(token: str) -> TokenData:
     """Verify and decode a JWT token"""
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: str = payload.get("user_id")
+        # Try both "sub" (JWT standard) and "user_id" for compatibility
+        user_id: str = payload.get("sub") or payload.get("user_id")
         email: str = payload.get("email")
         role: str = payload.get("role")
         impersonating_restaurant_id: str = payload.get("impersonating_restaurant_id")
