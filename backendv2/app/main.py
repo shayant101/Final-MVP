@@ -20,16 +20,13 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# Configure CORS middleware
+# Configure CORS middleware - Allow all origins for full accessibility
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",  # Development - React app URL
-        "https://final-mvp5.vercel.app"  # Production - Vercel deployment
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["*"],  # Allow requests from all origins
+    allow_credentials=False,  # Set to False when using allow_origins=["*"]
+    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],  # Allow all headers
 )
 
 # Database event handlers
