@@ -1,6 +1,23 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+// Determine the correct API base URL based on environment
+const getApiBaseUrl = () => {
+  // If explicitly set via environment variable, use it
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  
+  // Production environment detection
+  if (process.env.NODE_ENV === 'production') {
+    // Use the production backend URL
+    return 'https://final-mvp-jc3a.onrender.com/api';
+  }
+  
+  // Development fallback
+  return 'http://localhost:8000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
