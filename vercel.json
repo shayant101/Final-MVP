@@ -23,7 +23,7 @@
     }
   ],
   "env": {
-    "REACT_APP_API_URL": "https://final-mvp-backend.onrender.com",
+    "REACT_APP_API_URL": "https://final-mvp-jc3a.onrender.com",
     "REACT_APP_ENVIRONMENT": "production"
   },
   "build": {
@@ -58,7 +58,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://final-mvp-backend.onrender.com https://api.openai.com;"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://final-mvp-jc3a.onrender.com https://api.openai.com;"
         }
       ]
     }
@@ -66,7 +66,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://final-mvp-backend.onrender.com/api/$1"
+      "destination": "https://final-mvp-jc3a.onrender.com/api/$1"
     }
   ],
   "redirects": [
