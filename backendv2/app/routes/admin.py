@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import Dict, Any, List, Optional
 import logging
 from datetime import datetime, timedelta
+from bson import ObjectId
 
 from ..services.admin_analytics_service import admin_analytics_service
 from ..auth import get_current_user
@@ -536,13 +537,22 @@ async def delete_restaurant(
         # Get database instance
         db = get_database()
         
+        # Try to convert restaurant_id to ObjectId if it's a valid ObjectId string
+        try:
+            if ObjectId.is_valid(restaurant_id):
+                query_id = ObjectId(restaurant_id)
+            else:
+                query_id = restaurant_id
+        except Exception:
+            query_id = restaurant_id
+        
         # Check if restaurant exists
-        restaurant = await db.restaurants.find_one({"_id": restaurant_id})
+        restaurant = await db.restaurants.find_one({"_id": query_id})
         if not restaurant:
             raise HTTPException(status_code=404, detail="Restaurant not found")
         
         # Delete the restaurant document
-        delete_result = await db.restaurants.delete_one({"_id": restaurant_id})
+        delete_result = await db.restaurants.delete_one({"_id": query_id})
         
         if delete_result.deleted_count == 0:
             raise HTTPException(status_code=500, detail="Failed to delete restaurant")
