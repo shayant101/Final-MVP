@@ -67,6 +67,9 @@ export const AuthProvider = ({ children }) => {
       setToken(newToken);
       setUser(newUser);
       
+      // Redirect to welcome page after successful registration
+      window.location.href = '/welcome';
+      
       return response;
     } catch (error) {
       throw error;

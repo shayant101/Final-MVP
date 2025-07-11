@@ -13,6 +13,8 @@ import WebsitePreview from './components/WebsiteBuilder/WebsitePreview';
 import WebsiteEditor from './components/WebsiteBuilder/WebsiteEditor';
 import TemplateGallery from './components/WebsiteBuilder/TemplateGallery';
 import TemplateCustomizer from './components/WebsiteBuilder/TemplateCustomizer';
+import EmailVerificationSuccess from './components/EmailVerificationSuccess';
+import WelcomeToFreedom from './components/WelcomeToFreedom';
 import LoadingScreen from './components/LoadingScreen';
 import './App.css';
 
@@ -28,6 +30,8 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/verify-email" element={<EmailVerificationSuccess />} />
+        <Route path="/welcome" element={<WelcomeToFreedom />} />
         <Route
           path="/dashboard"
           element={
