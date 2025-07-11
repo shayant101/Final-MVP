@@ -559,7 +559,15 @@ async def delete_restaurant(
         
         # Also delete associated user account if it exists
         user_deleted = False
-        if restaurant.get("email"):
+        if restaurant.get("user_id"):
+            # Try to delete user by user_id (string format first, then ObjectId)
+            user_delete_result = await db.users.delete_one({"_id": ObjectId(restaurant["user_id"])})
+            if user_delete_result.deleted_count == 0:
+                # Fallback: try string format user_id
+                user_delete_result = await db.users.delete_one({"user_id": restaurant["user_id"]})
+            user_deleted = user_delete_result.deleted_count > 0
+        elif restaurant.get("email"):
+            # Fallback: delete by email if user_id not available
             user_delete_result = await db.users.delete_one({"email": restaurant["email"]})
             user_deleted = user_delete_result.deleted_count > 0
         
