@@ -101,14 +101,10 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       
-      // Use the correct API URL - check if we need full URL or relative
-      const apiUrl = process.env.REACT_APP_API_URL || '';
-      const fullUrl = `${apiUrl}/api/admin/restaurants/${restaurantId}`;
-      
       console.log('Attempting to delete restaurant:', restaurantId);
-      console.log('API URL:', fullUrl);
       
-      const response = await fetch(fullUrl, {
+      // Use the existing API service instead of manual fetch
+      const response = await fetch(`https://final-mvp-jc3a.onrender.com/api/admin/restaurants/${restaurantId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -117,7 +113,7 @@ const AdminDashboard = () => {
       });
       
       console.log('Delete response status:', response.status);
-      console.log('Delete response headers:', response.headers);
+      console.log('Delete response ok:', response.ok);
 
       if (!response.ok) {
         let errorMessage = 'Failed to delete restaurant';
@@ -135,6 +131,7 @@ const AdminDashboard = () => {
       let successData = null;
       try {
         successData = await response.json();
+        console.log('Delete success response:', successData);
       } catch (jsonError) {
         // If no JSON response, that's okay for DELETE operations
         console.log('No JSON response from delete operation (this is normal)');
@@ -145,6 +142,7 @@ const AdminDashboard = () => {
       alert(`✅ Restaurant "${restaurantName}" has been successfully deleted.`);
       
     } catch (error) {
+      console.error('Delete error:', error);
       setError(`Failed to delete restaurant: ${error.message}`);
       alert(`❌ Error: ${error.message}`);
     } finally {
