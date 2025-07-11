@@ -450,7 +450,7 @@ const AdminDashboard = () => {
                         <td>{restaurant.email}</td>
                         <td>{new Date(restaurant.signup_date).toLocaleDateString()}</td>
                         <td>
-                          <div className="action-buttons">
+                          <div className="restaurant-actions">
                             <button
                               className="impersonate-button"
                               onClick={() => handleImpersonate(restaurant.restaurant_id)}
