@@ -103,39 +103,14 @@ const AdminDashboard = () => {
       
       console.log('Attempting to delete restaurant:', restaurantId);
       
-      // Use the existing API service instead of manual fetch
-      const response = await fetch(`https://final-mvp-jc3a.onrender.com/api/admin/restaurants/${restaurantId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      // Import and use the existing API service
+      const { default: api } = await import('../services/api.js');
+      const response = await api.delete(`/admin/restaurants/${restaurantId}`);
       
-      console.log('Delete response status:', response.status);
-      console.log('Delete response ok:', response.ok);
+      console.log('Delete response:', response.data);
 
-      if (!response.ok) {
-        let errorMessage = 'Failed to delete restaurant';
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.detail || errorData.message || errorMessage;
-        } catch (jsonError) {
-          // If JSON parsing fails, use status text
-          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-        }
-        throw new Error(errorMessage);
-      }
-
-      // Try to parse success response
-      let successData = null;
-      try {
-        successData = await response.json();
-        console.log('Delete success response:', successData);
-      } catch (jsonError) {
-        // If no JSON response, that's okay for DELETE operations
-        console.log('No JSON response from delete operation (this is normal)');
-      }
+      // Success response from axios
+      const successData = response.data;
 
       // Success - refresh the restaurants list
       await fetchRestaurants();
@@ -143,8 +118,9 @@ const AdminDashboard = () => {
       
     } catch (error) {
       console.error('Delete error:', error);
-      setError(`Failed to delete restaurant: ${error.message}`);
-      alert(`❌ Error: ${error.message}`);
+      const errorMessage = error.response?.data?.detail || error.response?.data?.message || error.message || 'Failed to delete restaurant';
+      setError(`Failed to delete restaurant: ${errorMessage}`);
+      alert(`❌ Error: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
