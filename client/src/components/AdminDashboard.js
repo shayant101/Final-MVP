@@ -100,17 +100,44 @@ const AdminDashboard = () => {
 
     try {
       setLoading(true);
-      const response = await fetch(`/api/admin/restaurants/${restaurantId}`, {
+      
+      // Use the correct API URL - check if we need full URL or relative
+      const apiUrl = process.env.REACT_APP_API_URL || '';
+      const fullUrl = `${apiUrl}/api/admin/restaurants/${restaurantId}`;
+      
+      console.log('Attempting to delete restaurant:', restaurantId);
+      console.log('API URL:', fullUrl);
+      
+      const response = await fetch(fullUrl, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json'
         }
       });
+      
+      console.log('Delete response status:', response.status);
+      console.log('Delete response headers:', response.headers);
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to delete restaurant');
+        let errorMessage = 'Failed to delete restaurant';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.detail || errorData.message || errorMessage;
+        } catch (jsonError) {
+          // If JSON parsing fails, use status text
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      // Try to parse success response
+      let successData = null;
+      try {
+        successData = await response.json();
+      } catch (jsonError) {
+        // If no JSON response, that's okay for DELETE operations
+        console.log('No JSON response from delete operation (this is normal)');
       }
 
       // Success - refresh the restaurants list
