@@ -81,6 +81,50 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleDeleteRestaurant = async (restaurantId, restaurantName) => {
+    // Confirm deletion
+    const confirmDelete = window.confirm(
+      `⚠️ Are you sure you want to delete "${restaurantName}"?\n\nThis action cannot be undone and will permanently remove:\n• Restaurant account\n• All campaign data\n• All analytics data\n• All generated content\n\nType "DELETE" to confirm:`
+    );
+    
+    if (!confirmDelete) return;
+    
+    const confirmText = window.prompt(
+      `To confirm deletion of "${restaurantName}", please type "DELETE" (case sensitive):`
+    );
+    
+    if (confirmText !== 'DELETE') {
+      alert('Deletion cancelled - confirmation text did not match.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/admin/restaurants/${restaurantId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to delete restaurant');
+      }
+
+      // Success - refresh the restaurants list
+      await fetchRestaurants();
+      alert(`✅ Restaurant "${restaurantName}" has been successfully deleted.`);
+      
+    } catch (error) {
+      setError(`Failed to delete restaurant: ${error.message}`);
+      alert(`❌ Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLogout = () => {
     logout();
     window.location.href = '/';
@@ -406,12 +450,21 @@ const AdminDashboard = () => {
                         <td>{restaurant.email}</td>
                         <td>{new Date(restaurant.signup_date).toLocaleDateString()}</td>
                         <td>
-                          <button
-                            className="impersonate-button"
-                            onClick={() => handleImpersonate(restaurant.restaurant_id)}
-                          >
-                            🎭 Impersonate
-                          </button>
+                          <div className="action-buttons">
+                            <button
+                              className="impersonate-button"
+                              onClick={() => handleImpersonate(restaurant.restaurant_id)}
+                            >
+                              🎭 Impersonate
+                            </button>
+                            <button
+                              className="delete-button"
+                              onClick={() => handleDeleteRestaurant(restaurant.restaurant_id, restaurant.name)}
+                              title="Delete Restaurant"
+                            >
+                              🗑️ Delete
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}

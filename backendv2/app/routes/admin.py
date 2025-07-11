@@ -13,6 +13,7 @@ from ..models import (
     AnalyticsDateRange, RealTimeMetrics, UsageAnalyticsResponse,
     ContentModerationRequest, FeatureToggleRequest
 )
+from ..database import get_db
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/admin", tags=["Admin"])
@@ -518,3 +519,122 @@ async def get_system_health(
     except Exception as e:
         logger.error(f"System health check error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to check system health: {str(e)}")
+
+# Restaurant Management Endpoints
+@router.delete("/restaurants/{restaurant_id}")
+async def delete_restaurant(
+    restaurant_id: str,
+    admin_user = Depends(require_admin_role),
+    db = Depends(get_db)
+):
+    """
+    Delete a restaurant and all associated data (admin-only)
+    """
+    try:
+        user_id = getattr(admin_user, 'user_id', admin_user.get('user_id') if hasattr(admin_user, 'get') else 'admin')
+        logger.info(f"Admin {user_id} attempting to delete restaurant {restaurant_id}")
+        
+        # Check if restaurant exists
+        restaurant = await db.restaurants.find_one({"_id": restaurant_id})
+        if not restaurant:
+            raise HTTPException(status_code=404, detail="Restaurant not found")
+        
+        # Delete the restaurant document
+        delete_result = await db.restaurants.delete_one({"_id": restaurant_id})
+        
+        if delete_result.deleted_count == 0:
+            raise HTTPException(status_code=500, detail="Failed to delete restaurant")
+        
+        # Also delete associated user account if it exists
+        user_deleted = False
+        if restaurant.get("email"):
+            user_delete_result = await db.users.delete_one({"email": restaurant["email"]})
+            user_deleted = user_delete_result.deleted_count > 0
+        
+        logger.info(f"Admin {user_id} successfully deleted restaurant {restaurant_id}")
+        
+        return {
+            "success": True,
+            "message": f"Restaurant '{restaurant.get('name', restaurant_id)}' deleted successfully",
+            "data": {
+                "restaurant_id": restaurant_id,
+                "restaurant_name": restaurant.get("name", "Unknown"),
+                "restaurant_email": restaurant.get("email", "Unknown"),
+                "user_account_deleted": user_deleted,
+                "deleted_by": user_id,
+                "deleted_at": datetime.utcnow().isoformat()
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Restaurant deletion error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete restaurant: {str(e)}")
+
+@router.get("/restaurants")
+async def list_restaurants(
+    search: Optional[str] = Query(None, description="Search restaurants by name or email"),
+    limit: int = Query(50, description="Maximum number of restaurants to return"),
+    skip: int = Query(0, description="Number of restaurants to skip"),
+    admin_user = Depends(require_admin_role),
+    db = Depends(get_db)
+):
+    """
+    List all restaurants with optional search (admin-only)
+    """
+    try:
+        user_id = getattr(admin_user, 'user_id', admin_user.get('user_id') if hasattr(admin_user, 'get') else 'admin')
+        logger.info(f"Admin {user_id} requesting restaurant list")
+        
+        # Build search query
+        query = {}
+        if search:
+            query = {
+                "$or": [
+                    {"name": {"$regex": search, "$options": "i"}},
+                    {"email": {"$regex": search, "$options": "i"}},
+                    {"address": {"$regex": search, "$options": "i"}}
+                ]
+            }
+        
+        # Get restaurants with pagination
+        cursor = db.restaurants.find(query).skip(skip).limit(limit)
+        restaurants = await cursor.to_list(length=limit)
+        
+        # Get total count for pagination
+        total_count = await db.restaurants.count_documents(query)
+        
+        # Format restaurant data for admin view
+        formatted_restaurants = []
+        for restaurant in restaurants:
+            formatted_restaurants.append({
+                "id": restaurant["_id"],
+                "name": restaurant.get("name", "Unknown"),
+                "email": restaurant.get("email", "Unknown"),
+                "address": restaurant.get("address", "Unknown"),
+                "phone": restaurant.get("phone", "Unknown"),
+                "created_at": restaurant.get("created_at", "Unknown"),
+                "last_login": restaurant.get("last_login", "Never"),
+                "email_verified": restaurant.get("email_verified", False)
+            })
+        
+        return {
+            "success": True,
+            "message": f"Retrieved {len(formatted_restaurants)} restaurants",
+            "data": {
+                "restaurants": formatted_restaurants,
+                "total_count": total_count,
+                "returned_count": len(formatted_restaurants),
+                "search_query": search,
+                "pagination": {
+                    "skip": skip,
+                    "limit": limit,
+                    "has_more": (skip + len(formatted_restaurants)) < total_count
+                }
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Restaurant listing error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to list restaurants: {str(e)}")
