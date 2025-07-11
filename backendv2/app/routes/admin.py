@@ -13,7 +13,7 @@ from ..models import (
     AnalyticsDateRange, RealTimeMetrics, UsageAnalyticsResponse,
     ContentModerationRequest, FeatureToggleRequest
 )
-from ..database import get_db
+from ..database import get_database
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/admin", tags=["Admin"])
@@ -524,8 +524,7 @@ async def get_system_health(
 @router.delete("/restaurants/{restaurant_id}")
 async def delete_restaurant(
     restaurant_id: str,
-    admin_user = Depends(require_admin_role),
-    db = Depends(get_db)
+    admin_user = Depends(require_admin_role)
 ):
     """
     Delete a restaurant and all associated data (admin-only)
@@ -533,6 +532,9 @@ async def delete_restaurant(
     try:
         user_id = getattr(admin_user, 'user_id', admin_user.get('user_id') if hasattr(admin_user, 'get') else 'admin')
         logger.info(f"Admin {user_id} attempting to delete restaurant {restaurant_id}")
+        
+        # Get database instance
+        db = get_database()
         
         # Check if restaurant exists
         restaurant = await db.restaurants.find_one({"_id": restaurant_id})
@@ -577,8 +579,7 @@ async def list_restaurants(
     search: Optional[str] = Query(None, description="Search restaurants by name or email"),
     limit: int = Query(50, description="Maximum number of restaurants to return"),
     skip: int = Query(0, description="Number of restaurants to skip"),
-    admin_user = Depends(require_admin_role),
-    db = Depends(get_db)
+    admin_user = Depends(require_admin_role)
 ):
     """
     List all restaurants with optional search (admin-only)
@@ -586,6 +587,9 @@ async def list_restaurants(
     try:
         user_id = getattr(admin_user, 'user_id', admin_user.get('user_id') if hasattr(admin_user, 'get') else 'admin')
         logger.info(f"Admin {user_id} requesting restaurant list")
+        
+        # Get database instance
+        db = get_database()
         
         # Build search query
         query = {}
