@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from .database import connect_to_mongo, close_mongo_connection, initialize_collections
 from .routes.auth import router as auth_router
+from .routes.email_verification import router as email_verification_router
 from .routes.dashboard import router as dashboard_router
 from .routes.checklist import router as checklist_router
 from .routes.campaigns import router as campaigns_router
@@ -12,6 +13,7 @@ from .routes.admin import router as admin_router
 from .routes.website_builder import router as website_builder_router
 from .routes.media_upload import router as media_router
 from .routes.phase3_routes import get_phase3_routers
+from .core.config import settings, validate_environment
 
 # Create FastAPI application instance
 app = FastAPI(
@@ -33,11 +35,20 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
     """Connect to MongoDB on startup"""
+    # Validate environment configuration
+    env_errors = validate_environment()
+    if env_errors:
+        print("⚠️  Environment Configuration Warnings:")
+        for error in env_errors:
+            print(f"   - {error}")
+        print()
+    
     await connect_to_mongo()
     await initialize_collections()
     print("🚀 FastAPI Backend v2 started successfully!")
     print("🔐 Authentication endpoints available at /api/auth")
-    print("📊 Dashboard endpoints available at /api/dashboard")
+    print("📧 Email verification endpoints available at /api/auth")
+    print("� Dashboard endpoints available at /api/dashboard")
     print("✅ Checklist endpoints available at /api/checklist")
     print("📢 Campaign endpoints available at /api/campaigns")
     print("🤖 Content generation endpoints available at /api/content")
@@ -45,11 +56,23 @@ async def startup_event():
     print("👑 Admin endpoints available at /api/admin")
     print("🌐 Website Builder endpoints available at /api/website-builder")
     print("📸 Media Upload endpoints available at /api/website-builder/upload-image")
-    print("� Phase 3 Business Intelligence endpoints available:")
+    print("📈 Phase 3 Business Intelligence endpoints available:")
     print("   📊 Billing & Subscriptions at /api/billing")
     print("   📈 Revenue Analytics at /api/revenue")
     print("   🤖 AI Assistant at /api/ai-assistant")
     print("   🧠 Business Intelligence at /api/business-intelligence")
+    
+    # Email service status
+    if settings.email_enabled:
+        print("📧 Email service: ✅ Configured")
+        if settings.ENABLE_EMAIL_VERIFICATION:
+            print("   - Email verification: ✅ Enabled")
+        if settings.ENABLE_ADMIN_NOTIFICATIONS:
+            print("   - Admin notifications: ✅ Enabled")
+        if settings.ENABLE_WELCOME_EMAILS:
+            print("   - Welcome emails: ✅ Enabled")
+    else:
+        print("📧 Email service: ⚠️  Not configured (RESEND_API_KEY missing)")
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -58,6 +81,7 @@ async def shutdown_event():
 
 # Include routers
 app.include_router(auth_router)
+app.include_router(email_verification_router)
 app.include_router(dashboard_router)
 app.include_router(checklist_router)
 app.include_router(campaigns_router)

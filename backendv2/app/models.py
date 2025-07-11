@@ -57,6 +57,8 @@ class User(BaseModel):
     created_at: datetime
     restaurant: Optional[Restaurant] = None
     impersonating_restaurant_id: Optional[str] = None
+    email_verified: bool = False
+    last_login: Optional[datetime] = None
 
 class AuthResponse(BaseModel):
     message: str
@@ -210,6 +212,10 @@ class UserInDB(BaseModel):
     password_hash: str
     role: UserRole
     created_at: datetime
+    email_verified: bool = False
+    email_verification_token: Optional[str] = None
+    email_verification_expires: Optional[datetime] = None
+    last_login: Optional[datetime] = None
 
 class RestaurantInDB(BaseModel):
     restaurant_id: str
@@ -363,3 +369,19 @@ class FeatureToggleRequest(BaseModel):
     feature_name: str
     enabled: bool
     rate_limits: Optional[Dict[str, int]] = None
+
+# Email Verification Models
+class EmailVerificationRequest(BaseModel):
+    token: str
+
+class EmailVerificationResponse(BaseModel):
+    success: bool
+    message: str
+    user: Optional[User] = None
+
+class ResendVerificationRequest(BaseModel):
+    email: EmailStr
+
+class ResendVerificationResponse(BaseModel):
+    success: bool
+    message: str

@@ -4,6 +4,12 @@ from bson import ObjectId
 from ..models import UserRegister, UserLogin, AuthResponse, UserResponse, User, Restaurant, UserRole
 from ..database import get_users_collection, get_restaurants_collection
 from ..auth import get_password_hash, verify_password, create_access_token, get_current_user, require_admin, TokenData
+from ..services.email_service import send_verification_email, send_admin_notification
+from ..utils.email_utils import create_verification_data, format_registration_time
+from ..core.config import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/auth", tags=["authentication"])
 
@@ -24,12 +30,24 @@ async def register_user(user_data: UserRegister):
     # Hash password
     hashed_password = get_password_hash(user_data.password)
     
+    # Generate email verification data if email verification is enabled
+    verification_token = None
+    verification_token_hash = None
+    verification_expires = None
+    
+    if settings.ENABLE_EMAIL_VERIFICATION:
+        verification_token, verification_token_hash, verification_expires = create_verification_data()
+    
     # Create user document
     user_doc = {
         "email": user_data.email,
         "password_hash": hashed_password,
         "role": UserRole.restaurant,
-        "created_at": datetime.utcnow()
+        "created_at": datetime.utcnow(),
+        "email_verified": not settings.ENABLE_EMAIL_VERIFICATION,  # Auto-verify if verification disabled
+        "email_verification_token": verification_token_hash,
+        "email_verification_expires": verification_expires,
+        "last_login": None
     }
     
     # Insert user
@@ -75,11 +93,55 @@ async def register_user(user_data: UserRegister):
         email=user_data.email,
         role=UserRole.restaurant,
         created_at=user_doc["created_at"],
-        restaurant=restaurant
+        restaurant=restaurant,
+        email_verified=user_doc["email_verified"],
+        last_login=user_doc["last_login"]
     )
     
+    # Send verification email if email verification is enabled
+    email_sent = False
+    if settings.ENABLE_EMAIL_VERIFICATION and verification_token:
+        try:
+            result = await send_verification_email(
+                to_email=user_data.email,
+                user_name=user_data.email,
+                restaurant_name=user_data.restaurantName,
+                verification_token=verification_token,
+                base_url=settings.FRONTEND_URL
+            )
+            email_sent = result["success"]
+            if email_sent:
+                logger.info(f"Verification email sent to {user_data.email}")
+            else:
+                logger.error(f"Failed to send verification email to {user_data.email}: {result['message']}")
+        except Exception as e:
+            logger.error(f"Error sending verification email to {user_data.email}: {str(e)}")
+    
+    # Send admin notification if enabled
+    if settings.ENABLE_ADMIN_NOTIFICATIONS:
+        try:
+            await send_admin_notification(
+                user_email=user_data.email,
+                restaurant_name=user_data.restaurantName,
+                phone=user_data.phone,
+                address=user_data.address,
+                registration_time=user_doc["created_at"]
+            )
+            logger.info(f"Admin notification sent for new registration: {user_data.restaurantName}")
+        except Exception as e:
+            logger.error(f"Failed to send admin notification for {user_data.restaurantName}: {str(e)}")
+    
+    # Prepare response message
+    if settings.ENABLE_EMAIL_VERIFICATION:
+        if email_sent:
+            message = "User and restaurant created successfully. Please check your email to verify your account."
+        else:
+            message = "User and restaurant created successfully. Verification email could not be sent - please request a new one."
+    else:
+        message = "User and restaurant created successfully"
+    
     return AuthResponse(
-        message="User and restaurant created successfully",
+        message=message,
         token=access_token,
         user=user
     )
@@ -106,6 +168,12 @@ async def login_user(login_data: UserLogin):
         )
     
     user_id = str(user_doc["_id"])
+    
+    # Update last login time
+    await users_collection.update_one(
+        {"_id": user_doc["_id"]},
+        {"$set": {"last_login": datetime.utcnow()}}
+    )
     
     # Create JWT token
     token_data = {
@@ -134,7 +202,9 @@ async def login_user(login_data: UserLogin):
         email=user_doc["email"],
         role=user_doc["role"],
         created_at=user_doc["created_at"],
-        restaurant=restaurant
+        restaurant=restaurant,
+        email_verified=user_doc.get("email_verified", False),
+        last_login=datetime.utcnow()
     )
     
     return AuthResponse(
@@ -177,7 +247,9 @@ async def get_current_user_info(current_user: TokenData = Depends(get_current_us
         role=user_doc["role"],
         created_at=user_doc["created_at"],
         restaurant=restaurant,
-        impersonating_restaurant_id=current_user.impersonating_restaurant_id
+        impersonating_restaurant_id=current_user.impersonating_restaurant_id,
+        email_verified=user_doc.get("email_verified", False),
+        last_login=user_doc.get("last_login")
     )
     
     return UserResponse(user=user)

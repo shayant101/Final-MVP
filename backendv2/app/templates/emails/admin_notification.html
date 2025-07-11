@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Restaurant Registration</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .header .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .content {
+            padding: 40px 30px;
+            background: #ffffff;
+        }
+        .content h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .content p {
+            margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .info-section {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        .info-section h3 {
+            margin: 0 0 15px 0;
+            color: #495057;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 15px;
+            align-items: start;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            padding: 8px 0;
+        }
+        .info-value {
+            color: #333;
+            padding: 8px 0;
+            word-break: break-word;
+        }
+        .info-value.email {
+            color: #007bff;
+        }
+        .info-value.restaurant-name {
+            color: #28a745;
+            font-weight: 600;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #28a745;
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .action-section {
+            background-color: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        .action-section h3 {
+            margin: 0 0 10px 0;
+            color: #1976d2;
+            font-size: 16px;
+        }
+        .action-section p {
+            margin: 0;
+            font-size: 14px;
+            color: #424242;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px 20px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        .footer p {
+            margin: 0;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .timestamp {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #856404;
+            text-align: center;
+        }
+        @media (max-width: 600px) {
+            .container {
+                margin: 0;
+                box-shadow: none;
+            }
+            .header {
+                padding: 30px 15px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+            .content {
+                padding: 30px 20px;
+            }
+            .content h2 {
+                font-size: 20px;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+            .info-label {
+                font-weight: 600;
+                margin-bottom: 5px;
+            }
+            .info-value {
+                margin-bottom: 15px;
+                padding-left: 10px;
+                border-left: 3px solid #e9ecef;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="icon">🏪</span>
+            <h1>New Restaurant Registration</h1>
+        </div>
+        <div class="content">
+            <h2>A new restaurant has joined the platform</h2>
+            <p>A new restaurant owner has successfully registered and verified their account. Here are the details:</p>
+            
+            <div class="info-section">
+                <h3>Restaurant Information</h3>
+                <div class="info-grid">
+                    <div class="info-label">Restaurant Name:</div>
+                    <div class="info-value restaurant-name">{{ restaurant_name }}</div>
+                    
+                    <div class="info-label">Owner Email:</div>
+                    <div class="info-value email">{{ user_email }}</div>
+                    
+                    <div class="info-label">Phone Number:</div>
+                    <div class="info-value">{{ phone }}</div>
+                    
+                    <div class="info-label">Address:</div>
+                    <div class="info-value">{{ address }}</div>
+                    
+                    <div class="info-label">Registration Status:</div>
+                    <div class="info-value">
+                        <span class="status-badge">✅ Verified</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timestamp">
+                <strong>Registration Time:</strong> {{ registration_time }}
+            </div>
+            
+            <div class="action-section">
+                <h3>📋 Recommended Actions</h3>
+                <p>Consider reaching out to welcome the new restaurant and provide onboarding support if needed.</p>
+            </div>
+            
+            <p>This restaurant is now active on the platform and can access all available features including:</p>
+            <ul>
+                <li>Marketing campaign creation (Facebook Ads & SMS)</li>
+                <li>Customer analytics and insights</li>
+                <li>AI-powered content generation</li>
+                <li>Website builder tools</li>
+                <li>Performance tracking and reporting</li>
+            </ul>
+            
+            <p>Monitor their initial activity and engagement to ensure they're getting the most value from the platform.</p>
+        </div>
+        <div class="footer">
+            <p>This is an automated notification from the Restaurant Marketing Platform.</p>
+            <p>Generated at {{ registration_time }}</p>
+        </div>
+    </div>
+</body>
+</html>
