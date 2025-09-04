@@ -16,6 +16,7 @@ from ..database import get_database
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/website-builder", tags=["Media Upload"])
+logger.info("✅ Media Upload Router Loaded")
 
 # Configuration
 UPLOAD_DIR = "uploads/images"

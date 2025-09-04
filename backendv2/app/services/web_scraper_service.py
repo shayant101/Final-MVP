@@ -12,6 +12,8 @@ import requests
 from bs4 import BeautifulSoup
 import httpx
 
+logger = logging.getLogger(__name__)
+
 # Try to import selenium with graceful fallback
 try:
     from selenium import webdriver
@@ -24,8 +26,6 @@ try:
 except ImportError:
     SELENIUM_AVAILABLE = False
     logger.warning("Selenium not available - will use requests-only scraping")
-
-logger = logging.getLogger(__name__)
 
 class WebScraperService:
     def __init__(self):

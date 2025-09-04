@@ -248,17 +248,17 @@ export const websiteBuilderAPI = {
 
   // Get image
   getImage: (filename) => {
-    return `${API_BASE_URL}/website-builder/images/${filename}`;
+    return `${API_BASE_URL}/media/images/${filename}`;
   },
 
   // Get thumbnail
   getThumbnail: (filename, size = 'medium', format = 'jpeg') => {
-    return `${API_BASE_URL}/website-builder/images/thumbnail/${filename}?size=${size}&format=${format}`;
+    return `${API_BASE_URL}/media/images/thumbnail/${filename}?size=${size}&format=${format}`;
   },
 
   // List images
   listImages: async (imageType = null, websiteId = null) => {
-    const url = new URL(`${API_BASE_URL}/website-builder/images`);
+    const url = new URL(`${API_BASE_URL}/media/images`);
     if (imageType) url.searchParams.append('image_type', imageType);
     if (websiteId) url.searchParams.append('website_id', websiteId);
 
@@ -271,7 +271,7 @@ export const websiteBuilderAPI = {
 
   // Delete image
   deleteImage: async (imageId) => {
-    const response = await fetch(`${API_BASE_URL}/website-builder/images/${imageId}`, {
+    const response = await fetch(`${API_BASE_URL}/media/images/${imageId}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
