@@ -581,6 +581,8 @@
 .performance-card {
   display: flex;
   flex-direction: column;
+  height: 450px; /* Increased height to prevent cutoff */
+  align-items: stretch; /* Ensure children take full width */
 }
 
 .performance-metrics {
@@ -589,6 +591,8 @@
   gap: 16px;
   margin-bottom: 20px;
   flex: 1;
+  justify-content: center;
+  align-items: start;
 }
 
 .metric {
@@ -2123,7 +2127,11 @@
   
   .dashboard-card {
     padding: 20px;
-    height: 350px; /* Slightly smaller on mobile but still uniform */
+    height: 400px; /* Increased mobile height to prevent cutoff */
+  }
+  
+  .performance-card {
+    height: 480px; /* Extra height for mobile performance card */
   }
   
   .performance-metrics {

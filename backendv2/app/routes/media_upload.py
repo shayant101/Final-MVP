@@ -15,7 +15,7 @@ from ..auth import get_current_user, get_restaurant_id, require_restaurant
 from ..database import get_database
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/api/website-builder", tags=["Media Upload"])
+router = APIRouter(prefix="/api/media", tags=["Media Upload"])
 
 # Configuration
 UPLOAD_DIR = "uploads/images"
@@ -105,7 +105,7 @@ async def upload_image(
             raise HTTPException(status_code=400, detail="Invalid image file")
         
         # Generate URL
-        image_url = f"/api/website-builder/images/{filename}"
+        image_url = f"/api/media/images/{filename}"
         
         # Save to database
         image_record = {

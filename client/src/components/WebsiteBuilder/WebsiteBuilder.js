@@ -71,6 +71,27 @@ const WebsiteBuilder = ({ onBackToDashboard }) => {
     navigate(`/website-builder/preview/${websiteId}`);
   };
 
+  const handleDeleteWebsite = async (websiteId, websiteName) => {
+    if (window.confirm(`Are you sure you want to delete "${websiteName}"? This action cannot be undone.`)) {
+      try {
+        console.log('🔍 DEBUG: Website Builder - Deleting website:', websiteId);
+        await websiteBuilderAPI.deleteWebsite(websiteId);
+        console.log('🔍 DEBUG: Website Builder - Website deleted successfully');
+        
+        // Refresh the websites list
+        await fetchWebsites();
+        
+        // Adjust current index if necessary
+        if (currentWebsiteIndex >= websites.length - 1 && websites.length > 1) {
+          setCurrentWebsiteIndex(currentWebsiteIndex - 1);
+        }
+      } catch (error) {
+        console.error('🔍 DEBUG: Website Builder - Delete error:', error);
+        alert(`Error deleting website: ${error.message}`);
+      }
+    }
+  };
+
   const handlePreviousWebsite = () => {
     setCurrentWebsiteIndex((prev) =>
       prev === 0 ? websites.length - 1 : prev - 1
@@ -292,6 +313,14 @@ const WebsiteBuilder = ({ onBackToDashboard }) => {
                         >
                           <span className="btn-icon">✏️</span>
                           Edit
+                        </button>
+                        <button
+                          className="btn-delete"
+                          onClick={() => handleDeleteWebsite(website.website_id, website.website_name)}
+                          title="Delete website"
+                        >
+                          <span className="btn-icon">🗑️</span>
+                          Delete
                         </button>
                       </div>
                     </div>

@@ -200,8 +200,8 @@ const MediaUploader = {
         xhr.timeout = 30000;
 
         // Open and send request
-        const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-        xhr.open('POST', `${API_BASE_URL}/api/website-builder/upload-image`);
+        const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+        xhr.open('POST', `${API_BASE_URL}/media/upload-image`);
         
         // Set headers
         Object.keys(headers).forEach(key => {
@@ -274,8 +274,8 @@ const MediaUploader = {
     }
     
     // If it's a relative path, construct thumbnail URL
-    const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-    return `${API_BASE_URL}/api/website-builder/images/thumbnail/${encodeURIComponent(imageUrl)}?size=${dimensions}&format=webp`;
+    const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+    return `${API_BASE_URL}/media/images/thumbnail/${encodeURIComponent(imageUrl)}?size=${dimensions}&format=webp`;
   },
 
   // Get image metadata
