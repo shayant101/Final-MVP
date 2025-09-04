@@ -235,7 +235,7 @@ export const websiteBuilderAPI = {
 
       xhr.timeout = 30000; // 30 seconds
 
-      xhr.open('POST', `${API_BASE_URL}/media/upload-image`);
+      xhr.open('POST', `${API_BASE_URL}/website-builder/upload-image`);
       
       // Set headers
       Object.keys(headers).forEach(key => {

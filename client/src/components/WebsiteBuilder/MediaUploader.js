@@ -201,7 +201,7 @@ const MediaUploader = {
 
         // Open and send request
         const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
-        xhr.open('POST', `${API_BASE_URL}/media/upload-image`);
+        xhr.open('POST', `${API_BASE_URL}/website-builder/upload-image`);
         
         // Set headers
         Object.keys(headers).forEach(key => {
