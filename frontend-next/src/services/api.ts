@@ -1,0 +1,850 @@
+import axios from 'axios';
+
+// Determine the correct API base URL based on environment
+const getApiBaseUrl = () => {
+  // If explicitly set via environment variable, use it
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  
+  // Production environment detection
+  if (process.env.NODE_ENV === 'production') {
+    // Use the production backend URL
+    return 'https://final-mvp-jc3a.onrender.com/api';
+  }
+  
+  // Development fallback
+  return 'http://localhost:8000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 30000, // 30 seconds timeout for API calls
+});
+
+// Add token to requests if available
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Handle token expiration
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Facebook Ads API calls
+export const facebookAdsAPI = {
+  createCampaign: async (formData) => {
+    try {
+      const response = await api.post('/campaigns/facebook-ads', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to create Facebook ad campaign');
+    }
+  },
+
+  generatePreview: async (data) => {
+    try {
+      const response = await api.post('/campaigns/facebook-ads/preview', data);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to generate ad preview');
+    }
+  },
+
+  getCampaignStatus: async (campaignId) => {
+    try {
+      const response = await api.get(`/campaigns/facebook-ads/status/${campaignId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch campaign status');
+    }
+  }
+};
+
+// SMS Campaigns API calls
+export const smsCampaignsAPI = {
+  createCampaign: async (formData) => {
+    try {
+      const response = await api.post('/campaigns/sms', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to create SMS campaign');
+    }
+  },
+
+  generatePreview: async (formData) => {
+    try {
+      const response = await api.post('/campaigns/sms/preview', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to generate SMS preview');
+    }
+  },
+
+  downloadSampleCSV: async () => {
+    try {
+      const response = await api.get('/campaigns/sms/sample-csv', {
+        responseType: 'blob',
+      });
+      
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'sample-customer-list.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      
+      return { success: true };
+    } catch (error) {
+      throw new Error('Failed to download sample CSV');
+    }
+  },
+
+  getCampaignStatus: async (campaignId) => {
+    try {
+      const response = await api.get(`/campaigns/sms/status/${campaignId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch SMS campaign status');
+    }
+  }
+};
+
+// Health check
+export const healthCheck = async () => {
+  try {
+    const response = await api.get('/health');
+    return response.data;
+  } catch (error) {
+    throw new Error('Server is not responding');
+  }
+};
+
+// Authentication API calls
+export const authAPI = {
+  login: async (email, password) => {
+    try {
+      const response = await api.post('/auth/login', { email, password });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Login failed');
+    }
+  },
+
+  register: async (userData) => {
+    try {
+      const response = await api.post('/auth/register', userData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Registration failed');
+    }
+  },
+
+  getCurrentUser: async () => {
+    try {
+      const response = await api.get('/auth/me');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to get user info');
+    }
+  },
+
+  impersonate: async (restaurantId) => {
+    try {
+      const response = await api.post(`/auth/impersonate/${restaurantId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Impersonation failed');
+    }
+  },
+
+  endImpersonation: async () => {
+    try {
+      const response = await api.post('/auth/end-impersonation');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to end impersonation');
+    }
+  }
+};
+
+// Dashboard API calls
+export const dashboardAPI = {
+  getRestaurantDashboard: async () => {
+    try {
+      const response = await api.get('/dashboard/restaurant');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch restaurant dashboard');
+    }
+  },
+
+  getAdminDashboard: async () => {
+    try {
+      const response = await api.get('/dashboard/admin');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch admin dashboard');
+    }
+  },
+
+  getAllRestaurants: async (search = '') => {
+    try {
+      const response = await api.get('/dashboard/restaurants', {
+        params: { search }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch restaurants');
+    }
+  },
+
+  getCampaigns: async () => {
+    try {
+      const response = await api.get('/dashboard/campaigns');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch campaigns');
+    }
+  },
+
+  updateChecklistItem: async (itemId, isComplete) => {
+    try {
+      const response = await api.put(`/dashboard/checklist/${itemId}`, {
+        is_complete: isComplete
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to update checklist item');
+    }
+  }
+};
+
+// Admin Analytics API calls
+export const adminAnalyticsAPI = {
+  // Real-time metrics
+  getRealTimeMetrics: async () => {
+    try {
+      const response = await api.get('/admin/analytics/real-time');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch real-time metrics');
+    }
+  },
+
+  // Usage analytics
+  getUsageAnalytics: async (days = 7, featureType = null) => {
+    try {
+      const params = { days };
+      if (featureType) params.feature_type = featureType;
+      const response = await api.get('/admin/analytics/usage', { params });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch usage analytics');
+    }
+  },
+
+  // Restaurant analytics
+  getRestaurantAnalytics: async (restaurantId, days = 30) => {
+    try {
+      const response = await api.get(`/admin/analytics/restaurant/${restaurantId}`, {
+        params: { days }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch restaurant analytics');
+    }
+  },
+
+  // Dashboard summary
+  getDashboardSummary: async () => {
+    try {
+      const response = await api.get('/admin/dashboard/summary');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch dashboard summary');
+    }
+  },
+
+  // Flagged content
+  getFlaggedContent: async (status = 'flagged', limit = 50) => {
+    try {
+      const response = await api.get('/admin/moderation/flagged-content', {
+        params: { status, limit }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch flagged content');
+    }
+  },
+
+  // Moderate content
+  moderateContent: async (moderationId, action, reason = null) => {
+    try {
+      const response = await api.post('/admin/moderation/moderate-content', null, {
+        params: { moderation_id: moderationId, action, reason }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to moderate content');
+    }
+  },
+
+  // Bulk moderate content
+  bulkModerateContent: async (contentIds, action, reason = null) => {
+    try {
+      const response = await api.post('/admin/moderation/bulk-moderate', {
+        content_ids: contentIds,
+        action,
+        reason
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to bulk moderate content');
+    }
+  },
+
+  // Feature toggles
+  getFeatureToggles: async (restaurantId = null) => {
+    try {
+      const params = restaurantId ? { restaurant_id: restaurantId } : {};
+      const response = await api.get('/admin/features/toggles', { params });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch feature toggles');
+    }
+  },
+
+  // Update feature toggle
+  updateFeatureToggle: async (restaurantId, featureName, enabled, rateLimits = null) => {
+    try {
+      const response = await api.post('/admin/features/toggle', {
+        restaurant_id: restaurantId,
+        feature_name: featureName,
+        enabled,
+        rate_limits: rateLimits
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to update feature toggle');
+    }
+  },
+
+  // Check feature status
+  checkFeatureStatus: async (restaurantId, featureName) => {
+    try {
+      const response = await api.get(`/admin/features/check/${restaurantId}/${featureName}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to check feature status');
+    }
+  }
+};
+
+// Checklist API calls
+export const checklistAPI = {
+  // Get all categories with optional type filter
+  getCategories: async (type = null) => {
+    try {
+      const params = type ? { type } : {};
+      const response = await api.get('/checklist/categories', { params });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch categories');
+    }
+  },
+
+  // Get items for a specific category
+  getItems: async (categoryId) => {
+    try {
+      const response = await api.get(`/checklist/items/${categoryId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch items');
+    }
+  },
+
+  // Get checklist status for restaurant
+  getStatus: async (restaurantId) => {
+    try {
+      const response = await api.get(`/checklist/status/${restaurantId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch status');
+    }
+  },
+
+  // Update item status
+  updateStatus: async (restaurantId, itemId, status, notes = null) => {
+    try {
+      const params = { status };
+      if (notes) params.notes = notes;
+      
+      const response = await api.put(`/checklist/status/${restaurantId}/${itemId}`, null, {
+        params
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to update status');
+    }
+  },
+
+  // Get progress statistics
+  getProgress: async (restaurantId, type = null) => {
+    try {
+      const params = type ? { type } : {};
+      const response = await api.get(`/checklist/progress/${restaurantId}`, { params });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch progress');
+    }
+  },
+
+  // Get all categories with their items and status
+  getCategoriesWithItems: async (type = null, restaurantId = null) => {
+    try {
+      const params = {};
+      if (type) params.type = type;
+      if (restaurantId) params.restaurantId = restaurantId;
+      
+      const response = await api.get('/checklist/categories-with-items', { params });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch categories with items');
+    }
+  }
+};
+
+// AI Image Enhancement API calls
+export const imageEnhancementAPI = {
+  // Upload and enhance image
+  enhanceImage: async (formData, onProgress = null) => {
+    try {
+      console.log('API: Starting image enhancement request...');
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        timeout: 15000, // 15 seconds for image processing
+      };
+
+      if (onProgress) {
+        config.onUploadProgress = (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          console.log('API: Upload progress:', percentCompleted + '%');
+          onProgress(percentCompleted);
+        };
+      }
+
+      console.log('API: Making POST request to /ai/content/image-enhancement');
+      const response = await api.post('/ai/content/image-enhancement', formData, config);
+      console.log('API: Response received:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('API: Image enhancement error:', error);
+      console.error('API: Error response:', error.response?.data);
+      console.error('API: Error status:', error.response?.status);
+      throw new Error(error.response?.data?.error || error.message || 'Image enhancement failed');
+    }
+  },
+
+  // Generate marketing content from image
+  generateContent: async (requestData) => {
+    try {
+      const response = await api.post('/ai/content/image/generate-content', requestData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        timeout: 45000, // 45 seconds for content generation
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Content generation failed');
+    }
+  },
+
+  // Get user's enhanced images
+  getImages: async () => {
+    try {
+      const response = await api.get('/ai/content/images');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch images');
+    }
+  },
+
+  // Delete an image
+  deleteImage: async (imageId) => {
+    try {
+      const response = await api.delete(`/ai/content/images/${imageId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to delete image');
+    }
+  },
+
+  // Get image details
+  getImageDetails: async (imageId) => {
+    try {
+      const response = await api.get(`/ai/content/images/${imageId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch image details');
+    }
+  }
+};
+
+// Phase 3 Business Intelligence API calls
+export const businessIntelligenceAPI = {
+  // Get comprehensive BI dashboard
+  getDashboard: async () => {
+    try {
+      const response = await api.get('/business-intelligence/dashboard');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch BI dashboard');
+    }
+  },
+
+  // Generate executive report
+  generateExecutiveReport: async (period = 'monthly') => {
+    try {
+      const response = await api.get('/business-intelligence/reports/executive', {
+        params: { period }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to generate executive report');
+    }
+  },
+
+  // Get business alerts
+  getBusinessAlerts: async () => {
+    try {
+      const response = await api.get('/business-intelligence/alerts');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch business alerts');
+    }
+  }
+};
+
+// Revenue Analytics API calls
+export const revenueAnalyticsAPI = {
+  // Get customer lifetime value
+  getCustomerLifetimeValue: async (restaurantId) => {
+    try {
+      const response = await api.get(`/revenue/customer-lifetime-value/${restaurantId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch CLV data');
+    }
+  },
+
+  // Get revenue correlation analysis
+  getCorrelationAnalysis: async (featureType = 'all', timePeriod = 30) => {
+    try {
+      const response = await api.get('/revenue/correlation-analysis', {
+        params: { feature_type: featureType, time_period: timePeriod }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch correlation analysis');
+    }
+  },
+
+  // Get churn prediction
+  getChurnPrediction: async (restaurantId) => {
+    try {
+      const response = await api.get(`/revenue/churn-prediction/${restaurantId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch churn prediction');
+    }
+  },
+
+  // Get pricing optimization
+  getPricingOptimization: async (planId) => {
+    try {
+      const response = await api.get(`/revenue/pricing-optimization/${planId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch pricing optimization');
+    }
+  },
+
+  // Generate revenue forecast
+  getRevenueForecast: async (monthsAhead = 12) => {
+    try {
+      const response = await api.get('/revenue/forecast', {
+        params: { months_ahead: monthsAhead }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to generate revenue forecast');
+    }
+  },
+
+  // Get upsell opportunities
+  getUpsellOpportunities: async (restaurantId) => {
+    try {
+      const response = await api.get(`/revenue/upsell-opportunities/${restaurantId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch upsell opportunities');
+    }
+  },
+
+  // Calculate feature ROI
+  getFeatureROI: async (restaurantId, featureType) => {
+    try {
+      const response = await api.get(`/revenue/feature-roi/${restaurantId}/${featureType}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to calculate feature ROI');
+    }
+  }
+};
+
+// AI Business Assistant API calls
+export const aiBusinessAssistantAPI = {
+  // Chat with AI assistant
+  chat: async (query, context = 'business_intelligence', includeInsights = true) => {
+    try {
+      const response = await api.post('/ai-assistant/chat', {
+        query,
+        context,
+        include_insights: includeInsights
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to get AI response');
+    }
+  },
+
+  // Get platform performance analysis
+  getPlatformPerformance: async (timePeriod = '30d') => {
+    try {
+      const response = await api.get('/ai-assistant/platform-performance', {
+        params: { time_period: timePeriod }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to get platform performance');
+    }
+  },
+
+  // Get strategic recommendations
+  getStrategicRecommendations: async (focusArea = 'general') => {
+    try {
+      const response = await api.get('/ai-assistant/strategic-recommendations', {
+        params: { focus_area: focusArea }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to get strategic recommendations');
+    }
+  },
+
+  // Predict business outcomes
+  predictBusinessOutcomes: async (scenario) => {
+    try {
+      const response = await api.post('/ai-assistant/predict-outcomes', scenario);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to predict business outcomes');
+    }
+  },
+
+  // Get at-risk customers
+  getAtRiskCustomers: async () => {
+    try {
+      const response = await api.get('/ai-assistant/at-risk-customers');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to get at-risk customers');
+    }
+  },
+
+  // Get monetization optimization
+  getMonetizationOptimization: async () => {
+    try {
+      const response = await api.get('/ai-assistant/monetization-optimization');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to get monetization optimization');
+    }
+  },
+
+  // Generate executive insights
+  generateExecutiveInsights: async (reportType = 'monthly_review') => {
+    try {
+      const response = await api.get('/ai-assistant/executive-insights', {
+        params: { report_type: reportType }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to generate executive insights');
+    }
+  }
+};
+
+// Billing & Subscription Management API calls
+export const billingAPI = {
+  // Create subscription
+  createSubscription: async (subscriptionData) => {
+    try {
+      const response = await api.post('/billing/subscriptions', subscriptionData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to create subscription');
+    }
+  },
+
+  // Update subscription
+  updateSubscription: async (subscriptionId, updateData) => {
+    try {
+      const response = await api.put(`/billing/subscriptions/${subscriptionId}`, updateData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to update subscription');
+    }
+  },
+
+  // Purchase credits
+  purchaseCredits: async (creditRequest) => {
+    try {
+      const response = await api.post('/billing/credits', creditRequest);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to purchase credits');
+    }
+  },
+
+  // Get billing dashboard
+  getBillingDashboard: async () => {
+    try {
+      const response = await api.get('/billing/dashboard');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch billing dashboard');
+    }
+  },
+
+  // Track usage
+  trackUsage: async (featureType, usageAmount = 1) => {
+    try {
+      const response = await api.post('/billing/usage/track', {
+        feature_type: featureType,
+        usage_amount: usageAmount
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to track usage');
+    }
+  }
+};
+
+// Website Builder API calls
+export const websiteBuilderAPI = {
+  // Get all websites for the current user
+  getWebsites: async () => {
+    try {
+      const response = await api.get('/website-builder/websites');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch websites');
+    }
+  },
+
+  // Get specific website details
+  getWebsiteDetails: async (websiteId) => {
+    try {
+      const response = await api.get(`/website-builder/websites/${websiteId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to fetch website details');
+    }
+  },
+
+  // Generate new website
+  generateWebsite: async (requestData) => {
+    try {
+      const response = await api.post('/website-builder/generate', requestData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to generate website');
+    }
+  },
+
+  // Get generation progress
+  getGenerationProgress: async (generationId) => {
+    try {
+      const response = await api.get(`/website-builder/generation/${generationId}/progress`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to get generation progress');
+    }
+  },
+
+  // Create website from template
+  createFromTemplate: async (templateData) => {
+    try {
+      const response = await api.post('/website-builder/templates/create', templateData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to create website from template');
+    }
+  },
+
+  // Update website
+  updateWebsite: async (websiteId, updateData) => {
+    try {
+      const response = await api.put(`/website-builder/websites/${websiteId}`, updateData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to update website');
+    }
+  },
+
+  // Delete website
+  deleteWebsite: async (websiteId) => {
+    try {
+      const response = await api.delete(`/website-builder/websites/${websiteId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to delete website');
+    }
+  }
+};
+
+export default api;

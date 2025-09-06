@@ -1,0 +1,467 @@
+/* Import Design System */
+@import '../styles/DesignSystem.css';
+
+.get-new-customers {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.file-selected {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(56, 161, 105, 0.1);
+  border: 1px solid var(--color-success);
+  border-radius: 4px;
+  color: var(--color-success);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.dark-mode .file-selected {
+  background: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+}
+
+.launch-button {
+  background: linear-gradient(135deg, var(--color-brand-blue) 0%, var(--color-brand-blue-light) 100%) !important;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0.875rem 2rem;
+}
+
+.launch-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--color-brand-blue-dark) 0%, var(--color-brand-blue) 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(1, 90, 246, 0.4);
+}
+
+/* Preview section */
+.preview-section {
+  background: var(--color-background-container);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin: 2rem 0;
+  border-left: 4px solid var(--color-brand-blue);
+  border: 1px solid transparent;
+}
+
+.dark-mode .preview-section {
+  background: var(--color-dark-background-container);
+  border-left-color: var(--color-dark-brand-blue);
+  border: 1px solid var(--color-dark-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.preview-section h3 {
+  color: var(--color-primary-text);
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.dark-mode .preview-section h3 {
+  color: var(--color-dark-primary-text);
+}
+
+.ad-preview {
+  background: rgba(1, 90, 246, 0.05);
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid rgba(1, 90, 246, 0.1);
+}
+
+.dark-mode .ad-preview {
+  background: rgba(96, 165, 250, 0.1);
+  border-color: rgba(96, 165, 250, 0.2);
+}
+
+.ad-image {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.dish-preview-image {
+  max-width: 100%;
+  max-height: 300px;
+  width: auto;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  object-fit: cover;
+  border: 2px solid var(--color-border);
+}
+
+.dark-mode .dish-preview-image {
+  border-color: var(--color-dark-border);
+}
+
+.ad-copy {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-primary-text);
+  white-space: pre-line;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: var(--color-background-container);
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+}
+
+.dark-mode .ad-copy {
+  background: var(--color-dark-background-container);
+  border-color: var(--color-dark-border);
+  color: var(--color-dark-primary-text);
+}
+
+.ad-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: var(--color-secondary-text);
+}
+
+.dark-mode .ad-meta {
+  color: var(--color-dark-secondary-text);
+}
+
+.promo-code {
+  background: linear-gradient(135deg, var(--color-brand-blue) 0%, var(--color-brand-blue-light) 100%);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-family: monospace;
+  box-shadow: 0 2px 8px rgba(1, 90, 246, 0.3);
+}
+
+.character-count {
+  font-weight: 500;
+}
+
+/* Campaign details */
+.campaign-details {
+  margin-top: 2rem;
+}
+
+.campaign-details h4 {
+  color: var(--color-primary-text);
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 0.5rem;
+}
+
+.dark-mode .campaign-details h4 {
+  color: var(--color-dark-primary-text);
+  border-bottom-color: var(--color-dark-border);
+}
+
+.generated-ad-copy {
+  margin: 2rem 0;
+}
+
+.ad-copy-display {
+  background: rgba(1, 90, 246, 0.05);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid rgba(1, 90, 246, 0.1);
+  font-size: 1rem;
+  line-height: 1.6;
+  white-space: pre-line;
+  color: var(--color-primary-text);
+}
+
+.dark-mode .ad-copy-display {
+  background: rgba(96, 165, 250, 0.1);
+  border-color: rgba(96, 165, 250, 0.2);
+  color: var(--color-dark-primary-text);
+}
+
+.next-steps {
+  margin-top: 2rem;
+  background: rgba(56, 161, 105, 0.05);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border-left: 4px solid var(--color-success);
+}
+
+.dark-mode .next-steps {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.next-steps h4 {
+  color: var(--color-primary-text);
+  margin-bottom: 1rem;
+  border: none;
+  padding: 0;
+  font-weight: 600;
+}
+
+.dark-mode .next-steps h4 {
+  color: var(--color-dark-primary-text);
+}
+
+.next-steps ul {
+  list-style: none;
+  padding: 0;
+}
+
+.next-steps li {
+  padding: 0.5rem 0;
+  position: relative;
+  padding-left: 1.5rem;
+  color: var(--color-secondary-text);
+}
+
+.dark-mode .next-steps li {
+  color: var(--color-dark-secondary-text);
+}
+
+.next-steps li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--color-success);
+  font-weight: bold;
+}
+
+.next-steps strong {
+  color: var(--color-brand-blue);
+  font-family: monospace;
+}
+
+.dark-mode .next-steps strong {
+  color: var(--color-dark-brand-blue);
+}
+
+/* Form specific styles */
+.get-new-customers .form-group select {
+  background: var(--color-background-container);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+  appearance: none;
+}
+
+.dark-mode .get-new-customers .form-group select {
+  background-color: var(--color-dark-background-container);
+  color: var(--color-dark-primary-text);
+  border-color: var(--color-dark-border);
+}
+
+/* Loading states */
+.get-new-customers .btn:disabled {
+  position: relative;
+  color: transparent;
+}
+
+.get-new-customers .btn:disabled::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  color: white;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* File upload styling */
+.get-new-customers .file-input {
+  position: relative;
+  cursor: pointer;
+}
+
+.get-new-customers .file-input::-webkit-file-upload-button {
+  background: linear-gradient(135deg, var(--color-brand-blue) 0%, var(--color-brand-blue-light) 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 1rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(1, 90, 246, 0.2);
+}
+
+.get-new-customers .file-input::-webkit-file-upload-button:hover {
+  background: linear-gradient(135deg, var(--color-brand-blue-dark) 0%, var(--color-brand-blue) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(1, 90, 246, 0.3);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .get-new-customers {
+    padding: 0;
+  }
+  
+  .ad-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .preview-section,
+  .campaign-form {
+    padding: 1.5rem;
+  }
+  
+  .ad-copy-display {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .preview-section,
+  .campaign-form {
+    padding: 1rem;
+  }
+  
+  .section-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .section-header p {
+    font-size: 1rem;
+  }
+}
+
+/* Success animation */
+.success-section {
+  animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Error message styling */
+.get-new-customers .error-message {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Enhanced dark mode support */
+.dark-mode .get-new-customers .form-group select {
+  background-color: var(--color-dark-background-container);
+  color: var(--color-dark-primary-text);
+  border-color: var(--color-dark-border);
+}
+
+.dark-mode .get-new-customers .form-group select:focus {
+  border-color: var(--color-dark-brand-blue);
+  background-color: var(--color-dark-background-container);
+}
+
+/* Fix preview section in dark mode */
+.dark-mode .preview-section {
+  background: var(--color-dark-background-container);
+  border-left-color: var(--color-dark-brand-blue);
+  border-color: var(--color-dark-border);
+}
+
+.dark-mode .preview-section h3 {
+  color: var(--color-dark-primary-text);
+}
+
+.dark-mode .ad-preview {
+  background: rgba(96, 165, 250, 0.15);
+  border-color: rgba(96, 165, 250, 0.3);
+}
+
+.dark-mode .ad-copy {
+  background: var(--color-dark-background-container);
+  border-color: var(--color-dark-border);
+  color: var(--color-dark-primary-text);
+}
+
+.dark-mode .dish-preview-image {
+  border-color: var(--color-dark-border);
+}
+
+/* Fix ad meta in dark mode */
+.dark-mode .ad-meta {
+  color: var(--color-dark-secondary-text);
+}
+
+.dark-mode .promo-code {
+  background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
+}
+
+/* Fix campaign details in dark mode */
+.dark-mode .campaign-details h4 {
+  color: var(--color-dark-primary-text);
+  border-bottom-color: var(--color-dark-border);
+}
+
+.dark-mode .ad-copy-display {
+  background: rgba(96, 165, 250, 0.15);
+  border-color: rgba(96, 165, 250, 0.3);
+  color: var(--color-dark-primary-text);
+}
+
+/* Fix next steps in dark mode */
+.dark-mode .next-steps {
+  background: rgba(16, 185, 129, 0.15);
+  border-left-color: #10B981;
+}
+
+.dark-mode .next-steps h4 {
+  color: var(--color-dark-primary-text);
+}
+
+.dark-mode .next-steps li {
+  color: var(--color-dark-secondary-text);
+}
+
+.dark-mode .next-steps strong {
+  color: var(--color-dark-brand-blue);
+}
+
+/* Fix file selection in dark mode */
+.dark-mode .file-selected {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10B981;
+  color: #34D399;
+}
+
+/* Fix file upload button in dark mode */
+.dark-mode .get-new-customers .file-input::-webkit-file-upload-button {
+  background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
+  color: white;
+}
+
+.dark-mode .get-new-customers .file-input::-webkit-file-upload-button:hover {
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+}

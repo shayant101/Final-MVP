@@ -1,0 +1,332 @@
+/* ========================================
+   EDITABLE ELEMENT STYLES
+   ======================================== */
+
+.editable-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.editable-element {
+  position: relative;
+  cursor: default;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  min-height: 1.2em;
+  word-wrap: break-word;
+}
+
+/* Edit mode indicators */
+.editable-element.edit-mode {
+  cursor: pointer;
+}
+
+.editable-element.edit-mode:hover {
+  background: rgba(1, 90, 246, 0.05);
+  border: 2px dashed rgba(1, 90, 246, 0.3);
+  padding: 2px 4px;
+  margin: -4px -6px;
+}
+
+.editable-element.edit-mode:hover::after {
+  content: '✏️ Click to edit';
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+  animation: fadeInTooltip 0.2s ease-in-out 0.5s forwards;
+}
+
+@keyframes fadeInTooltip {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Active editing state */
+.editable-wrapper.editing {
+  position: relative;
+  z-index: 100;
+}
+
+.editable-input {
+  width: 100%;
+  border: 2px solid #015af6;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  color: #1f2937 !important; /* Force dark text for visibility */
+  background: white;
+  box-shadow: 0 4px 12px rgba(1, 90, 246, 0.2);
+  outline: none;
+  transition: all 0.2s ease;
+  min-height: 40px;
+  box-sizing: border-box;
+}
+
+.editable-input:focus {
+  border-color: #0147d3;
+  box-shadow: 0 6px 16px rgba(1, 90, 246, 0.3);
+}
+
+/* Placeholder styling for better visibility */
+.editable-input::placeholder {
+  color: #6b7280 !important;
+  opacity: 1;
+}
+
+.editable-input::-webkit-input-placeholder {
+  color: #6b7280 !important;
+  opacity: 1;
+}
+
+.editable-input::-moz-placeholder {
+  color: #6b7280 !important;
+  opacity: 1;
+}
+
+.editable-input:-ms-input-placeholder {
+  color: #6b7280 !important;
+  opacity: 1;
+}
+
+/* Edit controls */
+.edit-controls {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+  z-index: 101;
+}
+
+.edit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.save-btn {
+  background: #10b981;
+  color: white;
+}
+
+.save-btn:hover {
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+}
+
+.cancel-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* Save status indicator */
+.save-status {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 102;
+  animation: slideInStatus 0.3s ease-out;
+}
+
+@keyframes slideInStatus {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.save-status-saving {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.save-status-saved {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.save-status-error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Save spinner */
+.save-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Different element types */
+.editable-element[data-editable-type="restaurant-name"] {
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+.editable-element[data-editable-type="hero-tagline"] {
+  font-style: italic;
+}
+
+.editable-element[data-editable-type="hero-description"] {
+  line-height: 1.6;
+}
+
+.editable-element[data-editable-type="about-title"] {
+  font-weight: 600;
+  font-size: 1.1em;
+}
+
+.editable-element[data-editable-type="about-content"] {
+  line-height: 1.7;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .editable-element.edit-mode:hover::after {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+  
+  .edit-controls {
+    position: fixed;
+    top: auto;
+    bottom: 20px;
+    right: 20px;
+    background: white;
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  .edit-btn {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .save-status {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    left: 20px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .editable-element.edit-mode:hover {
+    border-width: 3px;
+    border-style: solid;
+  }
+  
+  .editable-input {
+    border-width: 3px;
+  }
+  
+  .save-status {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .editable-element,
+  .editable-input,
+  .edit-btn,
+  .save-status {
+    transition: none;
+    animation: none;
+  }
+  
+  .save-spinner {
+    animation: none;
+    border-top-color: currentColor;
+  }
+}
+
+/* Focus states for accessibility */
+.edit-btn:focus {
+  outline: 2px solid #015af6;
+  outline-offset: 2px;
+}
+
+.editable-element:focus {
+  outline: 2px solid #015af6;
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .editable-element.edit-mode:hover::after,
+  .edit-controls,
+  .save-status {
+    display: none;
+  }
+  
+  .editable-element.edit-mode:hover {
+    background: transparent;
+    border: none;
+  }
+}

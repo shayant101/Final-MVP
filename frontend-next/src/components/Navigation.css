@@ -1,0 +1,221 @@
+.navigation {
+  background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.9) 100%);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(1, 90, 246, 0.15);
+  margin-bottom: 2rem;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.nav-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.nav-tab {
+  background: none;
+  border: none;
+  padding: 1.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  border-bottom: 3px solid transparent;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.nav-tab:hover:not(.active) {
+  background: linear-gradient(135deg, rgba(1, 90, 246, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(1, 90, 246, 0.15);
+}
+
+.nav-tab.active {
+  background: linear-gradient(135deg, #015af6 0%, #0ea5e9 50%, #06b6d4 100%);
+  color: white;
+  border-bottom-color: #015af6;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-tab.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
+  animation: activeShimmer 2s ease-in-out infinite;
+}
+
+.nav-tab.active:hover {
+  background: linear-gradient(135deg, #0147d3 0%, #0284c7 50%, #0891b2 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 25px rgba(1, 90, 246, 0.4);
+}
+
+@keyframes activeShimmer {
+  0%, 100% { transform: translateX(-100%) skewX(-15deg); }
+  50% { transform: translateX(100%) skewX(-15deg); }
+}
+
+.nav-tab-icon {
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
+}
+
+.nav-tab-content {
+  flex: 1;
+}
+
+.nav-tab-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: inherit;
+}
+
+.nav-tab-description {
+  font-size: 0.875rem;
+  opacity: 0.8;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.nav-tab.active .nav-tab-description {
+  opacity: 0.9;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .nav-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .nav-tab {
+    padding: 1.25rem 1rem;
+    flex-direction: row;
+    text-align: left;
+    gap: 1rem;
+  }
+  
+  .nav-tab-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+  
+  .nav-tab-content {
+    text-align: left;
+  }
+  
+  .nav-tab-label {
+    font-size: 1rem;
+  }
+  
+  .nav-tab-description {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-tab {
+    padding: 1rem 0.75rem;
+  }
+  
+  .nav-tab-icon {
+    font-size: 1.25rem;
+  }
+  
+  .nav-tab-label {
+    font-size: 0.95rem;
+  }
+  
+  .nav-tab-description {
+    font-size: 0.75rem;
+  }
+}
+
+/* Active tab indicator animation */
+.nav-tab::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #015af6 0%, #0ea5e9 50%, #06b6d4 100%);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+.nav-tab.active::after {
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(1, 90, 246, 0.5);
+}
+
+@media (max-width: 768px) {
+  .nav-tab::after {
+    left: 0;
+    transform: none;
+    height: 3px;
+    width: 0;
+  }
+  
+  .nav-tab.active::after {
+    width: 4px;
+    height: 100%;
+    top: 0;
+    bottom: auto;
+  }
+}
+
+/* Dark mode styles */
+.dark-mode .navigation {
+  background: linear-gradient(135deg, rgba(45, 55, 72, 0.98) 0%, rgba(74, 85, 104, 0.95) 100%);
+  border: 1px solid rgba(96, 165, 250, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.dark-mode .nav-tab {
+  color: #F8FAFC;
+}
+
+.dark-mode .nav-tab:hover:not(.active) {
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+  box-shadow: 0 4px 20px rgba(96, 165, 250, 0.3);
+  color: #F8FAFC;
+}
+
+.dark-mode .nav-tab.active {
+  background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 50%, #2563EB 100%);
+  color: white;
+}
+
+.dark-mode .nav-tab-description {
+  color: #E2E8F0;
+}
+
+.dark-mode .nav-tab.active .nav-tab-description {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.dark-mode .nav-tab-label {
+  color: inherit;
+}
+
+.dark-mode .nav-tab:hover:not(.active) .nav-tab-label {
+  color: #F8FAFC;
+}
+
+.dark-mode .nav-tab:hover:not(.active) .nav-tab-description {
+  color: #E2E8F0;
+}
