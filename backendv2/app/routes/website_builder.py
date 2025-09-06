@@ -28,6 +28,9 @@ router = APIRouter(prefix="/api/website-builder", tags=["Website Builder"])
 # Global storage for generation progress (in production, use Redis or database)
 generation_progress_store = {}
 
+# Note: Image serving is handled by media_upload.py router
+# Removed duplicate route to avoid conflicts
+
 @router.post("/generate", response_model=WebsiteGenerationResponse)
 async def generate_website(
     request: WebsiteGenerationRequest,
@@ -309,6 +312,70 @@ async def generate_website_preview(
     except Exception as e:
         logger.error(f"Failed to generate preview: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to generate preview")
+
+@router.delete("/websites/{website_id}")
+async def delete_website(
+    website_id: str,
+    restaurant_id: str = Depends(get_restaurant_id),
+    current_user = Depends(require_restaurant),
+    db = Depends(get_database)
+):
+    """
+    Delete a website permanently
+    """
+    try:
+        logger.info(f"🔍 DEBUG: Website Builder - delete_website called for website: {website_id}")
+        logger.info(f"🔍 DEBUG: Website Builder - User: {current_user.user_id}, Role: {current_user.role}")
+        logger.info(f"🔍 DEBUG: Website Builder - Restaurant ID from auth: {restaurant_id}")
+        
+        # Get existing website
+        website = await db.websites.find_one({"website_id": website_id})
+        if not website:
+            logger.error(f"🔍 DEBUG: Website Builder - Website not found: {website_id}")
+            raise HTTPException(status_code=404, detail="Website not found")
+        
+        logger.info(f"🔍 DEBUG: Website Builder - Found website with restaurant_id: {website.get('restaurant_id')}")
+        
+        # Verify user has access to this website's restaurant
+        if website.get("restaurant_id") != restaurant_id:
+            logger.error(f"🔍 DEBUG: Website Builder - Access denied. Website restaurant_id: {website.get('restaurant_id')}, User restaurant_id: {restaurant_id}")
+            raise HTTPException(status_code=403, detail="Access denied to this website")
+        
+        # Store website info for analytics
+        website_name = website.get("website_name", "Unknown")
+        
+        # Delete the website from database
+        result = await db.websites.delete_one({"website_id": website_id})
+        
+        if result.deleted_count == 0:
+            logger.warning(f"🔍 DEBUG: Website Builder - No documents were deleted for website: {website_id}")
+            raise HTTPException(status_code=404, detail="Website not found or already deleted")
+        
+        logger.info(f"🔍 DEBUG: Website Builder - Successfully deleted website: {website_id}")
+        
+        # Log analytics
+        asyncio.create_task(admin_analytics_service.log_ai_usage(
+            restaurant_id=restaurant_id,
+            feature_type="website_builder",
+            operation_type="website_deleted",
+            processing_time=0,
+            tokens_used=0,
+            status="success",
+            metadata={
+                "website_id": website_id,
+                "website_name": website_name
+            }
+        ))
+        
+        return {"success": True, "message": "Website deleted successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"🔍 DEBUG: Website Builder - Failed to delete website: {str(e)}")
+        import traceback
+        logger.error(f"🔍 DEBUG: Website Builder - Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail="Failed to delete website")
 
 @router.post("/websites/{website_id}/publish")
 async def publish_website(

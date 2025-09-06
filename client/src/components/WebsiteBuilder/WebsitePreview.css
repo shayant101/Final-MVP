@@ -2016,40 +2016,149 @@
    NEW SECTIONS STYLES
    ======================================== */
 
+/* Menu Section Styles - FIXED CLUTTERED LAYOUT */
+.editable-website .menu-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+  gap: 2rem !important;
+  margin-top: 2rem !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.editable-website .menu-item {
+  background: white !important;
+  padding: 1.5rem !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: auto !important;
+  min-height: 200px !important;
+  box-sizing: border-box !important;
+}
+
+.editable-website .menu-item:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important;
+}
+
+.editable-website .menu-item h3 {
+  color: var(--primary-color) !important;
+  margin: 0 0 0.75rem 0 !important;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+}
+
+.editable-website .menu-item p {
+  color: var(--text-secondary) !important;
+  margin: 0 0 1rem 0 !important;
+  line-height: 1.6 !important;
+  flex-grow: 1 !important;
+  font-size: 0.95rem !important;
+}
+
+.editable-website .menu-item .price {
+  color: var(--accent-color) !important;
+  font-weight: bold !important;
+  font-size: 1.1rem !important;
+  margin: 0 !important;
+  padding: 0.5rem 0 !important;
+  border-top: 1px solid rgba(0,0,0,0.1) !important;
+  margin-top: auto !important;
+}
+
 /* Menu Item Images */
 .menu-item-image {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  transition: transform 0.3s ease;
+  width: 100% !important;
+  height: 200px !important;
+  object-fit: cover !important;
+  border-radius: 8px !important;
+  margin-bottom: 1rem !important;
+  transition: transform 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
 }
 
 .menu-item-image:hover {
-  transform: scale(1.02);
+  transform: scale(1.02) !important;
 }
 
 .menu-actions {
-  text-align: center;
-  margin-top: 2rem;
+  text-align: center !important;
+  margin-top: 2rem !important;
+  padding: 1.5rem 0 !important;
+  border-top: 1px solid rgba(0,0,0,0.1) !important;
 }
 
 .menu-url-input {
-  width: 100%;
-  max-width: 400px;
-  padding: 0.75rem;
-  border: 2px dashed var(--border-color);
-  border-radius: 8px;
-  text-align: center;
-  font-size: 0.9rem;
-  transition: border-color 0.3s ease;
+  width: 100% !important;
+  max-width: 400px !important;
+  padding: 0.75rem !important;
+  border: 2px dashed var(--border-color) !important;
+  border-radius: 8px !important;
+  text-align: center !important;
+  font-size: 0.9rem !important;
+  transition: border-color 0.3s ease !important;
+  background: rgba(255,255,255,0.8) !important;
 }
 
 .menu-url-input:focus {
-  outline: none;
-  border-color: #015af6;
-  background: rgba(1, 90, 246, 0.05);
+  outline: none !important;
+  border-color: #015af6 !important;
+  background: rgba(1, 90, 246, 0.05) !important;
+}
+
+/* Responsive Menu Grid */
+@media (max-width: 1200px) {
+  .editable-website .menu-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    gap: 1.5rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .editable-website .menu-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+  
+  .editable-website .menu-item {
+    padding: 1.25rem !important;
+    min-height: 180px !important;
+  }
+  
+  .menu-item-image {
+    height: 180px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .editable-website .menu-grid {
+    gap: 1rem !important;
+  }
+  
+  .editable-website .menu-item {
+    padding: 1rem !important;
+    min-height: 160px !important;
+  }
+  
+  .menu-item-image {
+    height: 160px !important;
+  }
+  
+  .editable-website .menu-item h3 {
+    font-size: 1.1rem !important;
+  }
+  
+  .editable-website .menu-item p {
+    font-size: 0.9rem !important;
+  }
+  
+  .editable-website .menu-item .price {
+    font-size: 1rem !important;
+  }
 }
 
 /* FAQ Section */

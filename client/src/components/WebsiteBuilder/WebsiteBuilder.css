@@ -867,6 +867,16 @@
   background: #dee2e6;
 }
 
+.btn-delete {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
 /* Empty State */
 .empty-state {
   grid-column: 1 / -1;

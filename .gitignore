@@ -97,3 +97,34 @@ Thumbs.db
 
 # Uploads
 uploads/
+
+# ========================================
+# 🚨 CRITICAL FILES PROTECTION 🚨
+# ========================================
+# NEVER IGNORE THESE FILES - IMAGE UPLOAD V2 SYSTEM
+# These files contain the complete working image upload system
+# Deleting or ignoring these would break core functionality
+
+# FORCE INCLUDE - Image Upload V2 System
+!backendv2/app/routes/media_upload_v2.py
+!client/src/services/websiteBuilderAPI.js
+!backendv2/test_image_upload_v2.py
+!test_image_upload_frontend.html
+
+# FORCE INCLUDE - Documentation & Fixes
+!fixes/REACT_FRONTEND_DEPENDENCY_FIX_SUMMARY.md
+!SYSTEM_DEPENDENCIES_REFERENCE.md
+!CRITICAL_FILES_BACKUP.md
+!IMAGE_UPLOAD_V2_MASTER_INDEX.md
+
+# FORCE INCLUDE - Protection Scripts
+!validate-frontend.sh
+!backup-critical-files.sh
+
+# FORCE INCLUDE - Backup Directories
+!backups/
+!backups/**
+
+# ========================================
+# END CRITICAL FILES PROTECTION
+# ========================================

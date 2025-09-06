@@ -71,6 +71,27 @@ const WebsiteBuilder = ({ onBackToDashboard }) => {
     navigate(`/website-builder/preview/${websiteId}`);
   };
 
+  const handleDeleteWebsite = async (websiteId, websiteName) => {
+    if (window.confirm(`Are you sure you want to delete "${websiteName}"? This action cannot be undone.`)) {
+      try {
+        console.log('🔍 DEBUG: Website Builder - Deleting website:', websiteId);
+        await websiteBuilderAPI.deleteWebsite(websiteId);
+        console.log('🔍 DEBUG: Website Builder - Website deleted successfully');
+        
+        // Refresh the websites list
+        await fetchWebsites();
+        
+        // Adjust current index if necessary
+        if (currentWebsiteIndex >= websites.length - 1 && websites.length > 1) {
+          setCurrentWebsiteIndex(currentWebsiteIndex - 1);
+        }
+      } catch (error) {
+        console.error('🔍 DEBUG: Website Builder - Delete error:', error);
+        alert(`Error deleting website: ${error.message}`);
+      }
+    }
+  };
+
   const handlePreviousWebsite = () => {
     setCurrentWebsiteIndex((prev) =>
       prev === 0 ? websites.length - 1 : prev - 1
@@ -183,12 +204,25 @@ const WebsiteBuilder = ({ onBackToDashboard }) => {
                     <div className="website-preview-fullscreen">
                       {website.hero_image ? (
                         <img
-                          src={website.hero_image.startsWith('http') ? website.hero_image : `http://localhost:8000${website.hero_image}`}
+                          key={`${website.website_id}-${currentWebsiteIndex}`}
+                          src={`${website.hero_image.startsWith('http') ? website.hero_image : `http://localhost:8000${website.hero_image}`}?t=${Date.now()}`}
                           alt={`${website.website_name} preview`}
                           className="website-preview-image-fullscreen"
                           onError={(e) => {
+                            console.log(`🔍 DEBUG: Image failed to load: ${e.target.src}`);
                             e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'flex';
+                            const placeholder = e.target.nextSibling;
+                            if (placeholder) {
+                              placeholder.style.display = 'flex';
+                            }
+                          }}
+                          onLoad={(e) => {
+                            console.log(`🔍 DEBUG: Image loaded successfully: ${e.target.src}`);
+                            e.target.style.display = 'block';
+                            const placeholder = e.target.nextSibling;
+                            if (placeholder) {
+                              placeholder.style.display = 'none';
+                            }
                           }}
                         />
                       ) : null}
@@ -292,6 +326,14 @@ const WebsiteBuilder = ({ onBackToDashboard }) => {
                         >
                           <span className="btn-icon">✏️</span>
                           Edit
+                        </button>
+                        <button
+                          className="btn-delete"
+                          onClick={() => handleDeleteWebsite(website.website_id, website.website_name)}
+                          title="Delete website"
+                        >
+                          <span className="btn-icon">🗑️</span>
+                          Delete
                         </button>
                       </div>
                     </div>

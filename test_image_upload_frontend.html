@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload V2 Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .upload-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .upload-section.dragover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        select, input[type="file"] {
+            margin: 10px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+            display: none;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #28a745;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .uploaded-image {
+            max-width: 300px;
+            max-height: 300px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .image-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .image-type-card {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .image-type-card:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .image-type-card.selected {
+            border-color: #007bff;
+            background-color: #e3f2fd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Image Upload System V2 Test</h1>
+        <p>Test the new robust image upload system for all website builder image types.</p>
+        
+        <div class="image-types">
+            <div class="image-type-card" data-type="hero">
+                <h3>🖼️ Hero</h3>
+                <p>Main banner images</p>
+            </div>
+            <div class="image-type-card" data-type="menu_item">
+                <h3>🍕 Menu Item</h3>
+                <p>Food photos</p>
+            </div>
+            <div class="image-type-card" data-type="gallery">
+                <h3>📸 Gallery</h3>
+                <p>Photo galleries</p>
+            </div>
+            <div class="image-type-card" data-type="logo">
+                <h3>🏷️ Logo</h3>
+                <p>Brand logos</p>
+            </div>
+            <div class="image-type-card selected" data-type="general">
+                <h3>📄 General</h3>
+                <p>Other images</p>
+            </div>
+        </div>
+
+        <div class="upload-section" id="uploadSection">
+            <p>📤 Drop an image here or click to select</p>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            <button onclick="document.getElementById('fileInput').click()">Choose File</button>
+        </div>
+
+        <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <button id="uploadBtn" onclick="uploadImage()" disabled>Upload Image</button>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let selectedImageType = 'general';
+
+        // Image type selection
+        document.querySelectorAll('.image-type-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.image-type-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedImageType = card.dataset.type;
+            });
+        });
+
+        // File input handling
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('uploadBtn').disabled = false;
+                document.getElementById('uploadSection').innerHTML = `
+                    <p>✅ Selected: ${file.name}</p>
+                    <p>Size: ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    <button onclick="document.getElementById('fileInput').click()">Choose Different File</button>
+                `;
+            }
+        });
+
+        // Drag and drop
+        const uploadSection = document.getElementById('uploadSection');
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                selectedFile = file;
+                document.getElementById('uploadBtn').disabled = false;
+                uploadSection.innerHTML = `
+                    <p>✅ Selected: ${file.name}</p>
+                    <p>Size: ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    <button onclick="document.getElementById('fileInput').click()">Choose Different File</button>
+                `;
+            }
+        });
+
+        // Upload function
+        async function uploadImage() {
+            if (!selectedFile) return;
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('image_type', selectedImageType);
+
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            const result = document.getElementById('result');
+            const uploadBtn = document.getElementById('uploadBtn');
+
+            progressBar.style.display = 'block';
+            uploadBtn.disabled = true;
+            result.style.display = 'none';
+
+            try {
+                const xhr = new XMLHttpRequest();
+
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        progressFill.style.width = percentComplete + '%';
+                    }
+                });
+
+                xhr.addEventListener('load', () => {
+                    progressBar.style.display = 'none';
+                    uploadBtn.disabled = false;
+
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        result.className = 'result success';
+                        result.style.display = 'block';
+                        result.innerHTML = `
+                            <h3>✅ Upload Successful!</h3>
+                            <p><strong>Filename:</strong> ${response.filename}</p>
+                            <p><strong>Image Type:</strong> ${selectedImageType}</p>
+                            <p><strong>Image URL:</strong> <a href="http://localhost:8000${response.image_url}" target="_blank">${response.image_url}</a></p>
+                            <img src="http://localhost:8000${response.image_url}" alt="Uploaded image" class="uploaded-image">
+                        `;
+                    } else {
+                        throw new Error(`Upload failed: ${xhr.statusText}`);
+                    }
+                });
+
+                xhr.addEventListener('error', () => {
+                    progressBar.style.display = 'none';
+                    uploadBtn.disabled = false;
+                    result.className = 'result error';
+                    result.style.display = 'block';
+                    result.innerHTML = '<h3>❌ Upload Failed</h3><p>Network error occurred.</p>';
+                });
+
+                xhr.open('POST', 'http://localhost:8000/api/website-builder/upload-image-v2');
+                xhr.send(formData);
+
+            } catch (error) {
+                progressBar.style.display = 'none';
+                uploadBtn.disabled = false;
+                result.className = 'result error';
+                result.style.display = 'block';
+                result.innerHTML = `<h3>❌ Upload Failed</h3><p>${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

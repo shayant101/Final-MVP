@@ -72,7 +72,7 @@ const WebsitePreview = () => {
         ];
       }
       
-      setWebsite(data);
+      setWebsite(prevWebsite => ({ ...prevWebsite, ...data }));
     } catch (error) {
       console.error('🔍 DEBUG: WebsitePreview - Error fetching website:', error);
       setError('Error loading website: ' + error.message);

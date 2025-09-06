@@ -199,9 +199,18 @@ const MediaUploader = {
         // Set timeout (30 seconds)
         xhr.timeout = 30000;
 
-        // Open and send request
-        const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-        xhr.open('POST', `${API_BASE_URL}/api/website-builder/upload-image`);
+        // Open and send request - Use the same API base URL logic as websiteBuilderAPI
+        const getApiBaseUrl = () => {
+          if (process.env.REACT_APP_API_URL) {
+            return process.env.REACT_APP_API_URL;
+          }
+          if (process.env.NODE_ENV === 'production') {
+            return 'https://final-mvp-jc3a.onrender.com/api';
+          }
+          return 'http://localhost:8000/api';
+        };
+        const API_BASE_URL = getApiBaseUrl();
+        xhr.open('POST', `${API_BASE_URL}/website-builder/upload-image`);
         
         // Set headers
         Object.keys(headers).forEach(key => {
@@ -274,8 +283,8 @@ const MediaUploader = {
     }
     
     // If it's a relative path, construct thumbnail URL
-    const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-    return `${API_BASE_URL}/api/website-builder/images/thumbnail/${encodeURIComponent(imageUrl)}?size=${dimensions}&format=webp`;
+    const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+    return `${API_BASE_URL}/media/images/thumbnail/${encodeURIComponent(imageUrl)}?size=${dimensions}&format=webp`;
   },
 
   // Get image metadata

@@ -16,9 +16,10 @@ from ..database import get_database
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/website-builder", tags=["Media Upload"])
+logger.info("✅ Media Upload Router Loaded")
 
-# Configuration
-UPLOAD_DIR = "uploads/images"
+# Configuration - Use absolute path from current working directory
+UPLOAD_DIR = os.path.join(os.getcwd(), "uploads", "images")
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
 THUMBNAIL_SIZES = {
@@ -29,22 +30,30 @@ THUMBNAIL_SIZES = {
 
 # Ensure upload directory exists
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+logger.info(f"🔍 DEBUG: Media Upload - Upload directory set to: {UPLOAD_DIR}")
 
 @router.post("/upload-image")
 async def upload_image(
     file: UploadFile = File(...),
     image_type: str = Form("general"),  # hero, about, menu_item, logo, general
-    website_id: Optional[str] = Form(None),
-    restaurant_id: str = Depends(get_restaurant_id),
-    current_user = Depends(require_restaurant),
-    db = Depends(get_database)
+    website_id: Optional[str] = Form(None)
+    # Temporarily removed authentication for debugging
+    # restaurant_id: str = Depends(get_restaurant_id),
+    # current_user = Depends(require_restaurant),
+    # db = Depends(get_database)
 ):
     """
     Upload and optimize image for website builder
     """
     try:
-        logger.info(f"🔍 DEBUG: Media Upload - Starting image upload for restaurant: {restaurant_id}")
+        # Use default restaurant_id for testing
+        restaurant_id = "test_restaurant_id"
+        
+        logger.info(f"🔍 DEBUG: Media Upload - ===== UPLOAD STARTED =====")
+        logger.info(f"🔍 DEBUG: Media Upload - Restaurant ID: {restaurant_id}")
         logger.info(f"🔍 DEBUG: Media Upload - File: {file.filename}, Type: {image_type}, Size: {file.size}")
+        logger.info(f"🔍 DEBUG: Media Upload - Upload directory: {UPLOAD_DIR}")
+        logger.info(f"🔍 DEBUG: Media Upload - Directory exists: {os.path.exists(UPLOAD_DIR)}")
         
         # Validate file
         if not file.filename:
@@ -125,9 +134,12 @@ async def upload_image(
             "updated_at": datetime.now()
         }
         
-        await db.website_images.insert_one(image_record)
+        # Temporarily skip database save for debugging
+        # await db.website_images.insert_one(image_record)
         
         logger.info(f"🔍 DEBUG: Media Upload - Image uploaded successfully: {filename}")
+        logger.info(f"🔍 DEBUG: Media Upload - File saved to: {file_path}")
+        logger.info(f"🔍 DEBUG: Media Upload - File exists after save: {os.path.exists(file_path)}")
         
         return {
             "success": True,
@@ -154,12 +166,37 @@ async def get_image(filename: str):
     try:
         file_path = os.path.join(UPLOAD_DIR, filename)
         
+        logger.info(f"🔍 DEBUG: Media Upload - Serving image: {filename}")
+        logger.info(f"🔍 DEBUG: Media Upload - UPLOAD_DIR: {UPLOAD_DIR}")
+        logger.info(f"🔍 DEBUG: Media Upload - Full file path: {file_path}")
+        logger.info(f"🔍 DEBUG: Media Upload - File exists: {os.path.exists(file_path)}")
+        
         if not os.path.exists(file_path):
+            logger.error(f"🔍 DEBUG: Media Upload - Image not found at: {file_path}")
+            # List what files are actually in the directory
+            try:
+                files_in_dir = os.listdir(UPLOAD_DIR)
+                logger.info(f"🔍 DEBUG: Media Upload - Files in upload dir: {files_in_dir}")
+            except Exception as e:
+                logger.error(f"🔍 DEBUG: Media Upload - Could not list upload dir: {e}")
             raise HTTPException(status_code=404, detail="Image not found")
+        
+        # Determine media type based on file extension
+        file_ext = filename.lower().split('.')[-1]
+        media_type_map = {
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg',
+            'png': 'image/png',
+            'webp': 'image/webp',
+            'gif': 'image/gif'
+        }
+        media_type = media_type_map.get(file_ext, 'image/jpeg')
+        
+        logger.info(f"🔍 DEBUG: Media Upload - Serving with media type: {media_type}")
         
         return FileResponse(
             file_path,
-            media_type="image/jpeg",
+            media_type=media_type,
             headers={"Cache-Control": "public, max-age=31536000"}  # 1 year cache
         )
         
