@@ -6,9 +6,9 @@
 
 // Determine the correct API base URL based on environment
 const getApiBaseUrl = () => {
-  // If explicitly set via environment variable, use it
-  if (process.env.REACT_APP_API_URL) {
-    return process.env.REACT_APP_API_URL;
+  // Next.js environment variables (client-side must be prefixed with NEXT_PUBLIC_)
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
   }
   
   // Production environment detection
@@ -33,7 +33,7 @@ const getAuthHeaders = () => {
 };
 
 // Helper function to handle API responses
-const handleResponse = async (response) => {
+const handleResponse = async (response: Response) => {
   if (!response.ok) {
     const errorData = await response.text().catch(() => 'Unknown error');
     throw new Error(`API Error (${response.status}): ${errorData}`);

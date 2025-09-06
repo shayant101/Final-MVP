@@ -1,22 +1,48 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import './WebsiteBuilder.css';
 import { websiteBuilderAPI } from '../../services/websiteBuilderAPI';
 
-const WebsiteBuilder = ({ onBackToDashboard }) => {
-  const [websites, setWebsites] = useState([]);
+interface WebsiteBuilderProps {
+  onBackToDashboard?: () => void;
+}
+
+interface Website {
+  website_id: string;
+  website_name: string;
+  status: string;
+  design_category: string;
+  created_at: string;
+  hero_image?: string;
+  restaurant_id: string;
+  restaurant_name?: string;
+}
+
+interface GenerationProgress {
+  generation_id: string;
+  status: string;
+  progress_percentage: number;
+  current_operation: string;
+  website_id?: string;
+  error_details?: string;
+}
+
+const WebsiteBuilder: React.FC<WebsiteBuilderProps> = ({ onBackToDashboard }) => {
+  const [websites, setWebsites] = useState<Website[]>([]);
   const [loading, setLoading] = useState(true);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
-  const [generationProgress, setGenerationProgress] = useState(null);
+  const [generationProgress, setGenerationProgress] = useState<GenerationProgress | null>(null);
   const [currentWebsiteIndex, setCurrentWebsiteIndex] = useState(0);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleBackToDashboard = () => {
     if (onBackToDashboard) {
       onBackToDashboard();
     } else {
       // Fallback navigation
-      navigate('/dashboard');
+      router.push('/dashboard');
     }
   };
 
@@ -36,7 +62,7 @@ const WebsiteBuilder = ({ onBackToDashboard }) => {
       
       // Log each website's structure for debugging
       if (data.websites && data.websites.length > 0) {
-        data.websites.forEach((website, index) => {
+        data.websites.forEach((website: Website, index: number) => {
           console.log(`🔍 DEBUG: Website ${index + 1}:`, JSON.stringify({
             id: website.website_id,
             name: website.website_name,
@@ -63,15 +89,15 @@ const WebsiteBuilder = ({ onBackToDashboard }) => {
     setShowGenerateModal(true);
   };
 
-  const handleEditWebsite = (websiteId) => {
-    navigate(`/website-builder/edit/${websiteId}`);
+  const handleEditWebsite = (websiteId: string) => {
+    router.push(`/website-builder/edit/${websiteId}`);
   };
 
-  const handlePreviewWebsite = (websiteId) => {
-    navigate(`/website-builder/preview/${websiteId}`);
+  const handlePreviewWebsite = (websiteId: string) => {
+    router.push(`/website-builder/preview/${websiteId}`);
   };
 
-  const handleDeleteWebsite = async (websiteId, websiteName) => {
+  const handleDeleteWebsite = async (websiteId: string, websiteName: string) => {
     if (window.confirm(`Are you sure you want to delete "${websiteName}"? This action cannot be undone.`)) {
       try {
         console.log('🔍 DEBUG: Website Builder - Deleting website:', websiteId);
@@ -85,7 +111,7 @@ const WebsiteBuilder = ({ onBackToDashboard }) => {
         if (currentWebsiteIndex >= websites.length - 1 && websites.length > 1) {
           setCurrentWebsiteIndex(currentWebsiteIndex - 1);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('🔍 DEBUG: Website Builder - Delete error:', error);
         alert(`Error deleting website: ${error.message}`);
       }
@@ -149,7 +175,7 @@ const WebsiteBuilder = ({ onBackToDashboard }) => {
             <p>Choose from professionally designed restaurant templates and customize them</p>
             <button
               className="btn-secondary option-btn"
-              onClick={() => navigate('/website-builder/templates')}
+              onClick={() => router.push('/website-builder/templates')}
             >
               🎨 Browse Templates
             </button>
@@ -209,17 +235,19 @@ const WebsiteBuilder = ({ onBackToDashboard }) => {
                           alt={`${website.website_name} preview`}
                           className="website-preview-image-fullscreen"
                           onError={(e) => {
-                            console.log(`🔍 DEBUG: Image failed to load: ${e.target.src}`);
-                            e.target.style.display = 'none';
-                            const placeholder = e.target.nextSibling;
+                            const target = e.target as HTMLImageElement;
+                            console.log(`🔍 DEBUG: Image failed to load: ${target.src}`);
+                            target.style.display = 'none';
+                            const placeholder = target.nextSibling as HTMLElement;
                             if (placeholder) {
                               placeholder.style.display = 'flex';
                             }
                           }}
                           onLoad={(e) => {
-                            console.log(`🔍 DEBUG: Image loaded successfully: ${e.target.src}`);
-                            e.target.style.display = 'block';
-                            const placeholder = e.target.nextSibling;
+                            const target = e.target as HTMLImageElement;
+                            console.log(`🔍 DEBUG: Image loaded successfully: ${target.src}`);
+                            target.style.display = 'block';
+                            const placeholder = target.nextSibling as HTMLElement;
                             if (placeholder) {
                               placeholder.style.display = 'none';
                             }
@@ -369,7 +397,7 @@ const WebsiteBuilder = ({ onBackToDashboard }) => {
       {showGenerateModal && (
         <GenerateWebsiteModal 
           onClose={() => setShowGenerateModal(false)}
-          onGenerate={(data) => {
+          onGenerate={(data: GenerationProgress) => {
             setGenerationProgress(data);
             setShowGenerateModal(false);
           }}
@@ -379,12 +407,12 @@ const WebsiteBuilder = ({ onBackToDashboard }) => {
       {generationProgress && (
         <GenerationProgressModal
           progress={generationProgress}
-          onComplete={(websiteId) => {
+          onComplete={(websiteId?: string) => {
             setGenerationProgress(null);
             fetchWebsites();
             // Redirect to preview after successful generation
             if (websiteId) {
-              navigate(`/website-builder/preview/${websiteId}`);
+              router.push(`/website-builder/preview/${websiteId}`);
             }
           }}
         />
@@ -393,7 +421,12 @@ const WebsiteBuilder = ({ onBackToDashboard }) => {
   );
 };
 
-const GenerateWebsiteModal = ({ onClose, onGenerate }) => {
+interface GenerateWebsiteModalProps {
+  onClose: () => void;
+  onGenerate: (data: GenerationProgress) => void;
+}
+
+const GenerateWebsiteModal: React.FC<GenerateWebsiteModalProps> = ({ onClose, onGenerate }) => {
   const [formData, setFormData] = useState({
     website_name: '',
     design_preferences: {},
@@ -402,7 +435,7 @@ const GenerateWebsiteModal = ({ onClose, onGenerate }) => {
   });
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -435,7 +468,7 @@ const GenerateWebsiteModal = ({ onClose, onGenerate }) => {
       const result = await websiteBuilderAPI.generateWebsite(requestData);
       console.log('🔍 DEBUG: Website Generation - Generation result:', result);
       onGenerate(result);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating website:', error);
       alert(`Error generating website: ${error.message}`);
     } finally {
@@ -469,7 +502,7 @@ const GenerateWebsiteModal = ({ onClose, onGenerate }) => {
               value={formData.custom_requirements}
               onChange={(e) => setFormData({...formData, custom_requirements: e.target.value})}
               placeholder="Any specific features or design preferences..."
-              rows="3"
+              rows={3}
             />
           </div>
 
@@ -487,7 +520,12 @@ const GenerateWebsiteModal = ({ onClose, onGenerate }) => {
   );
 };
 
-const GenerationProgressModal = ({ progress, onComplete }) => {
+interface GenerationProgressModalProps {
+  progress: GenerationProgress;
+  onComplete: (websiteId?: string) => void;
+}
+
+const GenerationProgressModal: React.FC<GenerationProgressModalProps> = ({ progress, onComplete }) => {
   const [currentProgress, setCurrentProgress] = useState(progress);
 
   useEffect(() => {

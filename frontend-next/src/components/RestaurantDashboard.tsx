@@ -1,20 +1,59 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { dashboardAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import WebsiteBuilder from './WebsiteBuilder/WebsiteBuilder';
-import GetNewCustomers from './GetNewCustomers';
-import BringBackRegulars from './BringBackRegulars';
-import MarketingFoundations from './MarketingFoundations';
-import AIFeatures from './AIFeatures';
+import { useTheme } from '../contexts/ThemeContext';
+// import WebsiteBuilder from './WebsiteBuilder/WebsiteBuilder';
+// import GetNewCustomers from './GetNewCustomers';
+// import BringBackRegulars from './BringBackRegulars';
+// import MarketingFoundations from './MarketingFoundations';
+// import AIFeatures from './AIFeatures';
 import './RestaurantDashboard.css';
 
-const RestaurantDashboard = ({ setActiveTab }) => {
-  const [dashboardData, setDashboardData] = useState(null);
+interface RestaurantDashboardProps {
+  setActiveTab: (tab: string) => void;
+}
+
+interface DashboardData {
+  restaurant: {
+    name: string;
+    email: string;
+    status: string;
+  };
+  performanceSnapshot: {
+    period: string;
+    newCustomersAcquired: number;
+    customersReengaged: number;
+  };
+  activeCampaigns: Array<{
+    campaign_id: string;
+    name: string;
+    campaign_type: string;
+    status: string;
+  }>;
+  momentumMetrics?: {
+    marketingScore: number;
+    weeklyRevenuePotential: number;
+    completedRevenue: number;
+    totalPotential: number;
+    foundationalProgress?: {
+      percentage: number;
+    };
+    ongoingProgress?: {
+      percentage: number;
+    };
+  };
+}
+
+const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab }) => {
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeView, setActiveView] = useState('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { logout } = useAuth();
+  const { theme, toggleTheme, isDark } = useTheme();
 
   useEffect(() => {
     fetchDashboardData();
@@ -25,7 +64,7 @@ const RestaurantDashboard = ({ setActiveTab }) => {
       setLoading(true);
       const data = await dashboardAPI.getRestaurantDashboard();
       setDashboardData(data);
-    } catch (error) {
+    } catch (error: any) {
       setError(error.message);
     } finally {
       setLoading(false);
@@ -62,7 +101,7 @@ const RestaurantDashboard = ({ setActiveTab }) => {
     );
   }
 
-  const { restaurant, performanceSnapshot, activeCampaigns } = dashboardData;
+  const { restaurant, performanceSnapshot, activeCampaigns } = dashboardData!;
 
   return (
     <div className="restaurant-dashboard">
@@ -152,6 +191,14 @@ const RestaurantDashboard = ({ setActiveTab }) => {
 
           {/* Account Section */}
           <div className="nav-section logout-section">
+            <button
+              className="nav-item theme-toggle"
+              onClick={toggleTheme}
+              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              <span className="nav-icon">{isDark ? '☀️' : '🌙'}</span>
+              {!sidebarCollapsed && <span className="nav-label">{isDark ? 'Light Mode' : 'Dark Mode'}</span>}
+            </button>
             <button
               className="nav-item logout-button"
               onClick={handleLogout}
@@ -434,45 +481,45 @@ const RestaurantDashboard = ({ setActiveTab }) => {
                           stroke="url(#scoreGradient)"
                           strokeWidth="8"
                           strokeLinecap="round"
-                          strokeDasharray={`${((dashboardData.momentumMetrics?.marketingScore || 0) / 100) * 251.33} 251.33`}
+                          strokeDasharray={`${((dashboardData?.momentumMetrics?.marketingScore || 0) / 100) * 251.33} 251.33`}
                           transform="rotate(-90 50 50)"
                           className="score-progress-ring"
                         />
                       </svg>
                       <div className="score-content">
-                        <div className="score-value">{dashboardData.momentumMetrics?.marketingScore || 0}</div>
+                        <div className="score-value">{dashboardData?.momentumMetrics?.marketingScore || 0}</div>
                         <div className="score-label">Score</div>
                       </div>
                     </div>
                     <div className="score-status">
-                      {(dashboardData.momentumMetrics?.marketingScore || 0) >= 80 && "🏆 Excellent"}
-                      {(dashboardData.momentumMetrics?.marketingScore || 0) >= 60 && (dashboardData.momentumMetrics?.marketingScore || 0) < 80 && "💪 Strong"}
-                      {(dashboardData.momentumMetrics?.marketingScore || 0) >= 40 && (dashboardData.momentumMetrics?.marketingScore || 0) < 60 && "🔥 Growing"}
-                      {(dashboardData.momentumMetrics?.marketingScore || 0) >= 20 && (dashboardData.momentumMetrics?.marketingScore || 0) < 40 && "🌟 Building"}
-                      {(dashboardData.momentumMetrics?.marketingScore || 0) < 20 && "🚀 Starting"}
+                      {(dashboardData?.momentumMetrics?.marketingScore || 0) >= 80 && "🏆 Excellent"}
+                      {(dashboardData?.momentumMetrics?.marketingScore || 0) >= 60 && (dashboardData?.momentumMetrics?.marketingScore || 0) < 80 && "💪 Strong"}
+                      {(dashboardData?.momentumMetrics?.marketingScore || 0) >= 40 && (dashboardData?.momentumMetrics?.marketingScore || 0) < 60 && "🔥 Growing"}
+                      {(dashboardData?.momentumMetrics?.marketingScore || 0) >= 20 && (dashboardData?.momentumMetrics?.marketingScore || 0) < 40 && "🌟 Building"}
+                      {(dashboardData?.momentumMetrics?.marketingScore || 0) < 20 && "🚀 Starting"}
                     </div>
                     <div className="progress-bars">
                       <div className="progress-item">
                         <div className="progress-info">
                           <span className="progress-name">Foundation</span>
-                          <span className="progress-percent">{dashboardData.momentumMetrics?.foundationalProgress?.percentage || 0}%</span>
+                          <span className="progress-percent">{dashboardData?.momentumMetrics?.foundationalProgress?.percentage || 0}%</span>
                         </div>
                         <div className="progress-bar">
                           <div
                             className="progress-fill foundation"
-                            style={{ width: `${dashboardData.momentumMetrics?.foundationalProgress?.percentage || 0}%` }}
+                            style={{ width: `${dashboardData?.momentumMetrics?.foundationalProgress?.percentage || 0}%` }}
                           ></div>
                         </div>
                       </div>
                       <div className="progress-item">
                         <div className="progress-info">
                           <span className="progress-name">Ongoing</span>
-                          <span className="progress-percent">{dashboardData.momentumMetrics?.ongoingProgress?.percentage || 0}%</span>
+                          <span className="progress-percent">{dashboardData?.momentumMetrics?.ongoingProgress?.percentage || 0}%</span>
                         </div>
                         <div className="progress-bar">
                           <div
                             className="progress-fill ongoing"
-                            style={{ width: `${dashboardData.momentumMetrics?.ongoingProgress?.percentage || 0}%` }}
+                            style={{ width: `${dashboardData?.momentumMetrics?.ongoingProgress?.percentage || 0}%` }}
                           ></div>
                         </div>
                       </div>
@@ -490,21 +537,21 @@ const RestaurantDashboard = ({ setActiveTab }) => {
                     <div className="revenue-header">
                       <div className="revenue-icon">💰</div>
                       <div className="revenue-trend">
-                        {(dashboardData.momentumMetrics?.weeklyRevenuePotential || 0) > 0 ? "📈" : "📊"}
+                        {(dashboardData?.momentumMetrics?.weeklyRevenuePotential || 0) > 0 ? "📈" : "📊"}
                       </div>
                     </div>
-                    <div className="revenue-value">${dashboardData.momentumMetrics?.weeklyRevenuePotential || 0}</div>
+                    <div className="revenue-value">${dashboardData?.momentumMetrics?.weeklyRevenuePotential || 0}</div>
                     <div className="revenue-label">Weekly Revenue Potential</div>
                     <div className="revenue-bar">
                       <div
                         className="revenue-fill"
                         style={{
-                          width: `${Math.min(((dashboardData.momentumMetrics?.completedRevenue || 0) / Math.max((dashboardData.momentumMetrics?.totalPotential || 1), 1)) * 100, 100)}%`
+                          width: `${Math.min(((dashboardData?.momentumMetrics?.completedRevenue || 0) / Math.max((dashboardData?.momentumMetrics?.totalPotential || 1), 1)) * 100, 100)}%`
                         }}
                       ></div>
                     </div>
                     <div className="revenue-description">
-                      ${dashboardData.momentumMetrics?.completedRevenue || 0} unlocked of ${dashboardData.momentumMetrics?.totalPotential || 0} total
+                      ${dashboardData?.momentumMetrics?.completedRevenue || 0} unlocked of ${dashboardData?.momentumMetrics?.totalPotential || 0} total
                     </div>
                   </div>
                 </div>
@@ -515,35 +562,65 @@ const RestaurantDashboard = ({ setActiveTab }) => {
           {/* Get New Customers Tab */}
           {activeView === 'get-new-customers' && (
             <div className="get-new-customers-content">
-              <GetNewCustomers onBackToDashboard={() => setActiveView('overview')} />
+              <div className="placeholder-content">
+                <h2>🎯 Get New Customers</h2>
+                <p>Launch Facebook ads to attract new customers to your restaurant.</p>
+                <button className="btn-primary" onClick={() => setActiveTab('get-new-customers')}>
+                  Go to Get New Customers
+                </button>
+              </div>
             </div>
           )}
 
           {/* Bring Back Regulars Tab */}
           {activeView === 'bring-back-regulars' && (
             <div className="bring-back-regulars-content">
-              <BringBackRegulars onBackToDashboard={() => setActiveView('overview')} />
+              <div className="placeholder-content">
+                <h2>💬 Bring Back Regulars</h2>
+                <p>Send SMS campaigns to re-engage your past customers.</p>
+                <button className="btn-primary" onClick={() => setActiveTab('bring-back-regulars')}>
+                  Go to Bring Back Regulars
+                </button>
+              </div>
             </div>
           )}
 
           {/* Website Builder Tab */}
           {activeView === 'website-builder' && (
             <div className="website-builder-content">
-              <WebsiteBuilder onBackToDashboard={() => setActiveView('overview')} />
+              <div className="placeholder-content">
+                <h2>🌐 Website Builder</h2>
+                <p>Create stunning AI-powered restaurant websites.</p>
+                <button className="btn-primary" onClick={() => window.location.href = '/website-builder'}>
+                  Go to Website Builder
+                </button>
+              </div>
             </div>
           )}
 
           {/* AI Features Tab */}
           {activeView === 'ai-features' && (
             <div className="ai-features-content">
-              <AIFeatures />
+              <div className="placeholder-content">
+                <h2>🤖 AI Features</h2>
+                <p>Unlock AI-powered growth tools for your restaurant.</p>
+                <button className="btn-primary" onClick={() => setActiveTab('ai-features')}>
+                  Go to AI Features
+                </button>
+              </div>
             </div>
           )}
 
           {/* Marketing Foundations Tab */}
           {activeView === 'marketing-foundations' && (
             <div className="marketing-foundations-content">
-              <MarketingFoundations />
+              <div className="placeholder-content">
+                <h2>📚 Marketing Foundations</h2>
+                <p>Build your marketing foundation with essential setup tasks.</p>
+                <button className="btn-primary" onClick={() => setActiveTab('marketing-foundations')}>
+                  Go to Marketing Foundations
+                </button>
+              </div>
             </div>
           )}
         </div>

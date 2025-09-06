@@ -282,6 +282,26 @@
   color: #FCA5A5 !important;
 }
 
+/* Theme Toggle Button */
+.theme-toggle {
+  color: var(--color-brand-blue) !important;
+  margin-bottom: 8px;
+}
+
+.dark-mode .theme-toggle {
+  color: #60A5FA !important;
+}
+
+.theme-toggle:hover {
+  background: rgba(1, 90, 246, 0.1) !important;
+  color: var(--color-brand-blue) !important;
+}
+
+.dark-mode .theme-toggle:hover {
+  background: rgba(96, 165, 250, 0.15) !important;
+  color: #60A5FA !important;
+}
+
 /* Main Content Area */
 .restaurant-main-content {
   flex: 1;
@@ -352,6 +372,45 @@
 .ai-features-content,
 .marketing-foundations-content {
   height: 100%;
+}
+
+/* Placeholder content for non-overview views */
+.placeholder-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 20px;
+  background: var(--color-background-container);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .placeholder-content {
+  background: var(--color-dark-background-container);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.placeholder-content h2 {
+  margin: 0 0 16px 0;
+  color: var(--color-primary-text);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.dark-mode .placeholder-content h2 {
+  color: #FFFFFF;
+}
+
+.placeholder-content p {
+  margin: 0 0 24px 0;
+  color: var(--color-secondary-text);
+  font-size: 16px;
+}
+
+.dark-mode .placeholder-content p {
+  color: #94A3B8;
 }
 
 /* Responsive Design for Sidebar */
@@ -1904,7 +1963,8 @@
   color: var(--color-dark-secondary-text);
 }
 
-@keyframes spin {
+@keyframes spin
+ {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }

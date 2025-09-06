@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface ThemeContextType {
   theme: string;
@@ -11,13 +11,9 @@ interface ThemeContextType {
   isLight: boolean;
 }
 
-interface ThemeProviderProps {
-  children: ReactNode;
-}
-
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const useTheme = (): ThemeContextType => {
+export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {
     throw new Error('useTheme must be used within a ThemeProvider');
@@ -25,18 +21,19 @@ export const useTheme = (): ThemeContextType => {
   return context;
 };
 
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [theme, setTheme] = useState('dark');
+interface ThemeProviderProps {
+  children: React.ReactNode;
+}
 
-  // Initialize theme from localStorage after component mounts
-  useEffect(() => {
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
+  const [theme, setTheme] = useState(() => {
+    // Check localStorage first, then default to 'dark'
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('theme');
-      if (savedTheme) {
-        setTheme(savedTheme);
-      }
+      return savedTheme || 'dark';
     }
-  }, []);
+    return 'dark';
+  });
 
   // Apply theme to document on mount and when theme changes
   useEffect(() => {

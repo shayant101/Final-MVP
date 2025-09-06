@@ -1,11 +1,16 @@
+'use client';
+
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import './WebsiteEditor.css';
 import { websiteBuilderAPI } from '../../services/websiteBuilderAPI';
 
-const WebsiteEditor = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+interface WebsiteEditorProps {
+  id: string;
+}
+
+const WebsiteEditor: React.FC<WebsiteEditorProps> = ({ id }) => {
+  const router = useRouter();
   const [website, setWebsite] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -45,7 +50,7 @@ const WebsiteEditor = () => {
       console.log('🔍 DEBUG: WebsiteEditor - Website data loaded successfully');
     } catch (error) {
       console.error('🔍 DEBUG: WebsiteEditor - Error fetching website:', error);
-      setError('Error loading website: ' + error.message);
+      setError('Error loading website: ' + (error as any).message);
     } finally {
       setLoading(false);
     }
@@ -55,7 +60,7 @@ const WebsiteEditor = () => {
     fetchWebsiteData();
   }, [fetchWebsiteData]);
 
-  const handleContentChange = (field, value) => {
+  const handleContentChange = (field: string, value: any) => {
     setEditableContent(prev => ({
       ...prev,
       [field]: value
@@ -87,14 +92,14 @@ const WebsiteEditor = () => {
       console.log('🔍 DEBUG: WebsiteEditor - Save completed successfully');
     } catch (error) {
       console.error('🔍 DEBUG: WebsiteEditor - Error saving website:', error);
-      alert('Error saving website: ' + error.message);
+      alert('Error saving website: ' + (error as any).message);
     } finally {
       setSaving(false);
     }
   };
 
   const handlePreview = () => {
-    navigate(`/website-builder/preview/${id}`);
+    router.push(`/website-builder/preview/${id}`);
   };
 
   const handleRegenerate = async () => {
@@ -121,7 +126,7 @@ const WebsiteEditor = () => {
       console.log('🔍 DEBUG: WebsiteEditor - Regenerate started successfully');
     } catch (error) {
       console.error('🔍 DEBUG: WebsiteEditor - Error regenerating website:', error);
-      alert('Error regenerating website: ' + error.message);
+      alert('Error regenerating website: ' + (error as any).message);
     }
   };
 
@@ -140,7 +145,7 @@ const WebsiteEditor = () => {
         <div className="error-icon">⚠️</div>
         <h3>Error Loading Editor</h3>
         <p>{error}</p>
-        <button className="btn-primary" onClick={() => navigate('/website-builder')}>
+        <button className="btn-primary" onClick={() => router.push('/website-builder')}>
           Back to Website Builder
         </button>
       </div>
@@ -154,7 +159,7 @@ const WebsiteEditor = () => {
         <div className="editor-title">
           <button 
             className="back-btn"
-            onClick={() => navigate('/website-builder')}
+            onClick={() => router.push('/website-builder')}
           >
             ← Back
           </button>
@@ -229,7 +234,7 @@ const WebsiteEditor = () => {
                 onChange={(e) => handleContentChange('html', e.target.value)}
                 placeholder="HTML content will appear here..."
                 className="code-editor html-editor"
-                rows="15"
+                rows={15}
               />
               <p className="editor-help">
                 💡 Edit the HTML structure of your website. Be careful with the markup structure.
@@ -243,7 +248,7 @@ const WebsiteEditor = () => {
                 onChange={(e) => handleContentChange('custom_requirements', e.target.value)}
                 placeholder="Describe any specific requirements or changes you'd like..."
                 className="form-textarea"
-                rows="4"
+                rows={4}
               />
               <p className="editor-help">
                 💡 These requirements will be used when regenerating the website.
@@ -261,7 +266,7 @@ const WebsiteEditor = () => {
                 onChange={(e) => handleContentChange('css', e.target.value)}
                 placeholder="CSS styles will appear here..."
                 className="code-editor css-editor"
-                rows="20"
+                rows={20}
               />
               <p className="editor-help">
                 💡 Customize the visual appearance of your website with CSS.

@@ -1,9 +1,11 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import './WelcomeToFreedom.css';
 
 const WelcomeToFreedom = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [animationPhase, setAnimationPhase] = useState(0);
   const [showTransformation, setShowTransformation] = useState(false);
 
@@ -26,7 +28,7 @@ const WelcomeToFreedom = () => {
   }, []);
 
   const handleContinue = () => {
-    navigate('/dashboard');
+    router.push('/dashboard');
   };
 
   const handleCheckEmail = () => {

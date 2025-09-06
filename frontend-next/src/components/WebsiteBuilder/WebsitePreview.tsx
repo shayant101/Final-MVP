@@ -1,14 +1,38 @@
+'use client';
+
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import './WebsitePreview.css';
 import { websiteBuilderAPI } from '../../services/websiteBuilderAPI';
+
+// Helper function to get the API base URL for images
+const getImageUrl = (imagePath: string): string => {
+  if (!imagePath) return '';
+  if (imagePath.startsWith('http')) return imagePath;
+  
+  // Always use the backend server URL for images, not the Next.js dev server
+  const backendBaseUrl = process.env.NODE_ENV === 'production'
+    ? 'https://final-mvp-jc3a.onrender.com'
+    : 'http://localhost:8000';
+  
+  // If imagePath already starts with /api, use it as is, otherwise prepend it
+  const fullImageUrl = imagePath.startsWith('/api')
+    ? `${backendBaseUrl}${imagePath}`
+    : `${backendBaseUrl}/api/website-builder/images/${imagePath}`;
+    
+  console.log('🔍 DEBUG: getImageUrl - Input:', imagePath, 'Output:', fullImageUrl);
+  return fullImageUrl;
+};
 import EditableElement from './EditableElement';
 import EditableImageElement from './EditableImageElement';
 import { useMediaUploader } from './MediaUploader';
 
-const WebsitePreview = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+interface WebsitePreviewProps {
+  id: string;
+}
+
+const WebsitePreview: React.FC<WebsitePreviewProps> = ({ id }) => {
+  const router = useRouter();
   const [website, setWebsite] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -86,7 +110,7 @@ const WebsitePreview = () => {
   }, [fetchWebsiteData]);
 
   const handleEdit = () => {
-    navigate(`/website-builder/edit/${id}`);
+    router.push(`/website-builder/edit/${id}`);
   };
 
   const handlePublish = async () => {
@@ -666,7 +690,7 @@ const WebsitePreview = () => {
       ];
 
       return menuItems.map(item => {
-        const absoluteImageUrl = item.image ? (item.image.startsWith('http') ? item.image : `${window.location.origin}${item.image}`) : null;
+        const absoluteImageUrl = getImageUrl(item.image);
         
         return `
           <div class="menu-item">
@@ -707,7 +731,7 @@ const WebsitePreview = () => {
       }
 
       return galleryImages.map((image, index) => {
-        const absoluteImageUrl = image.url ? (image.url.startsWith('http') ? image.url : `${window.location.origin}${image.url}`) : null;
+        const absoluteImageUrl = getImageUrl(image.url);
         
         return `
           <div class="gallery-item">
@@ -763,7 +787,7 @@ const WebsitePreview = () => {
       const heroImage = website.hero_image;
       
       // Convert relative URLs to absolute URLs for iframe
-      const absoluteHeroImage = heroImage ? (heroImage.startsWith('http') ? heroImage : `${window.location.origin}${heroImage}`) : null;
+      const absoluteHeroImage = getImageUrl(heroImage);
       
       console.log('🔍 DEBUG: generateHTML - Restaurant name:', restaurantName);
       console.log('🔍 DEBUG: generateHTML - Hero image:', heroImage);
@@ -938,7 +962,7 @@ const WebsitePreview = () => {
         {/* NEW: Optional menu item image */}
         {(editMode || item.image) && (
           <EditableImageElement
-            src={item.image}
+            src={getImageUrl(item.image)}
             alt={`${item.name} image`}
             onImageUpload={handleImageUpload}
             editMode={editMode}
@@ -1028,22 +1052,83 @@ const WebsitePreview = () => {
         }}>
           {/* Hero Background Image */}
           {editMode && (
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0 }}>
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 0
+            }}>
               <EditableImageElement
-                src={website?.hero_image}
+                src={getImageUrl(website?.hero_image || '')}
                 alt="Hero background"
                 onImageUpload={handleImageUpload}
                 editMode={editMode}
-                placeholder="Click to upload hero image"
+                placeholder=""
                 imageType="hero"
                 dataPath="hero_image"
                 style={{
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
-                  opacity: 0.3
+                  opacity: website?.hero_image ? 0.3 : 0.05
                 }}
               />
+              {/* Hero image upload indicator - always show in edit mode */}
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: '20px',
+                  right: '20px',
+                  background: 'rgba(0,0,0,0.7)',
+                  color: 'white',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  backdropFilter: 'blur(4px)',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  cursor: 'pointer',
+                  zIndex: 10,
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+                onClick={() => {
+                  // Trigger the EditableImageElement's file input
+                  const fileInput = document.createElement('input');
+                  fileInput.type = 'file';
+                  fileInput.accept = 'image/*';
+                  fileInput.style.display = 'none';
+                  
+                  fileInput.onchange = async (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (file) {
+                      try {
+                        await handleImageUpload(file, 'hero', 'hero_image');
+                      } catch (error) {
+                        console.error('Hero image upload failed:', error);
+                        alert('Failed to upload image. Please try again.');
+                      }
+                    }
+                    document.body.removeChild(fileInput);
+                  };
+                  
+                  document.body.appendChild(fileInput);
+                  fileInput.click();
+                }}
+                onMouseEnter={(e) => {
+                  (e.target as HTMLElement).style.background = 'rgba(0,0,0,0.8)';
+                  (e.target as HTMLElement).style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.target as HTMLElement).style.background = 'rgba(0,0,0,0.7)';
+                  (e.target as HTMLElement).style.transform = 'scale(1)';
+                }}
+              >
+                📷 {website?.hero_image ? 'Change background' : 'Add background'}
+              </div>
             </div>
           )}
           
@@ -1425,7 +1510,7 @@ const WebsitePreview = () => {
                   transition: 'transform 0.3s ease'
                 }}>
                   <EditableImageElement
-                    src={image.url}
+                    src={getImageUrl(image.url)}
                     alt={image.alt || `Gallery image ${index + 1}`}
                     onImageUpload={handleImageUpload}
                     editMode={editMode}
@@ -1815,7 +1900,7 @@ const WebsitePreview = () => {
         <div className="error-icon">⚠️</div>
         <h3>Error Loading Preview</h3>
         <p>{error}</p>
-        <button className="btn-primary" onClick={() => navigate('/website-builder')}>
+        <button className="btn-primary" onClick={() => router.push('/website-builder')}>
           Back to Website Builder
         </button>
       </div>
@@ -1829,7 +1914,7 @@ const WebsitePreview = () => {
         <div className="preview-header-left">
           <button
             className="back-btn"
-            onClick={() => navigate('/website-builder')}
+            onClick={() => router.push('/website-builder')}
             title="Back to Website Builder"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

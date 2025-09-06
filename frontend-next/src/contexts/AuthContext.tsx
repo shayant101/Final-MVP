@@ -53,6 +53,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (typeof window !== 'undefined') {
       const savedToken = localStorage.getItem('token');
       setToken(savedToken);
+      
+      // Also set cookie for middleware
+      if (savedToken) {
+        document.cookie = `token=${savedToken}; path=/; max-age=${7 * 24 * 60 * 60}`; // 7 days
+      }
     }
   }, []);
 
@@ -86,6 +91,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
       
       localStorage.setItem('token', newToken);
+      // Set cookie for middleware
+      document.cookie = `token=${newToken}; path=/; max-age=${7 * 24 * 60 * 60}`; // 7 days
       setToken(newToken);
       setUser(userData);
       
@@ -104,6 +111,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const { token: newToken, user: newUser } = response;
       
       localStorage.setItem('token', newToken);
+      // Set cookie for middleware
+      document.cookie = `token=${newToken}; path=/; max-age=${7 * 24 * 60 * 60}`; // 7 days
       setToken(newToken);
       setUser(newUser);
       
@@ -118,8 +127,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    // Clear cookie
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
     setToken(null);
     setUser(null);
+    // Redirect to landing page
+    window.location.href = '/';
   };
 
   const impersonate = async (restaurantId: string) => {
@@ -128,6 +141,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const { token: newToken, impersonating_restaurant } = response;
       
       localStorage.setItem('token', newToken);
+      // Set cookie for middleware
+      document.cookie = `token=${newToken}; path=/; max-age=${7 * 24 * 60 * 60}`; // 7 days
       setToken(newToken);
       
       // Update user with impersonation info
@@ -149,6 +164,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const { token: newToken } = response;
       
       localStorage.setItem('token', newToken);
+      // Set cookie for middleware
+      document.cookie = `token=${newToken}; path=/; max-age=${7 * 24 * 60 * 60}`; // 7 days
       setToken(newToken);
       
       // Remove impersonation info from user

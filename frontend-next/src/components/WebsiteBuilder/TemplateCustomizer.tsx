@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useRouter } from 'next/navigation';
 import './TemplateCustomizer.css';
 import { websiteBuilderAPI } from '../../services/websiteBuilderAPI';
 import { dashboardAPI } from '../../services/api';
 
 const TemplateCustomizer = () => {
   const { templateId } = useParams();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('content');
   const [previewMode, setPreviewMode] = useState('desktop');
@@ -199,22 +199,22 @@ const TemplateCustomizer = () => {
     ]
   });
 
-  const currentTemplate = templateData[templateId];
+  const currentTemplate = templateData[templateId as keyof typeof templateData];
 
   useEffect(() => {
     if (!currentTemplate) {
-      navigate('/website-builder/templates');
+      router.push('/website-builder/templates');
     }
-  }, [templateId, currentTemplate, navigate]);
+  }, [templateId, currentTemplate, router]);
 
-  const handleCustomizationChange = (field, value) => {
+  const handleCustomizationChange = (field: string, value: string) => {
     setCustomization(prev => ({
       ...prev,
       [field]: value
     }));
   };
 
-  const handleMenuItemChange = (index, field, value) => {
+  const handleMenuItemChange = (index: number, field: string, value: string) => {
     const newMenuItems = [...customization.menu_items];
     newMenuItems[index] = { ...newMenuItems[index], [field]: value };
     setCustomization(prev => ({
@@ -230,7 +230,7 @@ const TemplateCustomizer = () => {
     }));
   };
 
-  const removeMenuItem = (index) => {
+  const removeMenuItem = (index: number) => {
     setCustomization(prev => ({
       ...prev,
       menu_items: prev.menu_items.filter((_, i) => i !== index)
@@ -256,7 +256,7 @@ const TemplateCustomizer = () => {
         html = html.replace('{{menu_items}}', menuHtml);
       } else {
         const regex = new RegExp(`{{${key}}}`, 'g');
-        html = html.replace(regex, customization[key]);
+        html = html.replace(regex, (customization as any)[key]);
       }
     });
 
@@ -306,7 +306,7 @@ const TemplateCustomizer = () => {
         template_id: templateId,
         template_customizations: customization,
         generated_content: {
-          html: generatePreviewHtml().match(/<body>(.*?)<\/body>/s)?.[1] || '',
+          html: generatePreviewHtml().match(/<body>(.*?)<\/body>/)?.[1] || '',
           css: currentTemplate.baseCss.replace(/{{primary_color}}/g, customization.primary_color).replace(/{{secondary_color}}/g, customization.secondary_color)
         },
         design_category: currentTemplate.category,
@@ -317,10 +317,10 @@ const TemplateCustomizer = () => {
       const result = await websiteBuilderAPI.createFromTemplate(websiteData);
       console.log('🔍 DEBUG: TemplateCustomizer - Template creation result:', result);
       
-      navigate(`/website-builder/preview/${result.website_id}`);
+      router.push(`/website-builder/preview/${result.website_id}`);
     } catch (error) {
       console.error('🔍 DEBUG: TemplateCustomizer - Error creating website:', error);
-      alert('Error creating website: ' + error.message);
+      alert('Error creating website: ' + (error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -341,7 +341,7 @@ const TemplateCustomizer = () => {
       <div className="customizer-header">
         <button 
           className="back-btn"
-          onClick={() => navigate('/website-builder/templates')}
+          onClick={() => router.push('/website-builder/templates')}
         >
           ← Back to Templates
         </button>
@@ -408,7 +408,7 @@ const TemplateCustomizer = () => {
                   <textarea
                     value={customization.about_description}
                     onChange={(e) => handleCustomizationChange('about_description', e.target.value)}
-                    rows="4"
+                    rows={4}
                   />
                 </div>
 
@@ -492,7 +492,7 @@ const TemplateCustomizer = () => {
                         <textarea
                           value={item.description}
                           onChange={(e) => handleMenuItemChange(index, 'description', e.target.value)}
-                          rows="2"
+                          rows={2}
                         />
                       </div>
 

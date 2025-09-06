@@ -1,9 +1,15 @@
+'use client';
+
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import './TemplateGallery.css';
 
-const TemplateGallery = () => {
-  const navigate = useNavigate();
+interface TemplateGalleryProps {
+  onBackToDashboard?: () => void;
+}
+
+const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onBackToDashboard }) => {
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   // Template data with different restaurant types
@@ -77,8 +83,8 @@ const TemplateGallery = () => {
     ? templates 
     : templates.filter(template => template.category === selectedCategory);
 
-  const handleSelectTemplate = (templateId) => {
-    navigate(`/website-builder/templates/${templateId}/customize`);
+  const handleSelectTemplate = (templateId: string) => {
+    router.push(`/website-builder/templates/${templateId}/customize`);
   };
 
   return (
@@ -86,7 +92,7 @@ const TemplateGallery = () => {
       <div className="gallery-header">
         <button 
           className="back-btn"
-          onClick={() => navigate('/website-builder')}
+          onClick={() => onBackToDashboard ? onBackToDashboard() : router.push('/website-builder')}
         >
           ← Back to Website Builder
         </button>

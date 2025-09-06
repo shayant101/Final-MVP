@@ -1,10 +1,12 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useRouter } from 'next/navigation';
 import './EmailVerificationSuccess.css';
 
 const EmailVerificationSuccess = () => {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [verificationStatus, setVerificationStatus] = useState('verifying'); // 'verifying', 'success', 'error'
   const [animationPhase, setAnimationPhase] = useState(0);
   const token = searchParams.get('token');
@@ -45,7 +47,7 @@ const EmailVerificationSuccess = () => {
   }, [token]);
 
   const handleContinue = () => {
-    navigate('/login');
+    router.push('/login');
   };
 
   if (verificationStatus === 'verifying') {
@@ -74,7 +76,7 @@ const EmailVerificationSuccess = () => {
           <div className="error-icon">❌</div>
           <h2>Verification Failed</h2>
           <p>The verification link is invalid or has expired.</p>
-          <button className="retry-button" onClick={() => navigate('/login')}>
+          <button className="retry-button" onClick={() => router.push('/login')}>
             Back to Login
           </button>
         </div>
