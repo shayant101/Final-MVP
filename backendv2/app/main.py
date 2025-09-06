@@ -11,6 +11,7 @@ from .routes.content_generation import router as content_router
 from .routes.ai_features import router as ai_router
 from .routes.admin import router as admin_router
 from .routes.website_builder import router as website_builder_router
+from .routes.website_publishing import router as website_publishing_router
 from .routes.media_upload import router as media_router
 from .routes.media_upload_v2 import router as media_router_v2
 from .routes.phase3_routes import get_phase3_routers
@@ -56,7 +57,8 @@ async def startup_event():
     print("🧠 AI Features endpoints available at /api/ai")
     print("👑 Admin endpoints available at /api/admin")
     print("🌐 Website Builder endpoints available at /api/website-builder")
-    print("📸 Media Upload endpoints available at /api/website-builder/upload-image")
+    print("🚀 Website Publishing endpoints available at /api/website-builder")
+    print("� Media Upload endpoints available at /api/website-builder/upload-image")
     print("📈 Phase 3 Business Intelligence endpoints available:")
     print("   📊 Billing & Subscriptions at /api/billing")
     print("   📈 Revenue Analytics at /api/revenue")
@@ -90,6 +92,7 @@ app.include_router(content_router)
 app.include_router(ai_router)
 app.include_router(admin_router)
 app.include_router(website_builder_router)
+app.include_router(website_publishing_router)
 app.include_router(media_router)
 app.include_router(media_router_v2)
 

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.page_title or seo.site_title or website.website_name or 'Restaurant' }}</title>
+    <meta name="description" content="{{ page.meta_description or seo.site_description or 'Welcome to our restaurant' }}">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ page.page_title or seo.site_title or website.website_name }}">
+    <meta property="og:description" content="{{ page.meta_description or seo.site_description }}">
+    <meta property="og:image" content="{{ seo.og_image or hero_image or '/images/hero/default.jpg' }}">
+    <meta property="og:url" content="{{ website.live_url or '' }}">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="{{ seo.twitter_card or 'summary_large_image' }}">
+    <meta property="twitter:title" content="{{ page.page_title or seo.site_title }}">
+    <meta property="twitter:description" content="{{ page.meta_description or seo.site_description }}">
+    <meta property="twitter:image" content="{{ seo.og_image or hero_image or '/images/hero/default.jpg' }}">
+    
+    <!-- Favicon and Icons -->
+    <link rel="icon" type="image/x-icon" href="/images/icons/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="{{ design.color_palette.primary or '#2c3e50' }}">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="{{ hero_image or '/images/hero/default.jpg' }}" as="image">
+    <link rel="preload" href="/css/main.css" as="style">
+    
+    <!-- SEO Keywords -->
+    {% if seo.keywords %}
+    <meta name="keywords" content="{{ seo.keywords | join(', ') }}">
+    {% endif %}
+    
+    <!-- Canonical URL -->
+    {% if seo.canonical_url %}
+    <link rel="canonical" href="{{ seo.canonical_url }}">
+    {% endif %}
+    
+    <!-- Analytics -->
+    {% if seo.analytics_code %}
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ seo.analytics_code }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ seo.analytics_code }}');
+    </script>
+    {% endif %}
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Restaurant",
+        "name": "{{ website.website_name or 'Restaurant' }}",
+        "description": "{{ seo.site_description or 'Welcome to our restaurant' }}",
+        "url": "{{ website.live_url or '' }}",
+        "telephone": "(555) 123-4567",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "123 Restaurant Street",
+            "addressLocality": "City",
+            "addressRegion": "State",
+            "postalCode": "12345",
+            "addressCountry": "US"
+        },
+        "openingHours": [
+            "Mo-Su 11:00-22:00"
+        ],
+        "servesCuisine": "American",
+        "priceRange": "$$",
+        "image": "{{ hero_image or '/images/hero/default.jpg' }}",
+        "hasMenu": "{{ website.live_url or '' }}#menu"
+    }
+    </script>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="sr-only">Skip to main content</a>
+    
+    <!-- Header -->
+    <header class="header" role="banner">
+        <nav class="navbar" role="navigation" aria-label="Main navigation">
+            <div class="container">
+                <div class="nav-brand">
+                    <h1>{{ website.website_name or 'Restaurant' }}</h1>
+                </div>
+                <div class="nav-menu">
+                    <a href="#home" aria-label="Go to home section">Home</a>
+                    <a href="#menu" aria-label="Go to menu section">Menu</a>
+                    <a href="#about" aria-label="Go to about section">About</a>
+                    <a href="#contact" aria-label="Go to contact section">Contact</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+    
+    <!-- Main Content -->
+    <main id="main-content" class="main-content" role="main">
+        
+        <!-- Hero Section -->
+        <section id="home" class="hero-section" role="banner">
+            <div class="hero-background" style="background-image: url('{{ hero_image or '/images/hero/default.jpg' }}');" aria-hidden="true">
+                <div class="hero-overlay">
+                    <div class="container">
+                        <div class="hero-content">
+                            <h1 class="hero-title">{{ website.website_name or 'Welcome to Our Restaurant' }}</h1>
+                            <p class="hero-subtitle">Experience exceptional dining with fresh ingredients and authentic flavors</p>
+                            <div class="hero-actions">
+                                <a href="#menu" class="btn btn-primary" aria-label="View our menu">View Menu</a>
+                                <a href="#contact" class="btn btn-secondary" aria-label="Make a reservation">Make Reservation</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Menu Section -->
+        {% if menu_items %}
+        <section id="menu" class="menu-section" role="region" aria-labelledby="menu-heading">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="menu-heading">Our Menu</h2>
+                    <p>Discover our carefully crafted dishes</p>
+                </div>
+                <div class="menu-grid">
+                    {% for item in menu_items[:12] %}
+                    <article class="menu-item">
+                        <div class="menu-item-image">
+                            <img src="{{ item.image or '/images/menu/default.jpg' }}" 
+                                 alt="{{ item.name or 'Menu Item' }}" 
+                                 loading="lazy"
+                                 width="400" 
+                                 height="300">
+                        </div>
+                        <div class="menu-item-content">
+                            <h3 class="menu-item-name">{{ item.name or 'Menu Item' }}</h3>
+                            <p class="menu-item-description">{{ item.description or 'Delicious dish made with fresh ingredients' }}</p>
+                            <span class="menu-item-price" aria-label="Price: ${{ item.price or '0.00' }}">${{ item.price or '0.00' }}</span>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+        {% endif %}
+        
+        <!-- About Section -->
+        <section id="about" class="about-section" role="region" aria-labelledby="about-heading">
+            <div class="container">
+                <div class="about-content">
+                    <div class="about-text">
+                        <h2 id="about-heading">About Us</h2>
+                        <p>We are passionate about serving exceptional food made with the finest ingredients. Our commitment to quality and service has made us a favorite dining destination.</p>
+                        <p>Come experience the perfect blend of traditional recipes and modern culinary techniques in a warm, welcoming atmosphere.</p>
+                    </div>
+                    <div class="about-image">
+                        <img src="/images/gallery/restaurant-interior.jpg" 
+                             alt="Restaurant Interior" 
+                             loading="lazy"
+                             width="600" 
+                             height="400">
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Contact Section -->
+        <section id="contact" class="contact-section" role="region" aria-labelledby="contact-heading">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="contact-heading">Contact Us</h2>
+                    <p>Get in touch or make a reservation</p>
+                </div>
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <h4>Address</h4>
+                            <address>
+                                123 Restaurant Street<br>
+                                City, State 12345
+                            </address>
+                        </div>
+                        <div class="contact-item">
+                            <h4>Phone</h4>
+                            <p><a href="tel:+15551234567" aria-label="Call us at (555) 123-4567">(555) 123-4567</a></p>
+                        </div>
+                        <div class="contact-item">
+                            <h4>Email</h4>
+                            <p><a href="mailto:info@restaurant.com" aria-label="Email us at info@restaurant.com">info@restaurant.com</a></p>
+                        </div>
+                        <div class="contact-item">
+                            <h4>Hours</h4>
+                            <p>Monday - Sunday<br>11:00 AM - 10:00 PM</p>
+                        </div>
+                    </div>
+                    <div class="contact-form">
+                        <form class="reservation-form" role="form" aria-labelledby="form-heading">
+                            <h3 id="form-heading" class="sr-only">Contact Form</h3>
+                            <div class="form-group">
+                                <label for="name" class="sr-only">Your Name</label>
+                                <input type="text" 
+                                       id="name" 
+                                       name="name" 
+                                       placeholder="Your Name" 
+                                       required 
+                                       aria-required="true">
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="sr-only">Your Email</label>
+                                <input type="email" 
+                                       id="email" 
+                                       name="email" 
+                                       placeholder="Your Email" 
+                                       required 
+                                       aria-required="true">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone" class="sr-only">Your Phone</label>
+                                <input type="tel" 
+                                       id="phone" 
+                                       name="phone" 
+                                       placeholder="Your Phone">
+                            </div>
+                            <div class="form-group">
+                                <label for="message" class="sr-only">Special requests or questions</label>
+                                <textarea id="message" 
+                                          name="message" 
+                                          placeholder="Special requests or questions" 
+                                          rows="4"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>{{ website.website_name or 'Restaurant' }}</h3>
+                    <p>Delicious food, exceptional service.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>Phone: <a href="tel:+15551234567">(555) 123-4567</a></p>
+                    <p>Email: <a href="mailto:info@restaurant.com">info@restaurant.com</a></p>
+                </div>
+                <div class="footer-section">
+                    <h4>Hours</h4>
+                    <p>Mon-Sun: 11:00 AM - 10:00 PM</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Follow Us</h4>
+                    <div class="social-links">
+                        <a href="#" aria-label="Follow us on Facebook">Facebook</a>
+                        <a href="#" aria-label="Follow us on Instagram">Instagram</a>
+                        <a href="#" aria-label="Follow us on Twitter">Twitter</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; {{ current_year }} {{ website.website_name or 'Restaurant' }}. All rights reserved.</p>
+                <p>Generated on {{ generation_date }}</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="/js/main.js"></script>
+    <script src="/js/performance.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(function(registrationError) {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

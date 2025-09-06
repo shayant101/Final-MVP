@@ -15,10 +15,13 @@ from ..models_website_builder import (
     PageUpdateRequest, WebsitePreviewRequest, WebsitePreviewResponse,
     AIGenerationProgress, WebsiteBuilderDashboard, WebsiteTemplate,
     WebsiteAnalytics, WebsiteBackup, WebsiteDeployment, WebsiteStatus,
-    AIGenerationSettings, WebsitePerformanceMetrics
+    AIGenerationSettings, WebsitePerformanceMetrics,
+    WebsitePublishRequest, WebsitePublishResponse, WebsiteUnpublishRequest,
+    WebsiteUnpublishResponse, WebsitePublishStatusResponse
 )
 from ..services.ai_website_generator import ai_website_generator
 from ..services.admin_analytics_service import admin_analytics_service
+from ..services.website_publishing_service import WebsitePublishingService
 from ..database import get_database
 from ..auth import get_current_user, get_restaurant_id, require_restaurant
 
@@ -377,57 +380,6 @@ async def delete_website(
         logger.error(f"🔍 DEBUG: Website Builder - Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail="Failed to delete website")
 
-@router.post("/websites/{website_id}/publish")
-async def publish_website(
-    website_id: str,
-    current_user = Depends(get_current_user),
-    db = Depends(get_database)
-):
-    """
-    Publish the website to make it live
-    """
-    try:
-        # Get website
-        website = await db.websites.find_one({"website_id": website_id})
-        if not website:
-            raise HTTPException(status_code=404, detail="Website not found")
-        
-        # Verify user has access
-        await _verify_restaurant_access(website["restaurant_id"], current_user, db)
-        
-        # Update website status
-        await db.websites.update_one(
-            {"website_id": website_id},
-            {
-                "$set": {
-                    "status": WebsiteStatus.published,
-                    "published_at": datetime.now(),
-                    "updated_at": datetime.now()
-                }
-            }
-        )
-        
-        # Log analytics
-        asyncio.create_task(admin_analytics_service.log_ai_usage(
-            restaurant_id=website["restaurant_id"],
-            feature_type="website_builder",
-            operation_type="website_published",
-            processing_time=0,
-            tokens_used=0,
-            status="success",
-            metadata={
-                "website_id": website_id,
-                "website_name": website.get("website_name", "Unknown")
-            }
-        ))
-        
-        return {"success": True, "message": "Website published successfully"}
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Failed to publish website: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to publish website")
 
 @router.patch("/websites/{website_id}/content")
 async def update_website_content(
@@ -863,6 +815,15 @@ async def update_website_content(
             logger.warning(f"🔍 DEBUG: Website Builder - No documents were modified for website: {website_id}")
         else:
             logger.info(f"🔍 DEBUG: Website Builder - Successfully updated website: {website_id}")
+            
+            # Mark website as having unpublished changes if it's currently published
+            if website.get("status") == WebsiteStatus.published.value:
+                try:
+                    publishing_service = WebsitePublishingService(db)
+                    await publishing_service.mark_website_as_changed(website_id, restaurant_id)
+                    logger.info(f"🔍 DEBUG: Website Builder - Marked website {website_id} as having unpublished changes")
+                except Exception as e:
+                    logger.warning(f"🔍 DEBUG: Website Builder - Failed to mark website as changed: {str(e)}")
         
         # Return success response
         return {"success": True, "message": "Content updated successfully", "updated_fields": list(content_updates.keys())}
@@ -918,6 +879,15 @@ async def update_website_colors(
         )
         
         logger.info(f"🔍 DEBUG: Website Builder - Successfully updated colors for website: {website_id}")
+        
+        # Mark website as having unpublished changes if it's currently published
+        if website.get("status") == WebsiteStatus.published.value:
+            try:
+                publishing_service = WebsitePublishingService(db)
+                await publishing_service.mark_website_as_changed(website_id, restaurant_id)
+                logger.info(f"🔍 DEBUG: Website Builder - Marked website {website_id} as having unpublished changes")
+            except Exception as e:
+                logger.warning(f"🔍 DEBUG: Website Builder - Failed to mark website as changed: {str(e)}")
         
         return {
             "success": True,

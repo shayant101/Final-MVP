@@ -135,6 +135,15 @@ class RestaurantWebsite(BaseModel):
     # MISSING FIELDS ADDED:
     hero_image: Optional[str] = Field(None, description="Hero background image URL")
     menu_items: List[Dict[str, Any]] = Field(default_factory=list, description="Restaurant menu items")
+    # NEW PUBLISHING FIELDS:
+    live_url: Optional[str] = Field(None, description="Live published URL (e.g., restaurant-name.ourplatform.com)")
+    published_content: Optional[Dict[str, Any]] = Field(None, description="Snapshot of content when published")
+    subdomain: Optional[str] = Field(None, description="Generated subdomain for the restaurant")
+    ssl_certificate_arn: Optional[str] = Field(None, description="AWS ACM certificate ARN for HTTPS")
+    cdn_distribution_id: Optional[str] = Field(None, description="CloudFront distribution ID")
+    static_files_bucket: Optional[str] = Field(None, description="S3 bucket storing static files")
+    last_published_at: Optional[datetime] = Field(None, description="When the website was last published")
+    has_unpublished_changes: bool = Field(default=False, description="True if draft differs from published version")
     created_at: datetime
     updated_at: datetime
     published_at: Optional[datetime] = Field(None)
@@ -213,6 +222,38 @@ class WebsiteDeployment(BaseModel):
     deployed_at: Optional[datetime] = None
     deployment_time: Optional[int] = Field(None, description="Deployment time in seconds")
     error_details: Optional[str] = None
+
+# Publishing Request/Response Models
+class WebsitePublishRequest(BaseModel):
+    website_id: str
+    force_republish: bool = Field(default=False, description="Force republish even if no changes")
+    custom_subdomain: Optional[str] = Field(None, description="Custom subdomain override")
+
+class WebsitePublishResponse(BaseModel):
+    success: bool
+    message: str
+    live_url: Optional[str] = None
+    deployment_id: Optional[str] = None
+    estimated_completion_time: Optional[int] = Field(None, description="Estimated time in seconds")
+    error_details: Optional[str] = None
+
+class WebsiteUnpublishRequest(BaseModel):
+    website_id: str
+    keep_static_files: bool = Field(default=False, description="Keep static files for quick republish")
+
+class WebsiteUnpublishResponse(BaseModel):
+    success: bool
+    message: str
+    cleanup_details: Optional[Dict[str, Any]] = None
+
+class WebsitePublishStatusResponse(BaseModel):
+    website_id: str
+    status: WebsiteStatus
+    live_url: Optional[str] = None
+    last_published_at: Optional[datetime] = None
+    has_unpublished_changes: bool
+    deployment_status: Optional[str] = None
+    performance_metrics: Optional[Dict[str, Any]] = None
 
 # API Request/Response Models
 class WebsiteListResponse(BaseModel):
