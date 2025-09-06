@@ -2,22 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import './AIFeatures.css';
 import ScoreBreakdown from './ScoreBreakdown';
 import ImageEnhancement from './ImageEnhancement';
+import AIAssistant from './AIAssistant';
 
 const AIFeatures = () => {
-  // Get initial active feature from URL parameter or default to 'grader'
-  const getInitialActiveFeature = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const tabParam = urlParams.get('tab');
-    
-    // Valid tab IDs
-    const validTabs = ['grader', 'menu', 'content'];
-    
-    // Return tab from URL if valid, otherwise default to 'grader'
-    return validTabs.includes(tabParam) ? tabParam : 'grader';
-  };
-
-  const [activeFeature, setActiveFeature] = useState(getInitialActiveFeature());
-  const [analysisResult, setAnalysisResult] = useState(null);
+  const [activeFeature, setActiveFeature] = useState('grader');
+  const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [showScoreBreakdown, setShowScoreBreakdown] = useState(false);
   const [restaurantData, setRestaurantData] = useState({
@@ -29,22 +18,46 @@ const AIFeatures = () => {
   });
 
   // Ref for the results section to enable auto-scrolling
-  const resultsRef = useRef(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
+
+  // Get initial active feature from URL parameter or default to 'grader'
+  const getInitialActiveFeature = () => {
+    if (typeof window === 'undefined') return 'grader';
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    
+    // Valid tab IDs
+    const validTabs = ['grader', 'menu', 'content'];
+    
+    // Return tab from URL if valid, otherwise default to 'grader'
+    return validTabs.includes(tabParam || '') ? tabParam : 'grader';
+  };
+
+  // Initialize active feature from URL on client side
+  useEffect(() => {
+    const initialFeature = getInitialActiveFeature();
+    setActiveFeature(initialFeature || 'grader');
+  }, []);
 
   // Update URL when active feature changes
   useEffect(() => {
-    const url = new URL(window.location);
+    if (typeof window === 'undefined') return;
+    
+    const url = new URL(window.location.href);
     url.searchParams.set('tab', activeFeature);
     
     // Update URL without triggering a page reload
-    window.history.replaceState({}, '', url);
+    window.history.replaceState({}, '', url.toString());
   }, [activeFeature]);
 
   // Handle browser back/forward navigation
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const handlePopState = () => {
       const newActiveFeature = getInitialActiveFeature();
-      setActiveFeature(newActiveFeature);
+      setActiveFeature(newActiveFeature || 'grader');
       setAnalysisResult(null); // Clear results when navigating
     };
 
@@ -60,7 +73,7 @@ const AIFeatures = () => {
     if (analysisResult && resultsRef.current) {
       // Small delay to ensure the DOM is updated
       setTimeout(() => {
-        resultsRef.current.scrollIntoView({
+        resultsRef.current?.scrollIntoView({
           behavior: 'smooth',
           block: 'start',
           inline: 'nearest'
@@ -191,7 +204,7 @@ const AIFeatures = () => {
         }
       };
 
-      setAnalysisResult(mockResults[activeFeature]);
+      setAnalysisResult((mockResults as any)[activeFeature]);
     } finally {
       setLoading(false);
     }
@@ -199,6 +212,8 @@ const AIFeatures = () => {
 
   const renderFeatureContent = () => {
     const feature = aiFeatures.find(f => f.id === activeFeature);
+    
+    if (!feature) return null;
     
     // For content creator, render the ImageEnhancement component directly
     if (activeFeature === 'content') {
@@ -335,7 +350,7 @@ const AIFeatures = () => {
 
       <div className="component-scores">
         <h5>Component Breakdown</h5>
-        {Object.entries(analysisResult.component_scores || {}).map(([component, score]) => (
+        {Object.entries(analysisResult.component_scores || {}).map(([component, score]: [string, any]) => (
           <div key={component} className="score-item">
             <span className="component-name">{component.replace('_', ' ').toUpperCase()}</span>
             <div className="score-bar">
@@ -358,7 +373,7 @@ const AIFeatures = () => {
 
       <div className="action-plan">
         <h5>Immediate Action Plan</h5>
-        {(analysisResult.action_plan?.immediate_actions || []).map((action, index) => (
+        {(analysisResult.action_plan?.immediate_actions || []).map((action: any, index: number) => (
           <div key={index} className="action-item">
             <div className="action-text">{action?.action || 'No action specified'}</div>
             <div className="action-metrics">
@@ -386,7 +401,7 @@ const AIFeatures = () => {
       <div className="menu-performance">
         <div className="performance-section">
           <h5>🏆 Top Performers</h5>
-          {analysisResult.item_performance.high_performers.map((item, index) => (
+          {analysisResult.item_performance.high_performers.map((item: any, index: number) => (
             <div key={index} className="menu-item">
               <span className="item-name">{item.name}</span>
               <span className="performance-score">Score: {item.performance_score}/100</span>
@@ -397,7 +412,7 @@ const AIFeatures = () => {
 
         <div className="performance-section">
           <h5>💎 Hidden Gems</h5>
-          {analysisResult.item_performance.hidden_gems.map((item, index) => (
+          {analysisResult.item_performance.hidden_gems.map((item: any, index: number) => (
             <div key={index} className="menu-item">
               <span className="item-name">{item.name}</span>
               <span className="performance-score">Score: {item.performance_score}/100</span>
@@ -408,7 +423,7 @@ const AIFeatures = () => {
 
         <div className="performance-section">
           <h5>⚠️ Needs Attention</h5>
-          {analysisResult.item_performance.underperformers.map((item, index) => (
+          {analysisResult.item_performance.underperformers.map((item: any, index: number) => (
             <div key={index} className="menu-item">
               <span className="item-name">{item.name}</span>
               <span className="performance-score">Score: {item.performance_score}/100</span>
@@ -420,7 +435,7 @@ const AIFeatures = () => {
 
       <div className="promotional-campaigns">
         <h5>Recommended Promotional Campaigns</h5>
-        {analysisResult.promotional_strategies.recommended_campaigns.map((campaign, index) => (
+        {analysisResult.promotional_strategies.recommended_campaigns.map((campaign: any, index: number) => (
           <div key={index} className="campaign-item">
             <div className="campaign-name">{campaign.name}</div>
             <div className="campaign-type">{campaign.type.replace('_', ' ').toUpperCase()}</div>
@@ -455,10 +470,10 @@ const AIFeatures = () => {
         </div>
         
         <div className="platform-content">
-          {Object.entries(analysisResult.generated_content.social_media.platform_content).map(([platform, posts]) => (
+          {Object.entries(analysisResult.generated_content.social_media.platform_content).map(([platform, posts]: [string, any]) => (
             <div key={platform} className="platform-section">
               <h6>{platform.toUpperCase()}</h6>
-              {posts.map((post, index) => (
+              {(posts as any[]).map((post: any, index: number) => (
                 <div key={index} className="content-post">
                   <div className="post-type">{post.content_type.replace('_', ' ').toUpperCase()}</div>
                   <div className="post-text">{post.post_text}</div>
@@ -555,6 +570,9 @@ const AIFeatures = () => {
           </div>
         </div>
       </div>
+
+      {/* AI Assistant - Floating */}
+      <AIAssistant />
     </div>
   );
 };

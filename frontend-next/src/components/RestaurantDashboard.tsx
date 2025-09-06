@@ -404,7 +404,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
                     </div>
                     <button
                       className="ai-marketing-cta"
-                      onClick={() => setActiveView('ai-features')}
+                      onClick={() => window.location.href = '/ai-features'}
                     >
                       Explore AI Features
                       <span className="cta-arrow">→</span>
@@ -604,7 +604,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
               <div className="placeholder-content">
                 <h2>🤖 AI Features</h2>
                 <p>Unlock AI-powered growth tools for your restaurant.</p>
-                <button className="btn-primary" onClick={() => setActiveTab('ai-features')}>
+                <button className="btn-primary" onClick={() => window.location.href = '/ai-features'}>
                   Go to AI Features
                 </button>
               </div>
