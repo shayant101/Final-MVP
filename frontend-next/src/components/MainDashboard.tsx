@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -14,7 +16,7 @@ const MainDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const handleTabChange = async (newTab) => {
+  const handleTabChange = async (newTab: string) => {
     if (newTab === activeTab) return;
     
     setIsTransitioning(true);

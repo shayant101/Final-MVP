@@ -1,19 +1,21 @@
+'use client';
+
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { useTheme } from '../contexts/ThemeContext';
 import MarketingAIAssistant from './MarketingAIAssistant';
 import './LandingPage.css';
 
 const LandingPage = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { theme, toggleTheme } = useTheme();
 
   const handleGetStarted = () => {
-    navigate('/login');
+    router.push('/login');
   };
 
   const handleLogin = () => {
-    navigate('/login');
+    router.push('/login');
   };
 
   return (
@@ -263,7 +265,7 @@ const LandingPage = () => {
             <div className="metric-item">
               <div className="metric-visual">
                 <div className="metric-circle">
-                  <div className="circle-progress" style={{'--progress': '89%'}}></div>
+                  <div className="circle-progress" style={{'--progress': '89%'} as React.CSSProperties}></div>
                   <span className="circle-text">89%</span>
                 </div>
               </div>

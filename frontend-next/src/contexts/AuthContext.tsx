@@ -1,9 +1,41 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+'use client';
+
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authAPI } from '../services/api';
 
-const AuthContext = createContext();
+interface User {
+  id: string;
+  email: string;
+  role: 'admin' | 'restaurant';
+  restaurant_name?: string;
+  impersonating_restaurant_id?: string | null;
+  impersonating_restaurant?: {
+    id: string;
+    name: string;
+  } | null;
+}
 
-export const useAuth = () => {
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<any>;
+  register: (userData: any) => Promise<any>;
+  logout: () => void;
+  impersonate: (restaurantId: string) => Promise<any>;
+  endImpersonation: () => Promise<any>;
+  isAuthenticated: boolean;
+  isAdmin: boolean;
+  isRestaurant: boolean;
+  isImpersonating: boolean;
+}
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
@@ -11,10 +43,18 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [token, setToken] = useState<string | null>(null);
+
+  // Initialize token from localStorage after component mounts
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedToken = localStorage.getItem('token');
+      setToken(savedToken);
+    }
+  }, []);
 
   useEffect(() => {
     if (token) {
@@ -36,7 +76,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  const login = async (email, password) => {
+  const login = async (email: string, password: string) => {
     try {
       const response = await authAPI.login(email, password);
       const { token: newToken, user: userData } = response;
@@ -58,7 +98,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (userData) => {
+  const register = async (userData: any) => {
     try {
       const response = await authAPI.register(userData);
       const { token: newToken, user: newUser } = response;
@@ -82,7 +122,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  const impersonate = async (restaurantId) => {
+  const impersonate = async (restaurantId: string) => {
     try {
       const response = await authAPI.impersonate(restaurantId);
       const { token: newToken, impersonating_restaurant } = response;
@@ -91,11 +131,11 @@ export const AuthProvider = ({ children }) => {
       setToken(newToken);
       
       // Update user with impersonation info
-      setUser(prev => ({
+      setUser(prev => prev ? ({
         ...prev,
         impersonating_restaurant_id: restaurantId,
         impersonating_restaurant
-      }));
+      }) : null);
       
       return response;
     } catch (error) {
@@ -112,11 +152,11 @@ export const AuthProvider = ({ children }) => {
       setToken(newToken);
       
       // Remove impersonation info from user
-      setUser(prev => ({
+      setUser(prev => prev ? ({
         ...prev,
         impersonating_restaurant_id: null,
         impersonating_restaurant: null
-      }));
+      }) : null);
       
       return response;
     } catch (error) {
