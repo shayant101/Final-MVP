@@ -1,17 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { dashboardAPI, adminAnalyticsAPI } from '../services/api';
-import AIAnalytics from './AIAnalytics';
-import ContentModeration from './ContentModeration';
-import FeatureManagement from './FeatureManagement';
-import BusinessIntelligence from './BusinessIntelligence';
-import RevenueAnalytics from './RevenueAnalytics';
-import AIBusinessAssistant from './AIBusinessAssistant';
-import SubscriptionManagement from './SubscriptionManagement';
-import LoadingScreen from './LoadingScreen';
-import './AdminDashboard.css';
+import { useAuth } from '../../contexts/AuthContext';
+import { dashboardAPI, adminAnalyticsAPI } from '../../services/api';
+import AIAnalytics from '../../components/AIAnalytics';
+import ContentModeration from '../../components/ContentModeration';
+import FeatureManagement from '../../components/FeatureManagement';
+import BusinessIntelligence from '../../components/BusinessIntelligence';
+import RevenueAnalytics from '../../components/RevenueAnalytics';
+import AIBusinessAssistant from '../../components/AIBusinessAssistant';
+import SubscriptionManagement from '../../components/SubscriptionManagement';
+import LoadingScreen from '../../components/LoadingScreen';
+import '../../components/AdminDashboard.css';
 
 interface Restaurant {
   restaurant_id: string;
@@ -138,7 +138,7 @@ const AdminDashboard = () => {
       console.log('Attempting to delete restaurant:', restaurantId);
       
       // Import and use the existing API service
-      const { default: api } = await import('../services/api');
+      const { default: api } = await import('../../services/api');
       const response = await api.delete(`/admin/restaurants/${restaurantId}`);
       
       console.log('Delete response:', response.data);
@@ -195,7 +195,7 @@ const AdminDashboard = () => {
               </>
             )}
           </div>
-          <button
+          <button 
             className="sidebar-toggle"
             onClick={toggleSidebar}
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -414,7 +414,7 @@ const AdminDashboard = () => {
                     <h3>⚡ Quick Actions</h3>
                   </div>
                   <div className="admin-actions">
-                    <button
+                    <button 
                       className="action-button primary"
                       onClick={() => setActiveView('restaurants')}
                     >

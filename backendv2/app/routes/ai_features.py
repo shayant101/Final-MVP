@@ -652,11 +652,8 @@ async def upload_and_enhance_image(
                 detail=result.get('error', 'Image enhancement failed')
             )
         
-        return {
-            "success": True,
-            "message": "Image enhanced successfully",
-            "data": result['data']
-        }
+        # Return the service response directly since it already has the correct structure
+        return result
         
     except HTTPException:
         raise
