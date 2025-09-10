@@ -26,14 +26,17 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [theme, setTheme] = useState(() => {
-    // Check localStorage first, then default to 'dark'
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('theme');
-      return savedTheme || 'dark';
+  const [theme, setTheme] = useState('dark'); // Always start with default theme
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Hydrate theme from localStorage after component mounts
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme && savedTheme !== theme) {
+      setTheme(savedTheme);
     }
-    return 'dark';
-  });
+    setIsHydrated(true);
+  }, []);
 
   // Apply theme to document on mount and when theme changes
   useEffect(() => {
@@ -47,9 +50,11 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       document.body.classList.remove('dark-mode');
     }
     
-    // Save to localStorage
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+    // Only save to localStorage after hydration to avoid SSR issues
+    if (isHydrated) {
+      localStorage.setItem('theme', theme);
+    }
+  }, [theme, isHydrated]);
 
   const toggleTheme = () => {
     setTheme(prevTheme => prevTheme === 'dark' ? 'light' : 'dark');

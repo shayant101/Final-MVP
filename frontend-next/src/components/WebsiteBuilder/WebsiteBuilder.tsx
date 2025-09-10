@@ -5,9 +5,7 @@ import { useRouter } from 'next/navigation';
 import './WebsiteBuilder.css';
 import { websiteBuilderAPI } from '../../services/websiteBuilderAPI';
 
-interface WebsiteBuilderProps {
-  onBackToDashboard?: () => void;
-}
+interface WebsiteBuilderProps {}
 
 interface Website {
   website_id: string;
@@ -29,22 +27,13 @@ interface GenerationProgress {
   error_details?: string;
 }
 
-const WebsiteBuilder: React.FC<WebsiteBuilderProps> = ({ onBackToDashboard }) => {
+const WebsiteBuilder: React.FC<WebsiteBuilderProps> = () => {
   const [websites, setWebsites] = useState<Website[]>([]);
   const [loading, setLoading] = useState(true);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [generationProgress, setGenerationProgress] = useState<GenerationProgress | null>(null);
   const [currentWebsiteIndex, setCurrentWebsiteIndex] = useState(0);
   const router = useRouter();
-
-  const handleBackToDashboard = () => {
-    if (onBackToDashboard) {
-      onBackToDashboard();
-    } else {
-      // Fallback navigation
-      router.push('/dashboard');
-    }
-  };
 
   useEffect(() => {
     fetchWebsites();
@@ -142,25 +131,17 @@ const WebsiteBuilder: React.FC<WebsiteBuilderProps> = ({ onBackToDashboard }) =>
   return (
     <div className="website-builder">
       <div className="website-builder-header">
-        <div className="header-top">
-          <button
-            className="back-button"
-            onClick={handleBackToDashboard}
-            title="Back to Dashboard"
-          >
-            <span className="back-icon">←</span>
-            Back to Dashboard
-          </button>
-        </div>
         <h1>🌐 Website Builder</h1>
         <p>Create stunning restaurant websites with AI-powered design or choose from professional templates</p>
         
         {/* Builder Options */}
         <div className="builder-options">
           <div className="builder-option">
-            <div className="option-icon">🤖</div>
-            <h3>AI-Powered Website Builder</h3>
-            <p>Let AI create a custom website based on your restaurant's unique needs</p>
+            <div className="option-content">
+              <div className="option-icon">🤖</div>
+              <h3>AI-Powered Website Builder</h3>
+              <p>Let AI create a custom website based on your restaurant's unique needs</p>
+            </div>
             <button
               className="btn-primary option-btn"
               onClick={handleGenerateWebsite}
@@ -170,9 +151,11 @@ const WebsiteBuilder: React.FC<WebsiteBuilderProps> = ({ onBackToDashboard }) =>
           </div>
           
           <div className="builder-option">
-            <div className="option-icon">📋</div>
-            <h3>Template-Based Website Builder</h3>
-            <p>Choose from professionally designed restaurant templates and customize them</p>
+            <div className="option-content">
+              <div className="option-icon">📋</div>
+              <h3>Template-Based Website Builder</h3>
+              <p>Choose & customize from professionally designed restaurant templates</p>
+            </div>
             <button
               className="btn-secondary option-btn"
               onClick={() => router.push('/website-builder/templates')}

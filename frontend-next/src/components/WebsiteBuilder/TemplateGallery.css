@@ -1,27 +1,42 @@
+/* Theme Variables */
+.template-gallery {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --border-color: #dee2e6;
+}
+
+[data-theme="light"] .template-gallery {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --border-color: #dee2e6;
+}
+
+[data-theme="dark"] .template-gallery {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --border-color: #404040;
+}
+
 .template-gallery {
   padding: 2rem;
   max-width: 1400px;
   margin: 0 auto;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .gallery-header {
   margin-bottom: 3rem;
 }
 
-.back-btn {
-  background: none;
-  border: none;
-  color: #667eea;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-bottom: 1rem;
-  padding: 0.5rem 0;
-  transition: color 0.2s ease;
-}
-
-.back-btn:hover {
-  color: #5a6fd8;
-}
 
 .header-content {
   text-align: center;

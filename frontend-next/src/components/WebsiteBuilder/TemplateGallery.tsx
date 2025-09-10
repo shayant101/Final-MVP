@@ -4,11 +4,9 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import './TemplateGallery.css';
 
-interface TemplateGalleryProps {
-  onBackToDashboard?: () => void;
-}
+interface TemplateGalleryProps {}
 
-const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onBackToDashboard }) => {
+const TemplateGallery: React.FC<TemplateGalleryProps> = () => {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState('all');
 
@@ -89,18 +87,6 @@ const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onBackToDashboard }) 
 
   return (
     <div className="template-gallery">
-      <div className="gallery-header">
-        <button 
-          className="back-btn"
-          onClick={() => onBackToDashboard ? onBackToDashboard() : router.push('/website-builder')}
-        >
-          ← Back to Website Builder
-        </button>
-        <div className="header-content">
-          <h1>📋 Template Gallery</h1>
-          <p>Choose from professionally designed restaurant templates</p>
-        </div>
-      </div>
 
       {/* Category Filter */}
       <div className="category-filter">

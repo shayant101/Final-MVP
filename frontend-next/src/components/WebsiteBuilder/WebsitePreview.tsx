@@ -110,7 +110,7 @@ const WebsitePreview: React.FC<WebsitePreviewProps> = ({ id }) => {
   }, [fetchWebsiteData]);
 
   const handleEdit = () => {
-    router.push(`/website-builder/edit/${id}`);
+    router.push(`/dashboard?view=edit&id=${id}`);
   };
 
   const handlePublish = async () => {
@@ -1900,7 +1900,7 @@ const WebsitePreview: React.FC<WebsitePreviewProps> = ({ id }) => {
         <div className="error-icon">⚠️</div>
         <h3>Error Loading Preview</h3>
         <p>{error}</p>
-        <button className="btn-primary" onClick={() => router.push('/website-builder')}>
+        <button className="btn-primary" onClick={() => router.push('/dashboard?view=website-builder')}>
           Back to Website Builder
         </button>
       </div>
@@ -1914,7 +1914,7 @@ const WebsitePreview: React.FC<WebsitePreviewProps> = ({ id }) => {
         <div className="preview-header-left">
           <button
             className="back-btn"
-            onClick={() => router.push('/website-builder')}
+            onClick={() => router.push('/dashboard?view=website-builder')}
             title="Back to Website Builder"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

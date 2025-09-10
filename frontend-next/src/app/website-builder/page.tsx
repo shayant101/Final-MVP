@@ -1,19 +1,19 @@
 'use client';
 
 import React from 'react';
-import WebsiteBuilder from '../../components/WebsiteBuilder/WebsiteBuilder';
 import { useRouter } from 'next/navigation';
 
 export default function WebsiteBuilderPage() {
   const router = useRouter();
 
-  const handleBackToDashboard = () => {
-    router.push('/dashboard');
-  };
+  // Redirect to dashboard which will show website-builder view
+  React.useEffect(() => {
+    router.push('/dashboard?view=website-builder');
+  }, [router]);
 
   return (
-    <div className="website-builder-page">
-      <WebsiteBuilder onBackToDashboard={handleBackToDashboard} />
+    <div className="redirecting">
+      <p>Redirecting to Website Builder...</p>
     </div>
   );
 }

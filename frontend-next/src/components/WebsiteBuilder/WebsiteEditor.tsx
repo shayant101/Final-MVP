@@ -145,7 +145,7 @@ const WebsiteEditor: React.FC<WebsiteEditorProps> = ({ id }) => {
         <div className="error-icon">⚠️</div>
         <h3>Error Loading Editor</h3>
         <p>{error}</p>
-        <button className="btn-primary" onClick={() => router.push('/website-builder')}>
+        <button className="btn-primary" onClick={() => router.push('/dashboard?view=website-builder')}>
           Back to Website Builder
         </button>
       </div>
