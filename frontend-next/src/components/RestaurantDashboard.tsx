@@ -4,11 +4,44 @@ import React, { useState, useEffect } from 'react';
 import { dashboardAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-// import WebsiteBuilder from './WebsiteBuilder/WebsiteBuilder';
+import { 
+  BarChart3, 
+  Target, 
+  MessageCircle, 
+  Globe, 
+  FolderOpen, 
+  Layout, 
+  TrendingUp, 
+  Code2, 
+  Brain, 
+  BarChart2, 
+  Menu, 
+  PenTool, 
+  LineChart, 
+  Bot, 
+  BookOpen,
+  Sun,
+  Moon,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  Edit,
+  Trash2
+} from 'lucide-react';
+import WebsiteBuilder from './WebsiteBuilder/WebsiteBuilder';
+import TemplateGallery from './WebsiteBuilder/TemplateGallery';
+import WebsiteEditor from './WebsiteBuilder/WebsiteEditor';
+import MyWebsites from './WebsiteBuilder/MyWebsites';
+import WebsiteAnalytics from './WebsiteBuilder/WebsiteAnalytics';
+import CustomCodeEditor from './WebsiteBuilder/CustomCodeEditor';
+import AIFeatures from './AIFeatures';
+import AIAnalytics from './AIAnalytics';
+import AIAssistant from './AIAssistant';
+import Orchestrator from './Orchestrator';
 // import GetNewCustomers from './GetNewCustomers';
 // import BringBackRegulars from './BringBackRegulars';
 // import MarketingFoundations from './MarketingFoundations';
-// import AIFeatures from './AIFeatures';
 import './RestaurantDashboard.css';
 
 interface RestaurantDashboardProps {
@@ -51,12 +84,19 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeView, setActiveView] = useState('overview');
+  const [orchestratorViewMode, setOrchestratorViewMode] = useState('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { logout } = useAuth();
   const { theme, toggleTheme, isDark } = useTheme();
 
   useEffect(() => {
     fetchDashboardData();
+    // Check URL parameters for initial view
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewParam = urlParams.get('view');
+    if (viewParam) {
+      setActiveView(viewParam);
+    }
   }, []);
 
   const fetchDashboardData = async () => {
@@ -79,6 +119,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
     logout();
     window.location.href = '/';
   };
+
 
   if (loading) {
     return (
@@ -121,7 +162,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
             onClick={toggleSidebar}
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
-            {sidebarCollapsed ? '→' : '←'}
+{sidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </button>
         </div>
 
@@ -134,7 +175,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
               onClick={() => setActiveView('overview')}
               title="Dashboard Overview"
             >
-              <span className="nav-icon">📈</span>
+              <span className="nav-icon"><BarChart3 size={18} /></span>
               {!sidebarCollapsed && <span className="nav-label">Dashboard Overview</span>}
             </button>
           </div>
@@ -147,7 +188,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
               onClick={() => setActiveView('get-new-customers')}
               title="Get New Customers"
             >
-              <span className="nav-icon">🎯</span>
+              <span className="nav-icon"><Target size={18} /></span>
               {!sidebarCollapsed && <span className="nav-label">Get New Customers</span>}
             </button>
             <button
@@ -155,7 +196,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
               onClick={() => setActiveView('bring-back-regulars')}
               title="Bring Back Regulars"
             >
-              <span className="nav-icon">💬</span>
+              <span className="nav-icon"><MessageCircle size={18} /></span>
               {!sidebarCollapsed && <span className="nav-label">Bring Back Regulars</span>}
             </button>
             <button
@@ -163,8 +204,52 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
               onClick={() => setActiveView('website-builder')}
               title="Website Builder"
             >
-              <span className="nav-icon">🌐</span>
+              <span className="nav-icon"><Globe size={18} /></span>
               {!sidebarCollapsed && <span className="nav-label">Website Builder</span>}
+            </button>
+            {!sidebarCollapsed && (activeView === 'website-builder' || activeView === 'templates' || activeView === 'edit' || activeView === 'my-websites' || activeView === 'website-analytics' || activeView === 'code-editor') && (
+              <div className="nav-sub-items">
+                <button
+                  className={`nav-sub-item ${activeView === 'my-websites' ? 'active' : ''}`}
+                  onClick={() => setActiveView('my-websites')}
+                  title="My Websites"
+                >
+                  <span className="nav-sub-icon"><FolderOpen size={16} /></span>
+                  <span className="nav-sub-label">My Websites</span>
+                </button>
+                <button
+                  className={`nav-sub-item ${activeView === 'templates' ? 'active' : ''}`}
+                  onClick={() => setActiveView('templates')}
+                  title="Template Gallery"
+                >
+                  <span className="nav-sub-icon"><Layout size={16} /></span>
+                  <span className="nav-sub-label">Template Gallery</span>
+                </button>
+                <button
+                  className={`nav-sub-item ${activeView === 'website-analytics' ? 'active' : ''}`}
+                  onClick={() => setActiveView('website-analytics')}
+                  title="Website Analytics"
+                >
+                  <span className="nav-sub-icon"><TrendingUp size={16} /></span>
+                  <span className="nav-sub-label">Website Analytics</span>
+                </button>
+                <button
+                  className={`nav-sub-item ${activeView === 'code-editor' ? 'active' : ''}`}
+                  onClick={() => setActiveView('code-editor')}
+                  title="Custom Code Editor"
+                >
+                  <span className="nav-sub-icon"><Code2 size={16} /></span>
+                  <span className="nav-sub-label">Custom Code Editor</span>
+                </button>
+              </div>
+            )}
+            <button
+              className={`nav-item ${activeView === 'orchestrator' ? 'active' : ''}`}
+              onClick={() => setActiveView('orchestrator')}
+              title="Orchestrator"
+            >
+              <span className="nav-icon"><BookOpen size={18} /></span>
+              {!sidebarCollapsed && <span className="nav-label">Orchestrator</span>}
             </button>
           </div>
 
@@ -176,17 +261,53 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
               onClick={() => setActiveView('ai-features')}
               title="AI Features"
             >
-              <span className="nav-icon">🧠</span>
+              <span className="nav-icon"><Brain size={18} /></span>
               {!sidebarCollapsed && <span className="nav-label">AI Features</span>}
             </button>
-            <button
-              className={`nav-item ${activeView === 'marketing-foundations' ? 'active' : ''}`}
-              onClick={() => setActiveView('marketing-foundations')}
-              title="Marketing Foundations"
-            >
-              <span className="nav-icon">📚</span>
-              {!sidebarCollapsed && <span className="nav-label">Marketing Foundations</span>}
-            </button>
+            {!sidebarCollapsed && (activeView === 'ai-features' || activeView === 'digital-presence-grader' || activeView === 'menu-optimizer' || activeView === 'content-creator' || activeView === 'ai-analytics' || activeView === 'ai-assistant') && (
+              <div className="nav-sub-items">
+                <button
+                  className={`nav-sub-item ${activeView === 'digital-presence-grader' ? 'active' : ''}`}
+                  onClick={() => setActiveView('digital-presence-grader')}
+                  title="Digital Presence Grader"
+                >
+                  <span className="nav-sub-icon"><BarChart2 size={16} /></span>
+                  <span className="nav-sub-label">Digital Presence Grader</span>
+                </button>
+                <button
+                  className={`nav-sub-item ${activeView === 'menu-optimizer' ? 'active' : ''}`}
+                  onClick={() => setActiveView('menu-optimizer')}
+                  title="Smart Menu Optimizer"
+                >
+                  <span className="nav-sub-icon"><Menu size={16} /></span>
+                  <span className="nav-sub-label">Smart Menu Optimizer</span>
+                </button>
+                <button
+                  className={`nav-sub-item ${activeView === 'content-creator' ? 'active' : ''}`}
+                  onClick={() => setActiveView('content-creator')}
+                  title="Content Creator"
+                >
+                  <span className="nav-sub-icon"><PenTool size={16} /></span>
+                  <span className="nav-sub-label">Content Creator</span>
+                </button>
+                <button
+                  className={`nav-sub-item ${activeView === 'ai-analytics' ? 'active' : ''}`}
+                  onClick={() => setActiveView('ai-analytics')}
+                  title="AI Analytics"
+                >
+                  <span className="nav-sub-icon"><LineChart size={16} /></span>
+                  <span className="nav-sub-label">AI Analytics</span>
+                </button>
+                <button
+                  className={`nav-sub-item ${activeView === 'ai-assistant' ? 'active' : ''}`}
+                  onClick={() => setActiveView('ai-assistant')}
+                  title="AI Assistant"
+                >
+                  <span className="nav-sub-icon"><Bot size={16} /></span>
+                  <span className="nav-sub-label">AI Assistant</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Account Section */}
@@ -196,7 +317,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
               onClick={toggleTheme}
               title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
-              <span className="nav-icon">{isDark ? '☀️' : '🌙'}</span>
+              <span className="nav-icon">{isDark ? <Sun size={18} /> : <Moon size={18} />}</span>
               {!sidebarCollapsed && <span className="nav-label">{isDark ? 'Light Mode' : 'Dark Mode'}</span>}
             </button>
             <button
@@ -204,7 +325,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
               onClick={handleLogout}
               title="Logout"
             >
-              <span className="nav-icon">🚪</span>
+              <span className="nav-icon"><LogOut size={18} /></span>
               {!sidebarCollapsed && <span className="nav-label">Logout</span>}
             </button>
           </div>
@@ -221,18 +342,58 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
               {activeView === 'get-new-customers' && 'Get New Customers'}
               {activeView === 'bring-back-regulars' && 'Bring Back Regulars'}
               {activeView === 'website-builder' && 'Website Builder'}
+              {activeView === 'my-websites' && 'My Websites'}
+              {activeView === 'templates' && 'Template Gallery'}
+              {activeView === 'website-analytics' && 'Website Analytics'}
+              {activeView === 'code-editor' && 'Custom Code Editor'}
+              {activeView === 'orchestrator' && 'Marketing Command Center'}
+              {activeView === 'edit' && 'Website Editor'}
               {activeView === 'ai-features' && 'AI Features'}
-              {activeView === 'marketing-foundations' && 'Marketing Foundations'}
+              {activeView === 'digital-presence-grader' && 'Digital Presence Grader'}
+              {activeView === 'menu-optimizer' && 'Smart Menu Optimizer'}
+              {activeView === 'content-creator' && 'Content Creator'}
+              {activeView === 'ai-analytics' && 'AI Analytics'}
+              {activeView === 'ai-assistant' && 'AI Assistant'}
             </h1>
             <p>
               {activeView === 'overview' && `Welcome back to ${restaurant.name}!`}
               {activeView === 'get-new-customers' && 'Launch Facebook ads to attract new customers'}
               {activeView === 'bring-back-regulars' && 'Send SMS campaigns to re-engage customers'}
               {activeView === 'website-builder' && 'Create stunning AI-powered restaurant websites'}
+              {activeView === 'my-websites' && 'Manage and view all your created websites'}
+              {activeView === 'templates' && 'Choose from professionally designed restaurant templates'}
+              {activeView === 'website-analytics' && 'Track your website performance and visitor insights'}
+              {activeView === 'code-editor' && 'Advanced HTML, CSS, and JavaScript editing capabilities'}
+              {activeView === 'orchestrator' && 'Your marketing command center with at-a-glance insights and actionable next steps'}
+              {activeView === 'edit' && 'Edit your website content and design'}
               {activeView === 'ai-features' && 'Unlock AI-powered growth tools'}
-              {activeView === 'marketing-foundations' && 'Build your marketing foundation'}
+              {activeView === 'digital-presence-grader' && 'Analyze and grade your restaurant\'s digital presence'}
+              {activeView === 'menu-optimizer' && 'Optimize menu performance and pricing strategies'}
+              {activeView === 'content-creator' && 'AI-powered image enhancement and content generation'}
+              {activeView === 'ai-analytics' && 'Track AI feature usage and performance insights'}
+              {activeView === 'ai-assistant' && 'Chat with your AI marketing assistant'}
             </p>
           </div>
+          
+          {/* Header Actions - Only show for orchestrator view */}
+          {activeView === 'orchestrator' && (
+            <div className="header-actions">
+              <div className="view-toggle-group">
+                <button 
+                  className={`header-toggle-btn ${orchestratorViewMode === 'overview' ? 'active' : ''}`}
+                  onClick={() => setOrchestratorViewMode('overview')}
+                >
+                  Overview
+                </button>
+                <button 
+                  className={`header-toggle-btn ${orchestratorViewMode === 'details' ? 'active' : ''}`}
+                  onClick={() => setOrchestratorViewMode('details')}
+                >
+                  Details
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Content Area */}
@@ -565,7 +726,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
               <div className="placeholder-content">
                 <h2>🎯 Get New Customers</h2>
                 <p>Launch Facebook ads to attract new customers to your restaurant.</p>
-                <button className="btn-primary" onClick={() => setActiveTab('get-new-customers')}>
+                <button className="btn-primary" onClick={() => window.location.href = '/get-new-customers'}>
                   Go to Get New Customers
                 </button>
               </div>
@@ -578,7 +739,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
               <div className="placeholder-content">
                 <h2>💬 Bring Back Regulars</h2>
                 <p>Send SMS campaigns to re-engage your past customers.</p>
-                <button className="btn-primary" onClick={() => setActiveTab('bring-back-regulars')}>
+                <button className="btn-primary" onClick={() => window.location.href = '/bring-back-regulars'}>
                   Go to Bring Back Regulars
                 </button>
               </div>
@@ -588,41 +749,107 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
           {/* Website Builder Tab */}
           {activeView === 'website-builder' && (
             <div className="website-builder-content">
-              <div className="placeholder-content">
-                <h2>🌐 Website Builder</h2>
-                <p>Create stunning AI-powered restaurant websites.</p>
-                <button className="btn-primary" onClick={() => window.location.href = '/website-builder'}>
-                  Go to Website Builder
-                </button>
-              </div>
+              <WebsiteBuilder />
+            </div>
+          )}
+
+          {/* Template Gallery Tab */}
+          {activeView === 'templates' && (
+            <div className="templates-content">
+              <TemplateGallery />
+            </div>
+          )}
+
+          {/* Website Editor Tab */}
+          {activeView === 'edit' && (
+            <div className="website-editor-content">
+              <WebsiteEditor id={new URLSearchParams(window.location.search).get('id') || ''} />
             </div>
           )}
 
           {/* AI Features Tab */}
           {activeView === 'ai-features' && (
             <div className="ai-features-content">
-              <div className="placeholder-content">
-                <h2>🤖 AI Features</h2>
-                <p>Unlock AI-powered growth tools for your restaurant.</p>
-                <button className="btn-primary" onClick={() => window.location.href = '/ai-features'}>
-                  Go to AI Features
-                </button>
+              <AIFeatures />
+            </div>
+          )}
+
+          {/* Digital Presence Grader Tab */}
+          {activeView === 'digital-presence-grader' && (
+            <div className="digital-presence-grader-content">
+              <AIFeatures />
+            </div>
+          )}
+
+          {/* Menu Optimizer Tab */}
+          {activeView === 'menu-optimizer' && (
+            <div className="menu-optimizer-content">
+              <AIFeatures />
+            </div>
+          )}
+
+          {/* Content Creator Tab */}
+          {activeView === 'content-creator' && (
+            <div className="content-creator-content">
+              <AIFeatures />
+            </div>
+          )}
+
+          {/* AI Analytics Tab */}
+          {activeView === 'ai-analytics' && (
+            <div className="ai-analytics-content">
+              <AIAnalytics />
+            </div>
+          )}
+
+          {/* AI Assistant Tab */}
+          {activeView === 'ai-assistant' && (
+            <div className="ai-assistant-content">
+              <div className="ai-assistant-main">
+                <h2>🤖 AI Assistant</h2>
+                <p>Your personal AI marketing assistant is always available to help with questions, suggestions, and guidance.</p>
+                <div className="assistant-placeholder">
+                  <AIAssistant />
+                  <div className="assistant-info">
+                    <h3>How to use your AI Assistant:</h3>
+                    <ul>
+                      <li>Click the floating AI button to start a conversation</li>
+                      <li>Ask about marketing strategies, campaign optimization, or general business questions</li>
+                      <li>Get personalized recommendations based on your restaurant's data</li>
+                      <li>Receive step-by-step guidance for complex tasks</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
-          {/* Marketing Foundations Tab */}
-          {activeView === 'marketing-foundations' && (
-            <div className="marketing-foundations-content">
-              <div className="placeholder-content">
-                <h2>📚 Marketing Foundations</h2>
-                <p>Build your marketing foundation with essential setup tasks.</p>
-                <button className="btn-primary" onClick={() => setActiveTab('marketing-foundations')}>
-                  Go to Marketing Foundations
-                </button>
-              </div>
+          {/* My Websites Tab */}
+          {activeView === 'my-websites' && (
+            <div className="my-websites-content">
+              <MyWebsites />
             </div>
           )}
+
+          {/* Website Analytics Tab */}
+          {activeView === 'website-analytics' && (
+            <div className="website-analytics-content">
+              <WebsiteAnalytics />
+            </div>
+          )}
+
+          {/* Custom Code Editor Tab */}
+          {activeView === 'code-editor' && (
+            <div className="code-editor-content">
+              <CustomCodeEditor />
+            </div>
+          )}
+
+          {/* Orchestrator Tab */}
+          {activeView === 'orchestrator' && (
+            <Orchestrator viewMode={orchestratorViewMode} />
+          )}
+
         </div>
       </div>
     </div>
