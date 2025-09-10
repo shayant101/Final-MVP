@@ -1,13 +1,12 @@
-import { ThemeProvider } from '../../contexts/ThemeContext'
-import { AuthProvider } from '../../contexts/AuthContext'
+'use client';
+
+import React, { Suspense } from 'react'
 import EmailVerificationSuccess from '../../components/EmailVerificationSuccess'
 
 export default function VerifyEmailPage() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <EmailVerificationSuccess />
-      </AuthProvider>
-    </ThemeProvider>
+    <Suspense fallback={<div>Loading...</div>}>
+      <EmailVerificationSuccess />
+    </Suspense>
   )
 }

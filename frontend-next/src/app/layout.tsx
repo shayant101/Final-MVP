@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { ClientProviders } from '../components/ClientProviders'
 
 export const metadata: Metadata = {
   title: 'Uplit - AI-Powered Restaurant Marketing',
@@ -71,7 +72,9 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] antialiased">
         <div id="root" className="min-h-screen">
-          {children}
+          <ClientProviders>
+            {children}
+          </ClientProviders>
         </div>
       </body>
     </html>
