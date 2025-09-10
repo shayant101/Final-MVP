@@ -1,13 +1,4 @@
 {
-  "version": 2,
-  "name": "final-mvp-frontend",
-  "builds": [
-    {
-      "src": "frontend-next/package.json",
-      "use": "@vercel/next",
-      "config": {}
-    }
-  ],
   "env": {
     "NEXT_PUBLIC_API_URL": "https://final-mvp-jc3a.onrender.com",
     "NEXT_PUBLIC_ENVIRONMENT": "production"
