@@ -334,47 +334,61 @@ const Orchestrator: React.FC<OrchestratorProps> = ({ viewMode: externalViewMode 
         {/* Left Panel - Score Zone */}
         <div className="score-zone panel card">
           <div className="score-hero">
-            <div className="circular-score">
-              <svg width="120" height="120" viewBox="0 0 120 120">
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="54"
-                  fill="none"
-                  stroke="rgba(102, 126, 234, 0.1)"
-                  strokeWidth="3"
-                />
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="54"
-                  fill="none"
-                  stroke="url(#scoreGradient)"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeDasharray={`${2 * Math.PI * 54}`}
-                  strokeDashoffset={`${2 * Math.PI * 54 * (1 - calculateOverallScore() / 100)}`}
-                  transform="rotate(-90 60 60)"
-                />
-                <defs>
-                  <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#667eea" />
-                    <stop offset="100%" stopColor="#764ba2" />
-                  </linearGradient>
-                </defs>
-                <text x="60" y="55" textAnchor="middle" className="score-number">
-                  {calculateOverallScore()}
-                </text>
-                <text x="60" y="70" textAnchor="middle" className="score-label">
-                  SCORE
-                </text>
-              </svg>
-            </div>
-            <div className="health-status">
-              <span className="status-indicator" style={{ color: healthStatus.color }}>
-                {healthStatus.status}
-              </span>
-              <span className="status-label">{healthStatus.label}</span>
+            <div className="score-container">
+              <div className="circular-score">
+                <svg width="160" height="160" viewBox="0 0 160 160">
+                  {/* Background circle */}
+                  <circle
+                    cx="80"
+                    cy="80"
+                    r="70"
+                    fill="none"
+                    stroke="rgba(102, 126, 234, 0.08)"
+                    strokeWidth="5"
+                  />
+                  {/* Progress circle */}
+                  <circle
+                    cx="80"
+                    cy="80"
+                    r="70"
+                    fill="none"
+                    stroke="url(#scoreGradient)"
+                    strokeWidth="5"
+                    strokeLinecap="round"
+                    strokeDasharray={`${2 * Math.PI * 70}`}
+                    strokeDashoffset={`${2 * Math.PI * 70 * (1 - calculateOverallScore() / 100)}`}
+                    transform="rotate(-90 80 80)"
+                    className="progress-circle"
+                  />
+                  {/* Gradient definitions */}
+                  <defs>
+                    <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#3b82f6" />
+                      <stop offset="50%" stopColor="#6366f1" />
+                      <stop offset="100%" stopColor="#8b5cf6" />
+                    </linearGradient>
+                    <filter id="glow">
+                      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                      <feMerge> 
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                      </feMerge>
+                    </filter>
+                  </defs>
+                </svg>
+                <div className="score-content">
+                  <div className="score-number">{calculateOverallScore()}</div>
+                  <div className="score-label">Marketing Score</div>
+                </div>
+              </div>
+              <div className="health-status">
+                <div className="status-badge" style={{ backgroundColor: `${healthStatus.color}15`, borderColor: healthStatus.color }}>
+                  <span className="status-indicator" style={{ color: healthStatus.color }}>
+                    {healthStatus.status}
+                  </span>
+                  <span className="status-label">{healthStatus.label}</span>
+                </div>
+              </div>
             </div>
           </div>
 
