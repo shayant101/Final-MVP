@@ -1,4 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Zap, 
+  Smartphone, 
+  Bot, 
+  ChefHat, 
+  Target, 
+  MessageCircle, 
+  Rocket 
+} from 'lucide-react';
 import './ImageEnhancement.css';
 import { imageEnhancementAPI } from '../services/api';
 
@@ -53,7 +62,7 @@ const ImageEnhancement = () => {
   // Enhanced preset system organized by categories with collapsible structure
   const enhancementPresets = {
     'Quick & Easy': {
-      icon: '⚡',
+      icon: <Zap size={16} />,
       description: 'Simple one-click improvements',
       presets: [
         {
@@ -70,7 +79,7 @@ const ImageEnhancement = () => {
           description: 'Optimized for Instagram and Facebook posts with eye-catching vibrancy',
           prompt: 'Make this image pop for social media with enhanced vibrancy, perfect contrast, and Instagram-worthy appeal',
           settings: { brightness: 10, contrast: 30, saturation: 25, sharpness: 10, food_styling: 20 },
-          icon: '📱'
+          icon: <Smartphone size={16} />
         },
         {
           id: 'menu_photo',
@@ -83,7 +92,7 @@ const ImageEnhancement = () => {
       ]
     },
     'AI-Powered Smart': {
-      icon: '🤖',
+      icon: <Bot size={16} />,
       description: 'Intelligent AI-driven enhancements',
       presets: [
         {
@@ -138,7 +147,7 @@ const ImageEnhancement = () => {
           description: 'Sophisticated enhancement for upscale restaurant presentations',
           prompt: 'Enhance with fine dining elegance - sophisticated lighting, refined colors, premium presentation, and elegant atmosphere',
           settings: { brightness: 8, contrast: 20, saturation: 12, sharpness: 18, food_styling: 22 },
-          icon: '🍽️'
+          icon: <ChefHat size={16} />
         },
         {
           id: 'modern_minimal',
@@ -146,7 +155,7 @@ const ImageEnhancement = () => {
           description: 'Clean, modern aesthetic perfect for contemporary restaurants',
           prompt: 'Create a modern, minimal aesthetic with clean lines, contemporary lighting, and sophisticated simplicity',
           settings: { brightness: 12, contrast: 22, saturation: 8, sharpness: 25, food_styling: 15 },
-          icon: '⚡'
+          icon: <Zap size={16} />
         }
       ]
     },
@@ -871,7 +880,7 @@ const ImageEnhancement = () => {
               onClick={() => enhanceImage(true)}
               disabled={loading}
             >
-              {loading ? '✨ Enhancing...' : '🚀 Quick Enhance Image'}
+              {loading ? 'Enhancing...' : <><Rocket className="inline mr-2" size={16} />Quick Enhance Image</>}
             </button>
             <p className="quick-enhance-hint">
               Click to enhance with default settings, or use advanced controls below
@@ -883,7 +892,7 @@ const ImageEnhancement = () => {
       {/* AI Enhancement Prompts */}
       {selectedImage && (
         <div className="ai-enhancement-section">
-          <h4>🤖 AI Enhancement Prompts</h4>
+          <h4><Bot className="inline mr-2" size={18} />AI Enhancement Prompts</h4>
           
           {/* Enhanced Preset Options with Collapsible Categories */}
           <div className="preset-options">
@@ -1073,7 +1082,7 @@ const ImageEnhancement = () => {
       {/* Content Generation */}
       {(originalImage || enhancedImage) && (
         <div className="content-generation">
-          <h4>🤖 AI Content Generation</h4>
+          <h4><Bot className="inline mr-2" size={18} />AI Content Generation</h4>
           
           {/* Content Type Selection */}
           <div className="content-type-selection">
@@ -1133,7 +1142,7 @@ const ImageEnhancement = () => {
                   />
                   <span className="checkmark"></span>
                   <div className="content-type-info">
-                    <span className="content-type-name">🎯 Promotional Content</span>
+                    <span className="content-type-name"><Target className="inline mr-1" size={14} />Promotional Content</span>
                     <span className="content-type-desc">Special offers and promotions</span>
                   </div>
                 </label>
@@ -1148,7 +1157,7 @@ const ImageEnhancement = () => {
                   />
                   <span className="checkmark"></span>
                   <div className="content-type-info">
-                    <span className="content-type-name">🍽️ Menu Descriptions</span>
+                    <span className="content-type-name"><ChefHat className="inline mr-1" size={14} />Menu Descriptions</span>
                     <span className="content-type-desc">Appetizing menu item descriptions</span>
                   </div>
                 </label>
@@ -1193,7 +1202,7 @@ const ImageEnhancement = () => {
                   />
                   <span className="checkmark"></span>
                   <div className="content-type-info">
-                    <span className="content-type-name">📱 Stories Content</span>
+                    <span className="content-type-name"><Smartphone className="inline mr-1" size={14} />Stories Content</span>
                     <span className="content-type-desc">Instagram/Facebook Stories</span>
                   </div>
                 </label>
@@ -1221,7 +1230,7 @@ const ImageEnhancement = () => {
             onClick={generateContent}
             disabled={contentLoading}
           >
-            {contentLoading ? 'Generating Content...' : '🚀 Generate Marketing Content'}
+            {contentLoading ? 'Generating Content...' : <><Rocket className="inline mr-2" size={16} />Generate Marketing Content</>}
           </button>
           
           <div className="content-generation-hint">
@@ -1245,12 +1254,12 @@ const ImageEnhancement = () => {
                         {platform === 'facebook' && '📘 Facebook'}
                         {platform === 'instagram' && '📷 Instagram'}
                         {platform === 'tiktok' && '🎵 TikTok'}
-                        {platform === 'promotional_content' && '🎯 Promotional'}
-                        {platform === 'menu_description' && '🍽️ Menu'}
+                        {platform === 'promotional_content' && <><Target className="inline mr-1" size={14} />Promotional</>}
+                        {platform === 'menu_description' && <><ChefHat className="inline mr-1" size={14} />Menu</>}
                         {platform === 'email_campaign' && '📧 Email'}
                         {platform === 'google_ads' && '🔍 Google Ads'}
-                        {platform === 'social_media_story' && '📱 Stories'}
-                        {platform === 'sms_campaign' && '💬 SMS'}
+                        {platform === 'social_media_story' && <><Smartphone className="inline mr-1" size={14} />Stories</>}
+                        {platform === 'sms_campaign' && <><MessageCircle className="inline mr-1" size={14} />SMS</>}
                       </span>
                     ))}
                 </div>
@@ -1338,7 +1347,7 @@ const ImageEnhancement = () => {
 
               {selectedContentTypes.promotional_content && (
                 <div className="content-section">
-                  <h5>🎯 Promotional Content</h5>
+                  <h5><Target className="inline mr-2" size={16} />Promotional Content</h5>
                   <div className="content-grid">
                     {generatedContent.promotional_content?.map((content, index) => (
                       <div key={index} className="content-item">
@@ -1363,7 +1372,7 @@ const ImageEnhancement = () => {
 
               {selectedContentTypes.menu_description && (
                 <div className="content-section">
-                  <h5>🍽️ Menu Descriptions</h5>
+                  <h5><ChefHat className="inline mr-2" size={16} />Menu Descriptions</h5>
                   <div className="content-grid">
                     <div className="content-item">
                       <div className="content-type">Menu Item Description</div>
@@ -1424,7 +1433,7 @@ const ImageEnhancement = () => {
 
               {selectedContentTypes.social_media_story && (
                 <div className="content-section">
-                  <h5>📱 Stories Content</h5>
+                  <h5><Smartphone className="inline mr-2" size={16} />Stories Content</h5>
                   <div className="content-grid">
                     <div className="content-item">
                       <div className="content-type">Instagram/Facebook Story</div>
@@ -1439,7 +1448,7 @@ const ImageEnhancement = () => {
 
               {selectedContentTypes.sms_campaign && (
                 <div className="content-section">
-                  <h5>💬 SMS Campaign Content</h5>
+                  <h5><MessageCircle className="inline mr-2" size={16} />SMS Campaign Content</h5>
                   <div className="content-grid">
                     <div className="content-item">
                       <div className="content-type">SMS Message</div>

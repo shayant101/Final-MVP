@@ -1,4 +1,5 @@
 import React from 'react';
+import { Rocket, Smartphone, TrendingUp } from 'lucide-react';
 import './ScoreBreakdown.css';
 
 const ScoreBreakdown = ({ websiteData, onClose }) => {
@@ -133,7 +134,7 @@ const ScoreBreakdown = ({ websiteData, onClose }) => {
             <h3>Technical Metrics</h3>
             <div className="metrics-grid">
               <div className="metric-card">
-                <div className="metric-icon">🚀</div>
+                <div className="metric-icon"><Rocket size={24} /></div>
                 <div className="metric-content">
                   <div className="metric-label">Loading Speed</div>
                   <div className="metric-value">
@@ -160,7 +161,7 @@ const ScoreBreakdown = ({ websiteData, onClose }) => {
               </div>
 
               <div className="metric-card">
-                <div className="metric-icon">📱</div>
+                <div className="metric-icon"><Smartphone size={24} /></div>
                 <div className="metric-content">
                   <div className="metric-label">Accessibility</div>
                   <div className="metric-value">
@@ -224,7 +225,7 @@ const ScoreBreakdown = ({ websiteData, onClose }) => {
 
           {/* Impact Projection */}
           <div className="impact-section">
-            <h3>📈 Improvement Impact</h3>
+            <h3><TrendingUp className="inline mr-2" size={18} />Improvement Impact</h3>
             <div className="impact-cards">
               <div className="impact-card">
                 <div className="impact-title">Potential Score Increase</div>

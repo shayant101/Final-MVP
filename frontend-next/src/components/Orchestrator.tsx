@@ -326,13 +326,81 @@ const Orchestrator: React.FC<OrchestratorProps> = ({ viewMode: externalViewMode 
 
   return (
     <div className="orchestrator">
+      {/* Enhanced Dashboard Header */}
+      <div className="dashboard-header">
+        <div className="header-content">
+          <div className="header-left">
+            <h1 className="dashboard-title">Marketing Command Center</h1>
+            <p className="dashboard-subtitle">Track progress, optimize performance, drive revenue</p>
+          </div>
+          <div className="header-right">
+            <div className="view-controls">
+              <button 
+                className={`view-toggle ${viewMode === 'overview' ? 'active' : ''}`}
+                onClick={() => window.location.hash = 'overview'}
+              >
+                📊 Dashboard
+              </button>
+              <button 
+                className={`view-toggle ${viewMode !== 'overview' ? 'active' : ''}`}
+                onClick={() => window.location.hash = 'details'}
+              >
+                📋 Details
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Conditional View Rendering */}
       {viewMode === 'overview' ? (
-        /* Three-Panel Layout */
+        <>
+        {/* Key Metrics Overview Bar */}
+        <div className="metrics-overview">
+          <div className="metric-card">
+            <div className="metric-icon">🎯</div>
+            <div className="metric-content">
+              <div className="metric-value">{calculateOverallScore()}</div>
+              <div className="metric-label">Overall Score</div>
+              <div className="metric-trend">+{Math.round(calculateOverallScore() * 0.1)} this week</div>
+            </div>
+          </div>
+          <div className="metric-card">
+            <div className="metric-icon">💰</div>
+            <div className="metric-content">
+              <div className="metric-value">${revenueData.completedValue}</div>
+              <div className="metric-label">Revenue Unlocked</div>
+              <div className="metric-trend">${revenueData.weeklyPotential} potential</div>
+            </div>
+          </div>
+          <div className="metric-card">
+            <div className="metric-icon">⚡</div>
+            <div className="metric-content">
+              <div className="metric-value">{overallProgress.foundational.criticalCompleted}/{overallProgress.foundational.criticalTotal}</div>
+              <div className="metric-label">Critical Tasks</div>
+              <div className="metric-trend">{overallProgress.foundational.criticalPercentage}% complete</div>
+            </div>
+          </div>
+          <div className="metric-card">
+            <div className="metric-icon">📈</div>
+            <div className="metric-content">
+              <div className="metric-value">{overallProgress.foundational.completed + overallProgress.ongoing.completed}</div>
+              <div className="metric-label">Tasks Complete</div>
+              <div className="metric-trend">{overallProgress.foundational.total + overallProgress.ongoing.total} total</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Enhanced Three-Panel Layout */}
         <div className="command-center-grid">
         
         {/* Left Panel - Score Zone */}
         <div className="score-zone panel card">
+          <div className="panel-header">
+            <h3>Performance Overview</h3>
+            <span className="panel-subtitle">Track your marketing progress</span>
+          </div>
+          
           <div className="score-hero">
             <div className="score-container">
               <div className="circular-score">
@@ -439,6 +507,11 @@ const Orchestrator: React.FC<OrchestratorProps> = ({ viewMode: externalViewMode 
 
         {/* Center Panel - Action Zone */}
         <div className="action-zone panel card">
+          <div className="panel-header">
+            <h3>Action Center</h3>
+            <span className="panel-subtitle">Complete tasks to boost your score</span>
+          </div>
+          
           <div className="next-action-card">
             <div className="action-header">
               <div className="action-icon">
@@ -509,6 +582,11 @@ const Orchestrator: React.FC<OrchestratorProps> = ({ viewMode: externalViewMode 
 
         {/* Right Panel - Progress Zone */}
         <div className="progress-zone panel card">
+          <div className="panel-header">
+            <h3>Progress Tracker</h3>
+            <span className="panel-subtitle">Monitor category completion rates</span>
+          </div>
+          
           <div className="category-progress">
             <div className="progress-header">
               <h4>Category Progress</h4>
@@ -595,6 +673,7 @@ const Orchestrator: React.FC<OrchestratorProps> = ({ viewMode: externalViewMode 
           </div>
         </div>
         </div>
+        </>
       ) : (
         /* Details View */
         <div className="details-view">

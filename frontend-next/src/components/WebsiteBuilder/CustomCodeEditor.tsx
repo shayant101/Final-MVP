@@ -1,6 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { 
+  Globe, 
+  Palette, 
+  Zap 
+} from 'lucide-react';
 import './WebsiteBuilder.css'; // Reuse existing styles
 
 interface CodeFile {
@@ -179,9 +184,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const getFileIcon = (type: string) => {
     switch (type) {
-      case 'html': return '🌐';
-      case 'css': return '🎨';
-      case 'js': return '⚡';
+      case 'html': return <Globe size={16} />;
+      case 'css': return <Palette size={16} />;
+      case 'js': return <Zap size={16} />;
       default: return '📄';
     }
   };

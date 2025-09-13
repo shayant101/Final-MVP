@@ -14,6 +14,7 @@ from .routes.website_builder import router as website_builder_router
 from .routes.website_publishing import router as website_publishing_router
 from .routes.media_upload import router as media_router
 from .routes.media_upload_v2 import router as media_router_v2
+from .routes.google_profile_grading import router as google_profile_router
 from .routes.phase3_routes import get_phase3_routers
 from .core.config import settings, validate_environment
 
@@ -55,6 +56,7 @@ async def startup_event():
     print("📢 Campaign endpoints available at /api/campaigns")
     print("🤖 Content generation endpoints available at /api/content")
     print("🧠 AI Features endpoints available at /api/ai")
+    print("🏪 Google Profile Grading endpoints available at /api/google-profile")
     print("👑 Admin endpoints available at /api/admin")
     print("🌐 Website Builder endpoints available at /api/website-builder")
     print("🚀 Website Publishing endpoints available at /api/website-builder")
@@ -95,6 +97,7 @@ app.include_router(website_builder_router)
 app.include_router(website_publishing_router)
 app.include_router(media_router)
 app.include_router(media_router_v2)
+app.include_router(google_profile_router)
 
 # Include Phase 3 routers
 phase3_routers = get_phase3_routers()

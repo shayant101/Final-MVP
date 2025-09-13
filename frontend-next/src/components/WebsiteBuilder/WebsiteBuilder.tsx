@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Globe, Bot, ChefHat } from 'lucide-react';
 import './WebsiteBuilder.css';
 import { websiteBuilderAPI } from '../../services/websiteBuilderAPI';
 
@@ -131,14 +132,14 @@ const WebsiteBuilder: React.FC<WebsiteBuilderProps> = () => {
   return (
     <div className="website-builder">
       <div className="website-builder-header">
-        <h1>🌐 Website Builder</h1>
+        <h1><Globe className="inline mr-2" size={24} />Website Builder</h1>
         <p>Create stunning restaurant websites with AI-powered design or choose from professional templates</p>
         
         {/* Builder Options */}
         <div className="builder-options">
           <div className="builder-option">
             <div className="option-content">
-              <div className="option-icon">🤖</div>
+              <div className="option-icon"><Bot size={32} /></div>
               <h3>AI-Powered Website Builder</h3>
               <p>Let AI create a custom website based on your restaurant's unique needs</p>
             </div>
@@ -170,7 +171,7 @@ const WebsiteBuilder: React.FC<WebsiteBuilderProps> = () => {
       <div className="websites-carousel">
         {websites.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-icon">🌐</div>
+            <div className="empty-icon"><Globe size={48} /></div>
             <h3>No websites yet</h3>
             <p>Create your first AI-powered restaurant website</p>
             <button
@@ -245,14 +246,14 @@ const WebsiteBuilder: React.FC<WebsiteBuilderProps> = () => {
                               <span></span>
                               <span></span>
                             </div>
-                            <div className="mockup-url-fullscreen">🌐 {website.website_name?.toLowerCase().replace(/\s+/g, '') || 'website'}.com</div>
+                            <div className="mockup-url-fullscreen"><Globe className="inline mr-2" size={16} />{website.website_name?.toLowerCase().replace(/\s+/g, '') || 'website'}.com</div>
                           </div>
                           <div className="mockup-content-fullscreen">
                             <div className="mockup-hero-fullscreen">
                               <div className="mockup-hero-background">
                                 <div className="mockup-hero-overlay"></div>
                                 <div className="mockup-hero-content">
-                                  <div className="mockup-logo-fullscreen">🍽️</div>
+                                  <div className="mockup-logo-fullscreen"><ChefHat size={24} /></div>
                                   <div className="mockup-title-fullscreen">{website.website_name || 'Restaurant'}</div>
                                   <div className="mockup-subtitle-fullscreen">{website.design_category?.replace('_', ' ') || 'Fine Dining'}</div>
                                   <div className="mockup-hero-buttons">
@@ -539,7 +540,7 @@ const GenerationProgressModal: React.FC<GenerationProgressModalProps> = ({ progr
     <div className="modal-overlay">
       <div className="modal progress-modal">
         <div className="modal-header">
-          <h2>🤖 Generating Your Website</h2>
+          <h2><Bot className="inline mr-2" size={24} />Generating Your Website</h2>
         </div>
 
         <div className="progress-content">

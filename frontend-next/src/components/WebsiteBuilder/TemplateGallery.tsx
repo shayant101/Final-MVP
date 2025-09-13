@@ -2,6 +2,16 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { 
+  Globe, 
+  Wine, 
+  Utensils, 
+  Pizza, 
+  Coffee, 
+  ChefHat, 
+  Palette, 
+  FileText 
+} from 'lucide-react';
 import './TemplateGallery.css';
 
 interface TemplateGalleryProps {}
@@ -17,7 +27,7 @@ const TemplateGallery: React.FC<TemplateGalleryProps> = () => {
       name: 'Elegant Fine Dining',
       category: 'fine_dining',
       description: 'Sophisticated design perfect for upscale restaurants',
-      preview: '🍷',
+      preview: <Wine size={24} />,
       features: ['Reservation System', 'Wine Menu', 'Chef Profile', 'Gallery'],
       colors: { primary: '#2c3e50', secondary: '#e74c3c' }
     },
@@ -26,7 +36,7 @@ const TemplateGallery: React.FC<TemplateGalleryProps> = () => {
       name: 'Modern Casual',
       category: 'casual_dining',
       description: 'Clean and friendly design for family restaurants',
-      preview: '🍔',
+      preview: <Utensils size={24} />,
       features: ['Online Menu', 'Location Map', 'Reviews', 'Contact Form'],
       colors: { primary: '#3498db', secondary: '#f39c12' }
     },
@@ -35,7 +45,7 @@ const TemplateGallery: React.FC<TemplateGalleryProps> = () => {
       name: 'Quick Service',
       category: 'fast_food',
       description: 'Bold and energetic design for fast food chains',
-      preview: '🍕',
+      preview: <Pizza size={24} />,
       features: ['Online Ordering', 'Delivery Info', 'Promotions', 'Nutrition Facts'],
       colors: { primary: '#e74c3c', secondary: '#f1c40f' }
     },
@@ -44,7 +54,7 @@ const TemplateGallery: React.FC<TemplateGalleryProps> = () => {
       name: 'Cozy Cafe',
       category: 'cafe',
       description: 'Warm and inviting design for cafes and bakeries',
-      preview: '☕',
+      preview: <Coffee size={24} />,
       features: ['Daily Specials', 'Coffee Menu', 'Events Calendar', 'WiFi Info'],
       colors: { primary: '#8b4513', secondary: '#daa520' }
     },
@@ -53,7 +63,7 @@ const TemplateGallery: React.FC<TemplateGalleryProps> = () => {
       name: 'Authentic Cuisine',
       category: 'ethnic',
       description: 'Cultural design celebrating traditional flavors',
-      preview: '🥘',
+      preview: <ChefHat size={24} />,
       features: ['Cultural Story', 'Traditional Menu', 'Spice Guide', 'Catering'],
       colors: { primary: '#d35400', secondary: '#27ae60' }
     },
@@ -69,10 +79,10 @@ const TemplateGallery: React.FC<TemplateGalleryProps> = () => {
   ];
 
   const categories = [
-    { id: 'all', name: 'All Templates', icon: '🌐' },
-    { id: 'fine_dining', name: 'Fine Dining', icon: '🍷' },
-    { id: 'casual_dining', name: 'Casual Dining', icon: '🍔' },
-    { id: 'fast_food', name: 'Fast Food', icon: '🍕' },
+    { id: 'all', name: 'All Templates', icon: <Globe size={16} /> },
+    { id: 'fine_dining', name: 'Fine Dining', icon: <Wine size={16} /> },
+    { id: 'casual_dining', name: 'Casual Dining', icon: <Utensils size={16} /> },
+    { id: 'fast_food', name: 'Fast Food', icon: <Pizza size={16} /> },
     { id: 'cafe', name: 'Cafe & Bakery', icon: '☕' },
     { id: 'ethnic', name: 'Ethnic Cuisine', icon: '🥘' }
   ];

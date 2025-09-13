@@ -11,6 +11,15 @@ import RevenueAnalytics from './RevenueAnalytics';
 import AIBusinessAssistant from './AIBusinessAssistant';
 import SubscriptionManagement from './SubscriptionManagement';
 import LoadingScreen from './LoadingScreen';
+import { 
+  Rocket, 
+  BarChart, 
+  TrendingUp, 
+  DollarSign, 
+  Brain, 
+  Bot,
+  Zap
+} from 'lucide-react';
 import './AdminDashboard.css';
 
 interface Restaurant {
@@ -190,7 +199,7 @@ const AdminDashboard = () => {
           <div className="sidebar-title">
             {!sidebarCollapsed && (
               <>
-                <h2>🚀 Uplit Admin</h2>
+                <h2><Rocket className="inline mr-2" size={24} />Uplit Admin</h2>
                 <p>Platform Management</p>
               </>
             )}
@@ -207,13 +216,13 @@ const AdminDashboard = () => {
         <nav className="sidebar-nav">
           {/* Core Analytics Section */}
           <div className="nav-section">
-            {!sidebarCollapsed && <div className="nav-section-title">📊 Analytics & Intelligence</div>}
+            {!sidebarCollapsed && <div className="nav-section-title"><BarChart className="inline mr-2" size={16} />Analytics & Intelligence</div>}
             <button
               className={`nav-item ${activeView === 'overview' ? 'active' : ''}`}
               onClick={() => setActiveView('overview')}
               title="Platform Overview"
             >
-              <span className="nav-icon">📈</span>
+              <span className="nav-icon"><TrendingUp size={18} /></span>
               {!sidebarCollapsed && <span className="nav-label">Platform Overview</span>}
             </button>
             <button
@@ -229,20 +238,20 @@ const AdminDashboard = () => {
               onClick={() => setActiveView('revenue-analytics')}
               title="Revenue Analytics"
             >
-              <span className="nav-icon">💰</span>
+              <span className="nav-icon"><DollarSign size={18} /></span>
               {!sidebarCollapsed && <span className="nav-label">Revenue Analytics</span>}
             </button>
           </div>
 
           {/* AI & Automation Section */}
           <div className="nav-section">
-            {!sidebarCollapsed && <div className="nav-section-title">🤖 AI & Automation</div>}
+            {!sidebarCollapsed && <div className="nav-section-title"><Brain className="inline mr-2" size={16} />AI & Automation</div>}
             <button
               className={`nav-item ${activeView === 'ai-assistant' ? 'active' : ''}`}
               onClick={() => setActiveView('ai-assistant')}
               title="AI Business Assistant"
             >
-              <span className="nav-icon">🤖</span>
+              <span className="nav-icon"><Bot size={18} /></span>
               {!sidebarCollapsed && <span className="nav-label">AI Business Assistant</span>}
             </button>
             <button
@@ -250,7 +259,7 @@ const AdminDashboard = () => {
               onClick={() => setActiveView('analytics')}
               title="AI Analytics"
             >
-              <span className="nav-icon">📊</span>
+              <span className="nav-icon"><BarChart size={18} /></span>
               {!sidebarCollapsed && <span className="nav-label">AI Analytics</span>}
             </button>
           </div>
@@ -375,7 +384,7 @@ const AdminDashboard = () => {
                 {/* Platform Stats */}
                 <div className="admin-card stats-card">
                   <div className="card-header">
-                    <h3>📈 Platform Statistics</h3>
+                    <h3><TrendingUp className="inline mr-2" size={18} />Platform Statistics</h3>
                     <span className="period">{dashboardData.platformStats.period}</span>
                   </div>
                   <div className="stats-grid">
@@ -411,7 +420,7 @@ const AdminDashboard = () => {
                 {/* Quick Actions */}
                 <div className="admin-card actions-card">
                   <div className="card-header">
-                    <h3>⚡ Quick Actions</h3>
+                    <h3><Zap className="inline mr-2" size={18} />Quick Actions</h3>
                   </div>
                   <div className="admin-actions">
                     <button

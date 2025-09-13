@@ -27,7 +27,17 @@ import {
   ChevronRight,
   Eye,
   Edit,
-  Trash2
+  Trash2,
+  Zap,
+  Rocket,
+  DollarSign,
+  Award,
+  Flame,
+  Star,
+  ChefHat,
+  BarChart,
+  Smartphone,
+  MapPin
 } from 'lucide-react';
 import WebsiteBuilder from './WebsiteBuilder/WebsiteBuilder';
 import TemplateGallery from './WebsiteBuilder/TemplateGallery';
@@ -36,9 +46,11 @@ import MyWebsites from './WebsiteBuilder/MyWebsites';
 import WebsiteAnalytics from './WebsiteBuilder/WebsiteAnalytics';
 import CustomCodeEditor from './WebsiteBuilder/CustomCodeEditor';
 import AIFeatures from './AIFeatures';
+import AIFeaturesLanding from './AIFeaturesLanding';
 import AIAnalytics from './AIAnalytics';
 import AIAssistant from './AIAssistant';
 import Orchestrator from './Orchestrator';
+import GoogleProfileGrader from './GoogleProfileGrader';
 // import GetNewCustomers from './GetNewCustomers';
 // import BringBackRegulars from './BringBackRegulars';
 // import MarketingFoundations from './MarketingFoundations';
@@ -152,7 +164,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
           <div className="sidebar-title">
             {!sidebarCollapsed && (
               <>
-                <h2>🍽️ {restaurant.name}</h2>
+                <h2>{restaurant.name}</h2>
                 <p>Growth Command Center</p>
               </>
             )}
@@ -169,7 +181,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
         <nav className="sidebar-nav">
           {/* Dashboard Section */}
           <div className="nav-section">
-            {!sidebarCollapsed && <div className="nav-section-title">📊 Dashboard</div>}
+            {!sidebarCollapsed && <div className="nav-section-title">Dashboard</div>}
             <button
               className={`nav-item ${activeView === 'overview' ? 'active' : ''}`}
               onClick={() => setActiveView('overview')}
@@ -182,7 +194,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
 
           {/* Marketing Tools Section */}
           <div className="nav-section">
-            {!sidebarCollapsed && <div className="nav-section-title">🚀 Marketing Tools</div>}
+            {!sidebarCollapsed && <div className="nav-section-title">Marketing Tools</div>}
             <button
               className={`nav-item ${activeView === 'get-new-customers' ? 'active' : ''}`}
               onClick={() => setActiveView('get-new-customers')}
@@ -255,7 +267,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
 
           {/* AI Features Section */}
           <div className="nav-section">
-            {!sidebarCollapsed && <div className="nav-section-title">🤖 AI Features</div>}
+            {!sidebarCollapsed && <div className="nav-section-title">AI Features</div>}
             <button
               className={`nav-item ${activeView === 'ai-features' ? 'active' : ''}`}
               onClick={() => setActiveView('ai-features')}
@@ -264,16 +276,28 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
               <span className="nav-icon"><Brain size={18} /></span>
               {!sidebarCollapsed && <span className="nav-label">AI Features</span>}
             </button>
-            {!sidebarCollapsed && (activeView === 'ai-features' || activeView === 'digital-presence-grader' || activeView === 'menu-optimizer' || activeView === 'content-creator' || activeView === 'ai-analytics' || activeView === 'ai-assistant') && (
+            {!sidebarCollapsed && (activeView === 'ai-features' || activeView === 'digital-presence-grader' || activeView === 'google-profile-grader' || activeView === 'menu-optimizer' || activeView === 'content-creator' || activeView === 'ai-analytics' || activeView === 'ai-assistant') && (
               <div className="nav-sub-items">
                 <button
-                  className={`nav-sub-item ${activeView === 'digital-presence-grader' ? 'active' : ''}`}
+                  className={`nav-sub-item ${activeView === 'digital-presence-grader' || activeView === 'google-profile-grader' ? 'active' : ''}`}
                   onClick={() => setActiveView('digital-presence-grader')}
                   title="Digital Presence Grader"
                 >
                   <span className="nav-sub-icon"><BarChart2 size={16} /></span>
                   <span className="nav-sub-label">Digital Presence Grader</span>
                 </button>
+                {(activeView === 'digital-presence-grader' || activeView === 'google-profile-grader') && (
+                  <div className="nav-sub-sub-items">
+                    <button
+                      className={`nav-sub-sub-item ${activeView === 'google-profile-grader' ? 'active' : ''}`}
+                      onClick={() => setActiveView('google-profile-grader')}
+                      title="Google Profile Grader"
+                    >
+                      <span className="nav-sub-sub-icon"><MapPin size={14} /></span>
+                      <span className="nav-sub-sub-label">Google Profile</span>
+                    </button>
+                  </div>
+                )}
                 <button
                   className={`nav-sub-item ${activeView === 'menu-optimizer' ? 'active' : ''}`}
                   onClick={() => setActiveView('menu-optimizer')}
@@ -350,6 +374,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
               {activeView === 'edit' && 'Website Editor'}
               {activeView === 'ai-features' && 'AI Features'}
               {activeView === 'digital-presence-grader' && 'Digital Presence Grader'}
+              {activeView === 'google-profile-grader' && 'Google Profile Grader'}
               {activeView === 'menu-optimizer' && 'Smart Menu Optimizer'}
               {activeView === 'content-creator' && 'Content Creator'}
               {activeView === 'ai-analytics' && 'AI Analytics'}
@@ -368,6 +393,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
               {activeView === 'edit' && 'Edit your website content and design'}
               {activeView === 'ai-features' && 'Unlock AI-powered growth tools'}
               {activeView === 'digital-presence-grader' && 'Analyze and grade your restaurant\'s digital presence'}
+              {activeView === 'google-profile-grader' && 'Analyze and grade your Google Business Profile'}
               {activeView === 'menu-optimizer' && 'Optimize menu performance and pricing strategies'}
               {activeView === 'content-creator' && 'AI-powered image enhancement and content generation'}
               {activeView === 'ai-analytics' && 'Track AI feature usage and performance insights'}
@@ -404,7 +430,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
                 {/* Analytics */}
                 <div className="dashboard-card performance-card">
                   <div className="card-header">
-                    <h3>📊 Analytics</h3>
+                    <h3><BarChart className="inline mr-2" size={18} />Analytics</h3>
                     <span className="period">{performanceSnapshot.period}</span>
                   </div>
                   <div className="performance-metrics">
@@ -440,7 +466,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
                 {/* Campaigns */}
                 <div className="dashboard-card campaigns-card">
                   <div className="card-header">
-                    <h3>🚀 Campaigns</h3>
+                    <h3><Rocket className="inline mr-2" size={18} />Campaigns</h3>
                     <button
                       className="view-all-button"
                       onClick={() => setActiveView('get-new-customers')}
@@ -455,7 +481,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
                           <div className="campaign-info">
                             <div className="campaign-name">{campaign.name}</div>
                             <div className="campaign-type">
-                              {campaign.campaign_type === 'ad' ? '📱 Facebook Ad' : '💬 SMS Campaign'}
+                              {campaign.campaign_type === 'ad' ? <><Smartphone className="inline mr-1" size={14} />Facebook Ad</> : <><MessageCircle className="inline mr-1" size={14} />SMS Campaign</>}
                             </div>
                           </div>
                           <div className="campaign-status">
@@ -552,12 +578,12 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
                   <div className="edge-highlight"></div>
                   
                   <div className="card-header">
-                    <h3>🤖 AI Marketing</h3>
+                    <h3><Brain className="inline mr-2" size={18} />AI Marketing</h3>
                     <span className="period">Powered by AI</span>
                   </div>
                   <div className="ai-marketing-content">
                     <div className="ai-marketing-icon">
-                      <div className="ai-brain-animation">🤖</div>
+                      <div className="ai-brain-animation"><Brain size={24} /></div>
                     </div>
                     <div className="ai-marketing-text">
                       <h4>Unlock AI-Powered Growth</h4>
@@ -576,35 +602,35 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
                 {/* Quick Links */}
                 <div className="dashboard-card quick-links-card">
                   <div className="card-header">
-                    <h3>⚡ Quick Actions</h3>
+                    <h3><Zap className="inline mr-2" size={18} />Quick Actions</h3>
                   </div>
                   <div className="quick-links">
                     <button
                       className="quick-link-button primary"
                       onClick={() => setActiveView('get-new-customers')}
                     >
-                      <span className="button-icon">🎯</span>
+                      <span className="button-icon"><Target size={18} /></span>
                       Launch New Ad
                     </button>
                     <button
                       className="quick-link-button secondary"
                       onClick={() => setActiveView('bring-back-regulars')}
                     >
-                      <span className="button-icon">💬</span>
+                      <span className="button-icon"><MessageCircle size={18} /></span>
                       Send SMS Campaign
                     </button>
                     <button
                       className="quick-link-button website-builder"
                       onClick={() => setActiveView('website-builder')}
                     >
-                      <span className="button-icon">🌐</span>
+                      <span className="button-icon"><Globe size={18} /></span>
                       Build Website
                     </button>
                     <button
                       className="quick-link-button tertiary"
                       onClick={() => setActiveView('marketing-foundations')}
                     >
-                      <span className="button-icon">📚</span>
+                      <span className="button-icon"><BookOpen size={18} /></span>
                       Review Marketing Foundations
                     </button>
                   </div>
@@ -613,7 +639,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
                 {/* Marketing Score Card */}
                 <div className="dashboard-card marketing-score-card">
                   <div className="card-header">
-                    <h3>🎯 Marketing Score</h3>
+                    <h3><Target className="inline mr-2" size={18} />Marketing Score</h3>
                     <span className="period">Health Check</span>
                   </div>
                   <div className="marketing-score-content">
@@ -653,11 +679,11 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
                       </div>
                     </div>
                     <div className="score-status">
-                      {(dashboardData?.momentumMetrics?.marketingScore || 0) >= 80 && "🏆 Excellent"}
-                      {(dashboardData?.momentumMetrics?.marketingScore || 0) >= 60 && (dashboardData?.momentumMetrics?.marketingScore || 0) < 80 && "💪 Strong"}
-                      {(dashboardData?.momentumMetrics?.marketingScore || 0) >= 40 && (dashboardData?.momentumMetrics?.marketingScore || 0) < 60 && "🔥 Growing"}
-                      {(dashboardData?.momentumMetrics?.marketingScore || 0) >= 20 && (dashboardData?.momentumMetrics?.marketingScore || 0) < 40 && "🌟 Building"}
-                      {(dashboardData?.momentumMetrics?.marketingScore || 0) < 20 && "🚀 Starting"}
+                      {(dashboardData?.momentumMetrics?.marketingScore || 0) >= 80 && <><Award className="inline mr-1" size={16} />Excellent</>}
+                      {(dashboardData?.momentumMetrics?.marketingScore || 0) >= 60 && (dashboardData?.momentumMetrics?.marketingScore || 0) < 80 && <><TrendingUp className="inline mr-1" size={16} />Strong</>}
+                      {(dashboardData?.momentumMetrics?.marketingScore || 0) >= 40 && (dashboardData?.momentumMetrics?.marketingScore || 0) < 60 && <><Flame className="inline mr-1" size={16} />Growing</>}
+                      {(dashboardData?.momentumMetrics?.marketingScore || 0) >= 20 && (dashboardData?.momentumMetrics?.marketingScore || 0) < 40 && <><Star className="inline mr-1" size={16} />Building</>}
+                      {(dashboardData?.momentumMetrics?.marketingScore || 0) < 20 && <><Rocket className="inline mr-1" size={16} />Starting</>}
                     </div>
                     <div className="progress-bars">
                       <div className="progress-item">
@@ -691,14 +717,14 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
                 {/* Revenue Potential Card */}
                 <div className="dashboard-card revenue-potential-card">
                   <div className="card-header">
-                    <h3>💰 Revenue</h3>
+                    <h3><DollarSign className="inline mr-2" size={18} />Revenue</h3>
                     <span className="period">Weekly Opportunity</span>
                   </div>
                   <div className="revenue-potential-content">
                     <div className="revenue-header">
-                      <div className="revenue-icon">💰</div>
+                      <div className="revenue-icon"><DollarSign size={24} /></div>
                       <div className="revenue-trend">
-                        {(dashboardData?.momentumMetrics?.weeklyRevenuePotential || 0) > 0 ? "📈" : "📊"}
+                        {(dashboardData?.momentumMetrics?.weeklyRevenuePotential || 0) > 0 ? <TrendingUp size={20} /> : <BarChart size={20} />}
                       </div>
                     </div>
                     <div className="revenue-value">${dashboardData?.momentumMetrics?.weeklyRevenuePotential || 0}</div>
@@ -724,7 +750,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
           {activeView === 'get-new-customers' && (
             <div className="get-new-customers-content">
               <div className="placeholder-content">
-                <h2>🎯 Get New Customers</h2>
+                <h2><Target className="inline mr-2" size={24} />Get New Customers</h2>
                 <p>Launch Facebook ads to attract new customers to your restaurant.</p>
                 <button className="btn-primary" onClick={() => window.location.href = '/get-new-customers'}>
                   Go to Get New Customers
@@ -737,7 +763,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
           {activeView === 'bring-back-regulars' && (
             <div className="bring-back-regulars-content">
               <div className="placeholder-content">
-                <h2>💬 Bring Back Regulars</h2>
+                <h2><MessageCircle className="inline mr-2" size={24} />Bring Back Regulars</h2>
                 <p>Send SMS campaigns to re-engage your past customers.</p>
                 <button className="btn-primary" onClick={() => window.location.href = '/bring-back-regulars'}>
                   Go to Bring Back Regulars
@@ -770,7 +796,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
           {/* AI Features Tab */}
           {activeView === 'ai-features' && (
             <div className="ai-features-content">
-              <AIFeatures />
+              <AIFeaturesLanding />
             </div>
           )}
 
@@ -778,6 +804,16 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
           {activeView === 'digital-presence-grader' && (
             <div className="digital-presence-grader-content">
               <AIFeatures />
+            </div>
+          )}
+
+          {/* Google Profile Grader Tab */}
+          {activeView === 'google-profile-grader' && (
+            <div className="google-profile-grader-content">
+              <GoogleProfileGrader 
+                restaurantName={dashboardData?.restaurant?.name || ''}
+                googleBusinessUrl={dashboardData?.restaurant?.google_business_url || ''}
+              />
             </div>
           )}
 
@@ -806,7 +842,7 @@ const RestaurantDashboard: React.FC<RestaurantDashboardProps> = ({ setActiveTab 
           {activeView === 'ai-assistant' && (
             <div className="ai-assistant-content">
               <div className="ai-assistant-main">
-                <h2>🤖 AI Assistant</h2>
+                <h2><Bot className="inline mr-2" size={24} />AI Assistant</h2>
                 <p>Your personal AI marketing assistant is always available to help with questions, suggestions, and guidance.</p>
                 <div className="assistant-placeholder">
                   <AIAssistant />

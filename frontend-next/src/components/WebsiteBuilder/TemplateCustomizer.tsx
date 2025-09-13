@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { 
+  Rocket, 
+  FileText, 
+  Palette, 
+  ChefHat, 
+  Smartphone 
+} from 'lucide-react';
 import './TemplateCustomizer.css';
 import { websiteBuilderAPI } from '../../services/websiteBuilderAPI';
 import { dashboardAPI } from '../../services/api';
@@ -354,7 +361,7 @@ const TemplateCustomizer = () => {
           onClick={handleSaveAndPreview}
           disabled={loading}
         >
-          {loading ? 'Creating...' : '🚀 Save & Preview'}
+          {loading ? 'Creating...' : <><Rocket className="inline mr-2" size={16} />Save & Preview</>}
         </button>
       </div>
 
@@ -366,19 +373,19 @@ const TemplateCustomizer = () => {
               className={`tab-btn ${activeTab === 'content' ? 'active' : ''}`}
               onClick={() => setActiveTab('content')}
             >
-              📝 Content
+              <FileText className="inline mr-2" size={16} />Content
             </button>
             <button 
               className={`tab-btn ${activeTab === 'design' ? 'active' : ''}`}
               onClick={() => setActiveTab('design')}
             >
-              🎨 Design
+              <Palette className="inline mr-2" size={16} />Design
             </button>
             <button 
               className={`tab-btn ${activeTab === 'menu' ? 'active' : ''}`}
               onClick={() => setActiveTab('menu')}
             >
-              🍽️ Menu
+              <ChefHat className="inline mr-2" size={16} />Menu
             </button>
           </div>
 
@@ -530,13 +537,13 @@ const TemplateCustomizer = () => {
                 className={`device-btn ${previewMode === 'tablet' ? 'active' : ''}`}
                 onClick={() => setPreviewMode('tablet')}
               >
-                📱
+                <Smartphone size={20} />
               </button>
               <button 
                 className={`device-btn ${previewMode === 'mobile' ? 'active' : ''}`}
                 onClick={() => setPreviewMode('mobile')}
               >
-                📱
+                <Smartphone size={20} />
               </button>
             </div>
           </div>

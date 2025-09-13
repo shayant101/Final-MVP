@@ -1,6 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { 
+  BarChart, 
+  Smartphone, 
+  Monitor, 
+  ExternalLink 
+} from 'lucide-react';
 import './WebsiteBuilder.css'; // Reuse existing styles
 
 interface AnalyticsData {
@@ -64,7 +70,7 @@ const WebsiteAnalytics: React.FC = () => {
   if (!analyticsData) {
     return (
       <div className="empty-state">
-        <div className="empty-icon">📊</div>
+        <div className="empty-icon"><BarChart size={48} /></div>
         <h3>No analytics data available</h3>
         <p>Publish your website to start tracking analytics</p>
       </div>
@@ -133,7 +139,7 @@ const WebsiteAnalytics: React.FC = () => {
       <div className="analytics-details">
         {/* Top Pages */}
         <div className="analytics-section">
-          <h3>📊 Top Pages</h3>
+          <h3><BarChart className="inline mr-2" size={18} />Top Pages</h3>
           <div className="top-pages-list">
             {analyticsData.topPages.map((page, index) => (
               <div key={index} className="page-item">
@@ -154,14 +160,14 @@ const WebsiteAnalytics: React.FC = () => {
 
         {/* Device Breakdown */}
         <div className="analytics-section">
-          <h3>📱 Device Breakdown</h3>
+          <h3><Smartphone className="inline mr-2" size={18} />Device Breakdown</h3>
           <div className="device-breakdown">
             {analyticsData.deviceBreakdown.map((device, index) => (
               <div key={index} className="device-item">
                 <div className="device-info">
                   <span className="device-icon">
                     {device.device === 'Desktop' ? '🖥️' :
-                     device.device === 'Mobile' ? '📱' : '📱'}
+                     device.device === 'Mobile' ? <Smartphone size={16} /> : <Monitor size={16} />}
                   </span>
                   <span className="device-name">{device.device}</span>
                 </div>
@@ -181,7 +187,7 @@ const WebsiteAnalytics: React.FC = () => {
                   <span className="source-icon">
                     {source.source === 'Direct' ? '🔗' :
                      source.source === 'Search' ? '🔍' :
-                     source.source === 'Social' ? '📱' : '↗️'}
+                     source.source === 'Social' ? <Smartphone size={16} /> : <ExternalLink size={16} />}
                   </span>
                   <span className="source-name">{source.source}</span>
                 </div>

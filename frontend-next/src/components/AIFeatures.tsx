@@ -1,4 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { 
+  BarChart, 
+  ChefHat, 
+  PenTool, 
+  Award, 
+  Target, 
+  TrendingUp 
+} from 'lucide-react';
 import './AIFeatures.css';
 import ScoreBreakdown from './ScoreBreakdown';
 import ImageEnhancement from './ImageEnhancement';
@@ -86,14 +94,14 @@ const AIFeatures = () => {
     {
       id: 'grader',
       name: 'Digital Presence Grader',
-      icon: '📊',
+      icon: <BarChart size={24} />,
       description: 'Analyze and grade your restaurant\'s digital presence',
       color: '#4F46E5'
     },
     {
       id: 'menu',
       name: 'Smart Menu Optimizer',
-      icon: '🍽️',
+      icon: <ChefHat size={24} />,
       description: 'Optimize menu performance and pricing strategies',
       color: '#059669',
       comingSoon: true
@@ -101,7 +109,7 @@ const AIFeatures = () => {
     {
       id: 'content',
       name: 'Content Creator',
-      icon: '📝',
+      icon: <PenTool size={24} />,
       description: 'AI-powered image enhancement and content generation',
       color: '#7C3AED'
     }
@@ -400,7 +408,7 @@ const AIFeatures = () => {
       
       <div className="menu-performance">
         <div className="performance-section">
-          <h5>🏆 Top Performers</h5>
+          <h5><Award className="inline mr-2" size={18} />Top Performers</h5>
           {analysisResult.item_performance.high_performers.map((item: any, index: number) => (
             <div key={index} className="menu-item">
               <span className="item-name">{item.name}</span>
@@ -554,7 +562,7 @@ const AIFeatures = () => {
         <h3>Why Choose AI-Powered Marketing?</h3>
         <div className="benefits-grid">
           <div className="benefit-item">
-            <div className="benefit-icon">📈</div>
+            <div className="benefit-icon"><TrendingUp size={24} /></div>
             <h4>Maximize Revenue & Growth</h4>
             <p>AI-driven insights can increase restaurant revenue by 15-30% through optimized marketing strategies and data-driven decisions based on comprehensive performance analysis</p>
           </div>
@@ -564,7 +572,7 @@ const AIFeatures = () => {
             <p>Automate content creation and campaign management, saving 10+ hours per week while streamlining your entire marketing workflow with intelligent automation</p>
           </div>
           <div className="benefit-item">
-            <div className="benefit-icon">🎯</div>
+            <div className="benefit-icon"><Target size={24} /></div>
             <h4>Smart Targeting & Personalization</h4>
             <p>Reach the right customers with personalized messaging, optimized ad spend, and precision targeting that delivers higher conversion rates and customer engagement</p>
           </div>

@@ -64,7 +64,7 @@ class GoogleBusinessScraper:
                 soup = BeautifulSoup(html_content, 'html.parser')
                 
                 # Extract business name
-                business_name = self._extract_business_name(soup, html_content)
+                business_name = self._extract_business_name(soup, html_content, final_url)
                 if business_name:
                     result["business_name"] = business_name
                     logger.info(f"✅ Found business name: {business_name}")
@@ -103,10 +103,38 @@ class GoogleBusinessScraper:
         
         return result
     
-    def _extract_business_name(self, soup: BeautifulSoup, html_content: str) -> Optional[str]:
+    def _extract_business_name(self, soup: BeautifulSoup, html_content: str, final_url: str = "") -> Optional[str]:
         """Extract business name from various possible locations"""
         try:
-            # Method 1: Look for business name in Google search results
+            # Method 1: Extract from URL parameters (most reliable for Google search results)
+            # Look for business name in URL query parameters like q=Al+Watan+Halal+Tandoori+Restaurant
+            url_patterns = [
+                r'q=([^&]+)',  # Query parameter often contains business name
+                r'&q=([^&]+)'
+            ]
+            
+            # Check both the final URL and HTML content for query parameters
+            search_sources = [final_url, html_content]
+            
+            for source in search_sources:
+                for pattern in url_patterns:
+                    match = re.search(pattern, source, re.IGNORECASE)
+                    if match:
+                        name = match.group(1).strip()
+                        # URL decode the name
+                        try:
+                            import urllib.parse
+                            name = urllib.parse.unquote_plus(name)
+                            # Clean up the name - replace + with spaces
+                            name = name.replace('+', ' ').replace('%26', '&').replace('%20', ' ')
+                            
+                            # Skip if it's not a business name (too short, contains weird chars)
+                            if len(name) > 2 and not name.lower().startswith('google') and not re.match(r'^[=\(\){}]+', name):
+                                return name
+                        except:
+                            pass
+            
+            # Method 2: Look for business name in Google search results
             # Check for knowledge panel business name
             knowledge_panel_selectors = [
                 'h2[data-attrid="title"]',
@@ -252,24 +280,53 @@ class GoogleBusinessScraper:
                     except:
                         continue
             
-            # Method 3: Look for review count patterns
+            # Method 3: Look for review count patterns with support for k notation
             review_patterns = [
                 r'"reviewCount":(\d+)',
-                r'(\d+)\s*reviews?',
+                r'(\d+\.?\d*[kK])\s*reviews?',  # Handles 1.9k format
+                r'(\d+,\d+)\s*reviews?',        # Handles 1,900 format
+                r'(\d+)\s*reviews?',            # Standard number format
+                r'(\d+\.?\d*[kK])\s*Google reviews?',
+                r'(\d+,\d+)\s*Google reviews?',
                 r'(\d+)\s*Google reviews?',
+                r'Based on (\d+\.?\d*[kK]?) reviews?',
+                r'Based on (\d+,\d+) reviews?',
                 r'Based on (\d+) reviews?',
+                r'(\d+\.?\d*[kK]?)\s*customer reviews?',
+                r'(\d+,\d+)\s*customer reviews?',
                 r'(\d+)\s*customer reviews?',
+                r'(\d+\.?\d*[kK]?)\s*ratings?',
+                r'(\d+,\d+)\s*ratings?',
                 r'(\d+)\s*ratings?',
-                r'\((\d+)\)',  # Numbers in parentheses often indicate review count
+                r'\((\d+\.?\d*[kK]?)\)',  # Numbers in parentheses like (1.9k)
+                r'\((\d+,\d+)\)',         # Numbers in parentheses like (1,900)
+                r'\((\d+)\)',             # Numbers in parentheses like (1900)
             ]
+            
+            def parse_review_count(count_str: str) -> int:
+                """Parse review count string that may contain k notation or commas"""
+                try:
+                    count_str = count_str.strip().lower()
+                    if 'k' in count_str:
+                        # Handle 1.9k format
+                        number = float(count_str.replace('k', ''))
+                        return int(number * 1000)
+                    elif ',' in count_str:
+                        # Handle 1,900 format
+                        return int(count_str.replace(',', ''))
+                    else:
+                        # Handle regular number
+                        return int(count_str)
+                except:
+                    return 0
             
             for pattern in review_patterns:
                 matches = re.findall(pattern, html_content, re.IGNORECASE)
                 for match in matches:
                     try:
-                        review_count = int(match)
+                        review_count = parse_review_count(match)
                         # Reasonable review count range
-                        if 1 <= review_count <= 100000:
+                        if 1 <= review_count <= 500000:  # Increased upper limit for large businesses
                             rating_info["review_count"] = review_count
                             break
                     except:
