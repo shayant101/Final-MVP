@@ -1,223 +1,208 @@
-"""
-Google Profile Grading API Routes
-Dedicated endpoints for Google Business Profile analysis and grading
-"""
+from fastapi import APIRouter, HTTPException
+from typing import Dict, Any
 import logging
-from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel, Field, validator
-from typing import Dict, Any, Optional
-from ..services.google_profile_grader import google_profile_grader
+
+from ..services.ai_grader_service import ai_grader_service
 
 logger = logging.getLogger(__name__)
-
 router = APIRouter(prefix="/api/google-profile", tags=["Google Profile Grading"])
 
-class GoogleProfileGradeRequest(BaseModel):
-    """Request model for Google Profile grading"""
-    restaurant_name: str = Field(..., min_length=1, max_length=200, description="Name of the restaurant")
-    google_business_url: str = Field(..., min_length=10, max_length=500, description="Google Business Profile URL")
-    
-    @validator('restaurant_name')
-    def validate_restaurant_name(cls, v):
-        if not v or not v.strip():
-            raise ValueError('Restaurant name cannot be empty')
-        return v.strip()
-    
-    @validator('google_business_url')
-    def validate_google_url(cls, v):
-        if not v or not v.strip():
-            raise ValueError('Google Business URL cannot be empty')
-        
-        # Basic URL validation
-        if not v.startswith(('http://', 'https://')):
-            v = 'https://' + v
-        
-        return v.strip()
-
-class GoogleProfileGradeResponse(BaseModel):
-    """Response model for Google Profile grading"""
-    overall_score: int = Field(..., ge=0, le=100)
-    grade: str = Field(..., pattern="^[A-F]$")
-    priority: str = Field(..., pattern="^(LOW|MEDIUM|HIGH)$")
-    score_breakdown: Optional[Dict[str, Any]] = None
-    issues: list[str] = Field(default_factory=list)
-    recommendations: list[str] = Field(default_factory=list)
-    strengths: Optional[list[str]] = Field(default_factory=list)
-    scraped_data: Optional[Dict[str, Any]] = None
-    analysis_method: str
-    grader_version: str
-
-@router.post("/grade", response_model=GoogleProfileGradeResponse)
-async def grade_google_profile(request: GoogleProfileGradeRequest) -> GoogleProfileGradeResponse:
+@router.post("/grade")
+async def grade_google_profile(
+    request_data: Dict[str, Any]
+):
     """
-    Grade a Google Business Profile
-    
-    This endpoint analyzes a Google Business Profile and provides:
-    - Overall score (0-100)
-    - Letter grade (A-F)
-    - Priority level (LOW/MEDIUM/HIGH)
-    - Detailed score breakdown
-    - Specific issues found
-    - Actionable recommendations
-    - Profile strengths
+    Grade Google Business Profile using classic or OpenAI mode
     """
     try:
-        logger.info(f"🎯 Grading Google Profile for: {request.restaurant_name}")
-        
-        # Call the grading service
-        result = await google_profile_grader.grade_google_profile(
-            restaurant_name=request.restaurant_name,
-            google_business_url=request.google_business_url
-        )
-        
-        logger.info(f"✅ Google Profile grading completed: {result.get('overall_score', 0)}/100 ({result.get('grade', 'F')})")
-        
-        return GoogleProfileGradeResponse(**result)
-        
-    except Exception as e:
-        logger.error(f"❌ Google Profile grading failed: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Google Profile grading failed: {str(e)}"
-        )
+        mode = request_data.get("mode", "classic")
+        restaurant_name = request_data.get("restaurant_name")
+        google_business_url = request_data.get("google_business_url")
 
-@router.post("/quick-check", response_model=Dict[str, Any])
-async def quick_google_profile_check(request: GoogleProfileGradeRequest) -> Dict[str, Any]:
-    """
-    Quick check of Google Business Profile status
-    
-    Returns basic validation without full grading:
-    - URL validity
-    - Profile accessibility
-    - Basic information availability
-    """
-    try:
-        logger.info(f"🔍 Quick checking Google Profile for: {request.restaurant_name}")
-        
-        # Import the scraper directly for quick check
-        from ..services.google_business_scraper import google_business_scraper
-        
-        # Just scrape basic info without full grading
-        scraped_data = await google_business_scraper.scrape_basic_info(request.google_business_url)
-        
-        quick_result = {
-            "profile_accessible": scraped_data.get("success", False),
-            "business_name_found": bool(scraped_data.get("business_name")),
-            "rating_available": scraped_data.get("rating") is not None,
-            "review_count_available": scraped_data.get("review_count") is not None,
-            "categories_found": len(scraped_data.get("categories", [])) > 0,
-            "scraped_data": {
-                "business_name": scraped_data.get("business_name"),
-                "rating": scraped_data.get("rating"),
-                "review_count": scraped_data.get("review_count"),
-                "categories": scraped_data.get("categories", [])
-            },
-            "error": scraped_data.get("error") if not scraped_data.get("success") else None
-        }
-        
-        logger.info(f"✅ Quick check completed: Profile accessible: {quick_result['profile_accessible']}")
-        
-        return quick_result
-        
-    except Exception as e:
-        logger.error(f"❌ Quick Google Profile check failed: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Quick profile check failed: {str(e)}"
-        )
+        if not restaurant_name or not google_business_url:
+            raise HTTPException(status_code=400, detail="Restaurant name and Google Business URL are required")
 
-@router.get("/test-scraper")
-async def test_google_scraper() -> Dict[str, Any]:
-    """
-    Test endpoint to verify Google Business scraper functionality
-    Uses a known Google Business Profile URL for testing
-    """
-    try:
-        logger.info("🧪 Testing Google Business scraper")
-        
-        # Use a known restaurant for testing
-        test_url = "https://www.google.com/maps/place/Joe's+Pizza/@40.7505,-73.9934,17z"
-        test_name = "Joe's Pizza"
-        
-        from ..services.google_business_scraper import google_business_scraper
-        
-        scraped_data = await google_business_scraper.scrape_basic_info(test_url)
-        
-        test_result = {
-            "scraper_working": scraped_data.get("success", False),
-            "test_url": test_url,
-            "test_restaurant": test_name,
-            "scraped_data": scraped_data,
-            "timestamp": "2025-09-11T04:45:00Z"
-        }
-        
-        logger.info(f"✅ Scraper test completed: Working: {test_result['scraper_working']}")
-        
-        return test_result
-        
-    except Exception as e:
-        logger.error(f"❌ Scraper test failed: {str(e)}")
-        return {
-            "scraper_working": False,
-            "error": str(e),
-            "timestamp": "2025-09-11T04:45:00Z"
-        }
+        if mode == "openai":
+            # First scrape the actual Google Business data, then send to OpenAI for analysis
+            from ..services.google_business_scraper import google_business_scraper
+            from ..services.openai_grader_service import openai_grader_service
+            
+            # Step 1: Get real data from Google Business Profile
+            logger.info(f"🔍 Scraping real data from Google Business Profile: {google_business_url}")
+            scraped_data = await google_business_scraper.scrape_basic_info(google_business_url)
+            
+            if not scraped_data.get("success"):
+                logger.warning(f"⚠️ Scraping failed: {scraped_data.get('error', 'Unknown error')}")
+                # Fallback to classic mode if scraping fails
+                analysis_result = await ai_grader_service._analyze_google_business_with_scraping(restaurant_name, google_business_url)
+            else:
+                # Step 2: Send scraped real data to OpenAI for intelligent analysis
+                real_business_data = scraped_data.get("scraped_data", {})
+                scraped_name = real_business_data.get('business_name')
+                
+                if scraped_name:
+                    logger.info(f"✅ Successfully scraped business name from profile: '{scraped_name}'")
+                else:
+                    logger.warning(f"⚠️ Failed to scrape business name, falling back to provided name: '{restaurant_name}'")
+                
+                # Create enhanced prompt with real data
+                enhanced_prompt = f"""
+Analyze this REAL restaurant data that I've already scraped from their Google Business Profile.
 
-@router.get("/scoring-criteria")
-async def get_scoring_criteria() -> Dict[str, Any]:
-    """
-    Get detailed information about Google Profile scoring criteria
-    Useful for understanding how scores are calculated
-    """
-    return {
-        "scoring_breakdown": {
-            "business_name": {
-                "max_points": 25,
-                "weight": "30%",
-                "criteria": [
-                    "Business name clearly displayed (15 pts)",
-                    "Name consistency with provided info (10 pts)"
-                ]
-            },
-            "reviews_ratings": {
-                "max_points": 40,
-                "weight": "25%", 
-                "criteria": [
-                    "Customer rating (0-25 pts based on rating value)",
-                    "Review count (0-15 pts based on number of reviews)"
-                ]
-            },
-            "categories": {
-                "max_points": 20,
-                "weight": "20%",
-                "criteria": [
-                    "Business categories present (15 pts)",
-                    "Food service categories identified (5 pts bonus)"
-                ]
-            },
-            "accessibility": {
-                "max_points": 15,
-                "weight": "15%",
-                "criteria": [
-                    "Profile publicly accessible (15 pts)"
-                ]
-            },
-            "verification": {
-                "max_points": 20,
-                "weight": "10%",
-                "criteria": [
-                    "Profile appears complete (10 pts)",
-                    "Likely verified status (10 pts)"
-                ]
-            }
-        },
-        "grade_scale": {
-            "A": "90-100 points (Excellent - Low Priority)",
-            "B": "80-89 points (Good - Low Priority)",
-            "C": "70-79 points (Average - Medium Priority)",
-            "D": "60-69 points (Below Average - High Priority)",
-            "F": "0-59 points (Needs Improvement - High Priority)"
-        },
-        "total_possible_points": 120,
-        "score_capped_at": 100
-    }
+Restaurant Name: {real_business_data.get('business_name', restaurant_name)}
+Rating: {real_business_data.get('rating', 'Not available')}/5 stars
+Review Count: {real_business_data.get('review_count', 'Not available')} reviews
+Categories: {', '.join(real_business_data.get('categories', []))}
+Website: {real_business_data.get('website', 'Not available')}
+Phone: {real_business_data.get('phone', 'Not available')}
+Address: {real_business_data.get('address', 'Not available')}
+
+Based on this REAL data (not dummy data), provide a comprehensive digital presence analysis following the format specified in your system prompt. Focus on the actual performance metrics and real data provided above.
+"""
+                
+                restaurant_data = {
+                    "name": real_business_data.get('business_name', restaurant_name),
+                    "google_business_url": google_business_url,
+                    "real_data": real_business_data,
+                    "enhanced_prompt": enhanced_prompt
+                }
+                analysis_result = await openai_grader_service.analyze_digital_presence(restaurant_data)
+            
+            # Transform the result to match the expected format
+            if analysis_result.get("success"):
+                openai_data = analysis_result.get("data", {})
+                
+                # Transform OpenAI result to match expected frontend format
+                def extract_grade_info(openai_data):
+                    # Try to find overall grade from multiple possible locations
+                    overall_grade = openai_data.get("overall_grade", {})
+                    if isinstance(overall_grade, dict) and overall_grade.get("grade"):
+                        grade = overall_grade.get("grade", "C")
+                    else:
+                        # If no overall grade, calculate from individual grades
+                        grades_section = openai_data.get("Grades", openai_data.get("grades", {}))
+                        if grades_section:
+                            # Take the first grade as representative, or calculate average
+                            first_grade = list(grades_section.values())[0]
+                            if isinstance(first_grade, str):
+                                grade = first_grade
+                            else:
+                                grade = "C"  # Default fallback
+                        else:
+                            grade = "C"  # Default fallback
+                    
+                    # Convert letter grade to numeric score
+                    grade_letter = grade.replace("+", "").replace("-", "")[0] if grade else "C"
+                    score_map = {"A": 95, "B": 85, "C": 75, "D": 65, "F": 55}
+                    score = score_map.get(grade_letter, 75)
+                    
+                    # Add modifiers for + and -
+                    if "+" in grade:
+                        score += 3
+                    elif "-" in grade:
+                        score -= 3
+                        
+                    return min(max(score, 0), 100), grade
+                
+                score, grade = extract_grade_info(openai_data)
+                
+                # Handle different possible response structures from OpenAI
+                # First try the expected structure, then fall back to variations
+                
+                # Extract issues from grades section (handle actual OpenAI structure)
+                issues = []
+                recommendations = []
+                grades_section = openai_data.get("grades", openai_data.get("Grades", {}))
+                
+                for category, grade_value in grades_section.items():
+                    # OpenAI returns grades as simple strings like "C" or "B+"
+                    if isinstance(grade_value, str):
+                        # Consider C, D, F grades as issues
+                        if grade_value[0] in ["C", "D", "F"]:
+                            issues.append(f"{category}: Grade {grade_value} - needs improvement")
+                    elif isinstance(grade_value, dict):
+                        # Handle if it's the expected object structure
+                        notes = grade_value.get("notes", grade_value.get("Notes", ""))
+                        grade = grade_value.get("grade", grade_value.get("Grade", ""))
+                        if notes and any(word in notes.lower() for word in ["needs", "missing", "low", "poor", "lacks"]):
+                            issues.append(f"{category.replace('_', ' ').title()}: {notes}")
+                        elif grade and grade[0] in ["C", "D", "F"]:
+                            issues.append(f"{category}: Grade {grade} - needs improvement")
+                
+                # Extract recommendations - handle the actual structure from OpenAI
+                recommendations_section = openai_data.get("Recommendations", openai_data.get("recommendations", {}))
+                
+                if isinstance(recommendations_section, dict):
+                    # Handle structure: {"Quick Wins": [...], "Longer-Term Plays": [...]}
+                    quick_wins = recommendations_section.get("Quick Wins", recommendations_section.get("quick_wins", []))
+                    longer_term = recommendations_section.get("Longer-Term Plays", recommendations_section.get("longer_term_plays", []))
+                    
+                    # Add all quick wins
+                    for item in quick_wins:
+                        if isinstance(item, str) and item.strip():
+                            recommendations.append(f"Quick Win: {item}")
+                        elif isinstance(item, dict):
+                            rec = item.get("recommendation", str(item))
+                            if rec:
+                                recommendations.append(f"Quick Win: {rec}")
+                    
+                    # Add all longer term recommendations
+                    for item in longer_term:
+                        if isinstance(item, str) and item.strip():
+                            recommendations.append(f"Long-term: {item}")
+                        elif isinstance(item, dict):
+                            rec = item.get("recommendation", str(item))
+                            if rec:
+                                recommendations.append(f"Long-term: {rec}")
+                
+                elif isinstance(recommendations_section, list):
+                    # Handle if recommendations is just a flat list
+                    for item in recommendations_section:
+                        if isinstance(item, str) and item.strip():
+                            recommendations.append(item)
+                        elif isinstance(item, dict):
+                            rec = item.get("recommendation", str(item))
+                            if rec:
+                                recommendations.append(rec)
+                
+                # Extract strengths from snapshot or grades (try both cases)
+                strengths = []
+                snapshot = openai_data.get("snapshot", openai_data.get("Snapshot", {}))
+                if snapshot:
+                    for key, value in snapshot.items():
+                        if value and value != "null" and value != "N/A":
+                            if isinstance(value, str) and len(value) > 0:
+                                strengths.append(f"Has {key.replace('_', ' ').lower()}")
+                
+                # If no strengths found from snapshot, try to extract from grades
+                if not strengths:
+                    for category, grade_info in grades_section.items():
+                        if isinstance(grade_info, dict):
+                            grade = grade_info.get("grade", grade_info.get("Grade", ""))
+                            if grade and grade[0] in ["A", "B"]:
+                                strengths.append(f"Good {category.replace('_', ' ').lower()}")
+                
+                logger.info(f"Extracted from OpenAI: {len(issues)} issues, {len(recommendations)} recommendations, {len(strengths)} strengths")
+                
+                analysis_result = {
+                    "overall_score": score,
+                    "grade": grade,
+                    "priority": "HIGH" if grade[0] in ["D", "F"] else ("MEDIUM" if grade[0] == "C" else "LOW"),
+                    "issues": [issue for issue in issues if issue],
+                    "recommendations": [rec for rec in recommendations if rec],
+                    "strengths": strengths[:3],  # Limit to top 3 strengths
+                    "analysis_method": "openai_enhanced",
+                    "grader_version": "2.0-openai",
+                    "openai_analysis": openai_data  # Include full OpenAI response
+                }
+            else:
+                # Fallback to classic mode if OpenAI fails
+                analysis_result = await ai_grader_service._analyze_google_business_with_scraping(restaurant_name, google_business_url)
+        else:
+            analysis_result = await ai_grader_service._analyze_google_business_with_scraping(restaurant_name, google_business_url)
+
+        return analysis_result
+
+    except Exception as e:
+        logger.error(f"Google Profile grading error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Grading failed: {str(e)}")

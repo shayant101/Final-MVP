@@ -3,12 +3,14 @@ AI Digital Presence Grader Service
 Analyzes restaurant's digital presence and provides actionable recommendations
 """
 import asyncio
+import json
 import logging
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 from .openai_service import openai_service
 from .web_scraper_service import web_scraper_service
 from .google_business_scraper import google_business_scraper
+from .openai_grader_service import openai_grader_service
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +18,15 @@ class AIGraderService:
     def __init__(self):
         self.openai_service = openai_service
         
-    async def analyze_digital_presence(self, restaurant_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def analyze_digital_presence(self, restaurant_data: Dict[str, Any], mode: str = "classic") -> Dict[str, Any]:
+        if mode == "openai":
+            logger.info("Routing to OpenAI Digital Presence Grader")
+            return await openai_grader_service.analyze_digital_presence(restaurant_data)
+        else:
+            logger.info("Using Classic Digital Presence Grader")
+            return await self.classic_analyze_digital_presence(restaurant_data)
+
+    async def classic_analyze_digital_presence(self, restaurant_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Analyze restaurant's digital presence and generate comprehensive grade using real web scraping
         """
@@ -282,7 +292,9 @@ class AIGraderService:
                 'goo.gl/maps',
                 'business.google.com',
                 'g.co/kgs',  # Google's official URL shortener for business profiles
-                'g.co'       # Google's URL shortener domain
+                'g.co',       # Google's URL shortener domain
+                'share.google.com',
+                'share.google'  # Newer Google sharing format
             ]
             
             is_valid_google_url = any(pattern in google_business_url.lower() for pattern in valid_google_patterns)
@@ -361,7 +373,9 @@ class AIGraderService:
                 'goo.gl/maps',
                 'business.google.com',
                 'g.co/kgs',
-                'g.co'
+                'g.co',
+                'share.google.com',
+                'share.google'  # Newer Google sharing format
             ]
             
             is_valid_google_url = any(pattern in google_business_url.lower() for pattern in valid_google_patterns)
@@ -506,6 +520,70 @@ class AIGraderService:
         except Exception as e:
             logger.error(f"Google Business scraping analysis failed: {str(e)}")
             # Fallback to basic analysis
+            return await self._analyze_google_business_basic(restaurant_name, google_business_url)
+
+    async def analyze_google_business_with_openai(self, restaurant_name: str, google_business_url: str) -> Dict[str, Any]:
+        """Analyze Google Business Profile using OpenAI"""
+        try:
+            logger.info(f"🤖 Analyzing Google Business Profile with OpenAI for: {restaurant_name}")
+            
+            # Scrape basic info first to get context
+            scraped_data = await google_business_scraper.scrape_basic_info(google_business_url)
+            
+            if not scraped_data.get("success"):
+                logger.warning(f"⚠️ Scraping failed for OpenAI analysis, falling back to basic analysis.")
+                return await self._analyze_google_business_basic(restaurant_name, google_business_url)
+
+            # Create a detailed prompt for OpenAI
+            prompt = f"""
+            Analyze the Google Business Profile for the restaurant '{restaurant_name}'.
+            
+            Scraped Data:
+            - Business Name: {scraped_data.get('business_name', 'N/A')}
+            - Rating: {scraped_data.get('rating', 'N/A')} stars
+            - Review Count: {scraped_data.get('review_count', 'N/A')}
+            - Categories: {', '.join(scraped_data.get('categories', []))}
+            
+            Based on this data and your expertise, provide a detailed analysis covering:
+            1.  **Overall Score**: A score from 0-100.
+            2.  **Grade**: A letter grade from A-F.
+            3.  **Strengths**: 2-3 key strengths.
+            4.  **Issues**: 3-4 major issues or areas for improvement.
+            5.  **Recommendations**: A prioritized list of 5 actionable recommendations.
+            
+            Format the output as a JSON object with the following keys:
+            "overall_score", "grade", "strengths", "issues", "recommendations"
+            """
+            
+            messages = [{"role": "system", "content": "You are a Google Business Profile optimization expert for restaurants."},
+                        {"role": "user", "content": prompt}]
+            
+            openai_response_str = await self.openai_service._make_openai_request(messages)
+            
+            try:
+                # Clean the response string by removing markdown formatting
+                if openai_response_str.startswith("```json"):
+                    openai_response_str = openai_response_str[7:-3].strip()
+                
+                openai_response = json.loads(openai_response_str)
+            except json.JSONDecodeError:
+                logger.error("Failed to parse OpenAI response as JSON.")
+                return await self._analyze_google_business_basic(restaurant_name, google_business_url)
+
+            return {
+                "overall_score": openai_response.get("overall_score", 0),
+                "grade": openai_response.get("grade", "N/A"),
+                "priority": "HIGH" if openai_response.get("overall_score", 100) < 70 else "MEDIUM",
+                "strengths": openai_response.get("strengths", []),
+                "issues": openai_response.get("issues", []),
+                "recommendations": openai_response.get("recommendations", []),
+                "scraped_data": scraped_data,
+                "analysis_method": "openai_enhanced",
+                "grader_version": "2.0-openai"
+            }
+
+        except Exception as e:
+            logger.error(f"Google Business OpenAI analysis failed: {str(e)}")
             return await self._analyze_google_business_basic(restaurant_name, google_business_url)
     
     async def _analyze_website_with_real_data(self, restaurant_name: str, website_url: str, scraped_website_data: Optional[Dict]) -> Dict[str, Any]:

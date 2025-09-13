@@ -23,6 +23,7 @@ router = APIRouter(prefix="/api/ai", tags=["AI Features"])
 @router.post("/digital-presence/analyze")
 async def analyze_digital_presence(
     restaurant_data: Dict[str, Any],
+    mode: str = "classic",
     current_user = Depends(get_current_user)
 ):
     """
@@ -36,7 +37,7 @@ async def analyze_digital_presence(
         restaurant_data['analysis_timestamp'] = datetime.now().isoformat()
         
         # Perform digital presence analysis
-        analysis_result = await ai_grader_service.analyze_digital_presence(restaurant_data)
+        analysis_result = await ai_grader_service.analyze_digital_presence(restaurant_data, mode)
         
         if not analysis_result.get('success'):
             raise HTTPException(status_code=500, detail="Digital presence analysis failed")

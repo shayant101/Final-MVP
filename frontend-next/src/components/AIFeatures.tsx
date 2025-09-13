@@ -16,6 +16,7 @@ const AIFeatures = () => {
   const [activeFeature, setActiveFeature] = useState('grader');
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [graderMode, setGraderMode] = useState('classic'); // Add state for grader mode
   const [showScoreBreakdown, setShowScoreBreakdown] = useState(false);
   const [restaurantData, setRestaurantData] = useState({
     name: 'Demo Restaurant',
@@ -126,7 +127,10 @@ const AIFeatures = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(restaurantData)
+        body: JSON.stringify({
+          ...restaurantData,
+          mode: graderMode,
+        })
       });
 
       if (response.ok) {
@@ -299,6 +303,17 @@ const AIFeatures = () => {
               />
             </div>
           </div>
+
+          <div className="info-item">
+              <label>Grader Mode:</label>
+              <select
+                value={graderMode}
+                onChange={(e) => setGraderMode(e.target.value)}
+              >
+                <option value="classic">Classic</option>
+                <option value="openai">OpenAI</option>
+              </select>
+            </div>
 
           <button
             className={`analyze-button ${loading ? 'loading' : ''}`}

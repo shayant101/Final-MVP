@@ -67,7 +67,7 @@ class GoogleBusinessScraper:
                 business_name = self._extract_business_name(soup, html_content, final_url)
                 if business_name:
                     result["business_name"] = business_name
-                    logger.info(f"✅ Found business name: {business_name}")
+                    logger.info(f"✅ Extracted business name from HTML: '{business_name}'")
                 
                 # Extract rating and review count
                 rating_info = self._extract_rating_info(soup, html_content)
@@ -82,13 +82,42 @@ class GoogleBusinessScraper:
                     result["categories"] = categories
                     logger.info(f"✅ Found categories: {categories}")
                 
+                # Extract additional data for better analysis
+                phone = self._extract_phone(soup, html_content)
+                if phone:
+                    result["phone"] = phone
+                    logger.info(f"✅ Found phone: {phone}")
+                
+                address = self._extract_address(soup, html_content)
+                if address:
+                    result["address"] = address
+                    logger.info(f"✅ Found address: {address}")
+                
+                website = self._extract_website(soup, html_content)
+                if website:
+                    result["website"] = website
+                    logger.info(f"✅ Found website: {website}")
+                
+                hours = self._extract_hours(soup, html_content)
+                if hours:
+                    result["hours"] = hours
+                    logger.info(f"✅ Found hours: {hours}")
+                
                 # Mark as successful if we got at least one piece of data
-                if business_name or rating_info or categories:
+                if business_name or rating_info or categories or phone or address or website:
                     result["success"] = True
                     result["scraped_data"] = {
+                        "business_name": business_name,
+                        "rating": result.get("rating"),
+                        "review_count": result.get("review_count"),
+                        "categories": result.get("categories", []),
+                        "phone": phone,
+                        "address": address,
+                        "website": website,
+                        "hours": hours,
                         "final_url": final_url,
                         "page_title": soup.title.string if soup.title else None,
-                        "extraction_method": "html_parsing"
+                        "extraction_method": "enhanced_html_parsing"
                     }
                 else:
                     result["error"] = "Could not extract any business information from the page"
@@ -130,6 +159,7 @@ class GoogleBusinessScraper:
                             
                             # Skip if it's not a business name (too short, contains weird chars)
                             if len(name) > 2 and not name.lower().startswith('google') and not re.match(r'^[=\(\){}]+', name):
+                                logger.info(f"🔍 Method 1 (URL parameter): Found name '{name}' from {pattern}")
                                 return name
                         except:
                             pass
@@ -148,6 +178,7 @@ class GoogleBusinessScraper:
                 for element in elements:
                     name = element.get_text().strip()
                     if name and len(name) > 2 and not name.lower().startswith('google'):
+                        logger.info(f"🔍 Method 2 (Knowledge panel): Found name '{name}' from selector {selector}")
                         return name
             
             # Method 2: Look for h1/h2/h3 tags with business name
@@ -158,6 +189,7 @@ class GoogleBusinessScraper:
                     # Skip common Google page elements and JavaScript code
                     skip_patterns = ['google', 'search', 'maps', 'images', 'videos', 'function', 'var ', '(', ')', '{', '}', '=', ';']
                     if not any(skip in text.lower() for skip in skip_patterns):
+                        logger.info(f"🔍 Method 2 (Heading tag): Found name '{text}' from {heading.name} tag")
                         return text
             
             # Method 3: Look in page title for business name
@@ -168,10 +200,12 @@ class GoogleBusinessScraper:
                     if ' - Google Search' in title:
                         name = title.replace(' - Google Search', '').strip()
                         if len(name) > 2:
+                            logger.info(f"🔍 Method 3 (Page title): Found name '{name}' from Google Search title")
                             return name
                     elif ' - Google Maps' in title:
                         name = title.replace(' - Google Maps', '').strip()
                         if len(name) > 2:
+                            logger.info(f"🔍 Method 3 (Page title): Found name '{name}' from Google Maps title")
                             return name
             
             # Method 4: Look for data attributes or JSON-LD
@@ -418,6 +452,152 @@ class GoogleBusinessScraper:
         except Exception as e:
             logger.error(f"Error extracting categories: {str(e)}")
             return []
+    
+    def _extract_phone(self, soup: BeautifulSoup, html_content: str) -> Optional[str]:
+        """Extract phone number from various possible locations"""
+        try:
+            # Method 1: Look for phone patterns in HTML content
+            phone_patterns = [
+                r'"telephone":"([^"]+)"',
+                r'"phoneNumber":"([^"]+)"',
+                r'tel:([+\d\s\-\(\)]{10,})',
+                r'phone["\s:]+([+\d\s\-\(\)]{10,})',
+                r'\b(\+?1?[\s\-\.]?\(?[2-9]\d{2}\)?[\s\-\.]?\d{3}[\s\-\.]?\d{4})\b'
+            ]
+            
+            for pattern in phone_patterns:
+                match = re.search(pattern, html_content, re.IGNORECASE)
+                if match:
+                    phone = match.group(1).strip()
+                    # Clean up phone number
+                    phone = re.sub(r'[^\d\+\-\(\)\s]', '', phone)
+                    if len(phone) >= 10:
+                        return phone
+            
+            # Method 2: Look for phone in structured data
+            phone_selectors = [
+                '[data-attrid="kc:/collection/knowledge_panels/local_business/contact:phone"]',
+                '[data-dtype="d3ph"]',
+                'a[href^="tel:"]'
+            ]
+            
+            for selector in phone_selectors:
+                elements = soup.select(selector)
+                for element in elements:
+                    phone = element.get_text().strip() or element.get('href', '').replace('tel:', '')
+                    if phone and len(phone) >= 10:
+                        return phone
+            
+            return None
+        except Exception as e:
+            logger.error(f"Error extracting phone: {str(e)}")
+            return None
+    
+    def _extract_address(self, soup: BeautifulSoup, html_content: str) -> Optional[str]:
+        """Extract address from various possible locations"""
+        try:
+            # Method 1: Look for address patterns in HTML content
+            address_patterns = [
+                r'"address":"([^"]+)"',
+                r'"streetAddress":"([^"]+)"',
+                r'address["\s:]+([^",\n]{20,})'
+            ]
+            
+            for pattern in address_patterns:
+                match = re.search(pattern, html_content, re.IGNORECASE)
+                if match:
+                    address = match.group(1).strip()
+                    if len(address) > 10:
+                        return address
+            
+            # Method 2: Look for address in structured data
+            address_selectors = [
+                '[data-attrid="kc:/collection/knowledge_panels/local_business/contact:address"]',
+                '[data-dtype="d3adr"]',
+                '.LrzXr'  # Google Maps address class
+            ]
+            
+            for selector in address_selectors:
+                elements = soup.select(selector)
+                for element in elements:
+                    address = element.get_text().strip()
+                    if address and len(address) > 10:
+                        return address
+            
+            return None
+        except Exception as e:
+            logger.error(f"Error extracting address: {str(e)}")
+            return None
+    
+    def _extract_website(self, soup: BeautifulSoup, html_content: str) -> Optional[str]:
+        """Extract website URL from various possible locations"""
+        try:
+            # Method 1: Look for website patterns in HTML content
+            website_patterns = [
+                r'"url":"(https?://[^"]+)"',
+                r'"website":"(https?://[^"]+)"',
+                r'website["\s:]+.*(https?://[^",\s\n]+)'
+            ]
+            
+            for pattern in website_patterns:
+                match = re.search(pattern, html_content, re.IGNORECASE)
+                if match:
+                    website = match.group(1).strip()
+                    if website.startswith('http') and 'google' not in website:
+                        return website
+            
+            # Method 2: Look for website links in structured data
+            website_selectors = [
+                'a[data-attrid="visit_website"]',
+                'a[href^="http"]:not([href*="google"]):not([href*="facebook"]):not([href*="instagram"])'
+            ]
+            
+            for selector in website_selectors:
+                elements = soup.select(selector)
+                for element in elements:
+                    website = element.get('href', '').strip()
+                    if website.startswith('http') and 'google' not in website:
+                        return website
+            
+            return None
+        except Exception as e:
+            logger.error(f"Error extracting website: {str(e)}")
+            return None
+    
+    def _extract_hours(self, soup: BeautifulSoup, html_content: str) -> Optional[str]:
+        """Extract operating hours from various possible locations"""
+        try:
+            # Method 1: Look for hours patterns in HTML content
+            hours_patterns = [
+                r'"openingHours":"([^"]+)"',
+                r'"hours":"([^"]+)"',
+                r'hours["\s:]+([^",\n]{10,})'
+            ]
+            
+            for pattern in hours_patterns:
+                match = re.search(pattern, html_content, re.IGNORECASE)
+                if match:
+                    hours = match.group(1).strip()
+                    if len(hours) > 5:
+                        return hours
+            
+            # Method 2: Look for hours in structured data
+            hours_selectors = [
+                '[data-attrid*="hours"]',
+                '.t39EBf'  # Google Maps hours class
+            ]
+            
+            for selector in hours_selectors:
+                elements = soup.select(selector)
+                for element in elements:
+                    hours = element.get_text().strip()
+                    if hours and len(hours) > 5:
+                        return hours
+            
+            return None
+        except Exception as e:
+            logger.error(f"Error extracting hours: {str(e)}")
+            return None
 
 # Create service instance
 google_business_scraper = GoogleBusinessScraper()

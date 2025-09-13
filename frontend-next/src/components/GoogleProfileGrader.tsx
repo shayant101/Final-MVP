@@ -41,6 +41,7 @@ interface GoogleProfileResult {
   scraped_data?: ScrapedData;
   analysis_method: string;
   grader_version: string;
+  openai_analysis?: any; // Raw OpenAI response data
 }
 
 interface GoogleProfileGraderProps {
@@ -62,6 +63,7 @@ const GoogleProfileGrader: React.FC<GoogleProfileGraderProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [graderMode, setGraderMode] = useState('classic');
 
   useEffect(() => {
     setFormData({
@@ -82,7 +84,7 @@ const GoogleProfileGrader: React.FC<GoogleProfileGraderProps> = ({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({ ...formData, mode: graderMode })
       });
 
       if (!response.ok) {
@@ -184,9 +186,21 @@ const GoogleProfileGrader: React.FC<GoogleProfileGraderProps> = ({
             Copy the URL from your Google Maps business listing
           </small>
         </div>
+        
+        <div className="form-group">
+          <label htmlFor="grader_mode">Grader Mode</label>
+          <select
+            id="grader_mode"
+            value={graderMode}
+            onChange={(e) => setGraderMode(e.target.value)}
+          >
+            <option value="classic">Classic</option>
+            <option value="openai">OpenAI</option>
+          </select>
+        </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="grade-button"
           disabled={loading}
         >
@@ -366,6 +380,46 @@ const GoogleProfileGrader: React.FC<GoogleProfileGraderProps> = ({
                     max={result.score_breakdown.verification.max}
                     weight={result.score_breakdown.verification.weight}
                   />
+                </div>
+              )}
+            </div>
+          )}
+
+          {result.analysis_method === 'openai_enhanced' && result.openai_analysis && (
+            <div className="raw-output-section">
+              <div className="raw-output-header">
+                <h4>
+                  <ExternalLink className="icon" />
+                  Raw OpenAI Analysis
+                </h4>
+                <button 
+                  className="toggle-details"
+                  onClick={() => setShowDetails(!showDetails)}
+                >
+                  {showDetails ? 'Hide Raw Output' : 'Show Raw Output'}
+                </button>
+              </div>
+              
+              {showDetails && (
+                <div className="raw-output-content">
+                  <textarea
+                    className="raw-output-textarea"
+                    value={JSON.stringify(result.openai_analysis, null, 2)}
+                    readOnly
+                    rows={20}
+                    placeholder="Raw OpenAI analysis data will appear here..."
+                  />
+                  <div className="raw-output-actions">
+                    <button
+                      className="copy-button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(JSON.stringify(result.openai_analysis, null, 2));
+                        // You could add a toast notification here
+                      }}
+                    >
+                      Copy to Clipboard
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

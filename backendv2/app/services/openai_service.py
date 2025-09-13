@@ -2,10 +2,9 @@
 OpenAI API service for generating restaurant marketing content
 """
 import os
-import asyncio
 import logging
 from datetime import datetime
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from dotenv import load_dotenv
 
 # Try to import OpenAI, fall back gracefully if not available
@@ -61,6 +60,10 @@ class OpenAIService:
         except Exception as e:
             logger.error(f"OpenAI API request failed: {str(e)} - AI website generator will use fallback")
             raise Exception(f"OpenAI service unavailable: {str(e)}")
+
+    async def chat_completion(self, messages: List[Dict[str, str]], model: str = "gpt-3.5-turbo", max_tokens: int = 500, temperature: float = 0.7) -> str:
+        """Wrapper for chat completion that matches the interface expected by openai_grader_service"""
+        return await self._make_openai_request(messages, model, max_tokens, temperature)
 
     async def generate_ad_copy(self, restaurant_name: str, item_to_promote: str, offer: str, target_audience: str = "local food lovers") -> Dict[str, Any]:
         """Generate Facebook ad copy using OpenAI"""
